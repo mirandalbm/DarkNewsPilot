@@ -14,6 +14,7 @@ import ApiSettings from "@/pages/api-settings";
 import NotFound from "@/pages/not-found";
 import ThumbnailGenerator from "@/pages/thumbnails";
 import SEOOptimization from "@/pages/seo";
+import HashtagGenerator from "@/pages/hashtags";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -39,7 +40,7 @@ function Router() {
           {/* Ferramentas de Conteúdo */}
           <Route path="/thumbnails" component={ThumbnailGenerator} />
           <Route path="/seo" component={SEOOptimization} />
-          <Route path="/hashtags" component={() => <div className="p-8"><h1>Gerador de Hashtags - Em desenvolvimento</h1></div>} />
+          <Route path="/hashtags" component={HashtagGenerator} />
           {/* Analytics Avançado */}
           <Route path="/youtube-analytics" component={() => <div className="p-8"><h1>YouTube Analytics - Em desenvolvimento</h1></div>} />
           <Route path="/trends" component={() => <div className="p-8"><h1>Análise de Tendências - Em desenvolvimento</h1></div>} />
