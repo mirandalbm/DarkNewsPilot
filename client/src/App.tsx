@@ -19,6 +19,7 @@ import YouTubeAnalytics from "@/pages/youtube-analytics";
 import TrendsAnalysis from "@/pages/trends";
 import RevenueAnalysis from "@/pages/revenue";
 import ABTesting from "@/pages/ab-testing";
+import AutomationPipelines from "@/pages/automation";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -51,7 +52,7 @@ function Router() {
           <Route path="/revenue" component={RevenueAnalysis} />
           <Route path="/ab-testing" component={ABTesting} />
           {/* Automação & IA */}
-          <Route path="/automation" component={() => <div className="p-8"><h1>Pipelines Automáticos - Em desenvolvimento</h1></div>} />
+          <Route path="/automation" component={AutomationPipelines} />
           <Route path="/ai-models" component={() => <div className="p-8"><h1>Modelos de IA Custom - Em desenvolvimento</h1></div>} />
           <Route path="/voice-cloning" component={() => <div className="p-8"><h1>Clonagem de Voz - Em desenvolvimento</h1></div>} />
           <Route path="/predictions" component={() => <div className="p-8"><h1>Previsões - Em desenvolvimento</h1></div>} />
