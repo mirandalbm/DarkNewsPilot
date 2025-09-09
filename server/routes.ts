@@ -6,6 +6,9 @@ import { newsService } from "./services/newsService";
 import { videoService } from "./services/videoService";
 import { youtubeService } from "./services/youtubeService";
 import { cryptoService } from "./services/cryptoService";
+import { openaiService } from "./services/openaiService";
+import { elevenlabsService } from "./services/elevenlabsService";
+import { heygenService } from "./services/heygenService";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
 
@@ -401,23 +404,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         switch (serviceId) {
           case 'openai':
-            testResult = !!decryptedConfig.api_key && decryptedConfig.api_key.startsWith('sk-');
+            testResult = await openaiService.testConnection(userId);
             break;
           case 'elevenlabs':
-            testResult = !!decryptedConfig.api_key && decryptedConfig.api_key.length > 20;
+            testResult = await elevenlabsService.testConnection(userId);
             break;
           case 'heygen':
-            testResult = !!decryptedConfig.api_key;
+            testResult = await heygenService.testConnection(userId);
             break;
           case 'youtube':
             testResult = !!decryptedConfig.client_id && !!decryptedConfig.client_secret;
             break;
           case 'newsapi':
           case 'newsdata':
-            testResult = !!decryptedConfig.api_key && decryptedConfig.api_key.length > 10;
+            // Test news API endpoints
+            try {
+              const testUrl = serviceId === 'newsapi' 
+                ? `https://newsapi.org/v2/top-headlines?country=us&apiKey=${decryptedConfig.api_key}`
+                : `https://newsdata.io/api/1/news?apikey=${decryptedConfig.api_key}&country=us`;
+              const testResponse = await fetch(testUrl);
+              testResult = testResponse.ok;
+            } catch (error) {
+              testResult = false;
+            }
             break;
           default:
-            testResult = true; // Social media APIs
+            testResult = true; // Social media APIs - basic key validation
         }
         
         const status = testResult ? 'active' : 'error';
