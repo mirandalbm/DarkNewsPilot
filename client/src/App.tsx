@@ -12,6 +12,14 @@ import VideoProduction from "@/pages/video-production";
 import Analytics from "@/pages/analytics";
 import ApiSettings from "@/pages/api-settings";
 import NotFound from "@/pages/not-found";
+// Configurações
+import ConfiguracaoIndex from "@/pages/configuracoes";
+import Integracoes from "@/pages/configuracoes/integracoes";
+import Painel from "@/pages/configuracoes/painel";
+import Saldos from "@/pages/configuracoes/saldos";
+import Assinaturas from "@/pages/configuracoes/assinaturas";
+import Usuarios from "@/pages/configuracoes/usuarios";
+import Canais from "@/pages/configuracoes/canais";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -55,6 +63,14 @@ function Router() {
           <Route path="/fact-checking" component={() => <div className="p-8"><h1>Fact-Checking - Em desenvolvimento</h1></div>} />
           <Route path="/copyright" component={() => <div className="p-8"><h1>Proteção de Copyright - Em desenvolvimento</h1></div>} />
           <Route path="/audit" component={() => <div className="p-8"><h1>Sistema de Auditoria - Em desenvolvimento</h1></div>} />
+          {/* Configurações */}
+          <Route path="/configuracoes" component={ConfiguracaoIndex} />
+          <Route path="/configuracoes/integracoes" component={Integracoes} />
+          <Route path="/configuracoes/painel" component={Painel} />
+          <Route path="/configuracoes/saldos" component={Saldos} />
+          <Route path="/configuracoes/assinaturas" component={Assinaturas} />
+          <Route path="/configuracoes/usuarios" component={Usuarios} />
+          <Route path="/configuracoes/canais" component={Canais} />
           <Route path="/settings" component={ApiSettings} />
         </>
       )}
