@@ -40,6 +40,13 @@ export interface IStorage {
   getVideosByStatus(status: string): Promise<Video[]>;
   updateVideoStatus(id: string, status: string): Promise<void>;
   updateVideoYoutubeId(id: string, youtubeId: string): Promise<void>;
+  getVideoStats(): Promise<{
+    totalVideos: number;
+    todayVideos: number;
+    processingVideos: number;
+    successRate: number;
+  }>;
+  updateVideoProgress(id: string, progress: number): Promise<void>;
 
   // Channel operations
   getYoutubeChannels(): Promise<YoutubeChannel[]>;
@@ -299,6 +306,59 @@ export class DatabaseStorage implements IStorage {
       .where(sql`${newsArticles.source} IS NOT NULL`);
     
     return sources.map(s => s.source).filter(Boolean);
+  }
+
+  // Video statistics
+  async getVideoStats(): Promise<{
+    totalVideos: number;
+    todayVideos: number;
+    processingVideos: number;
+    successRate: number;
+  }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [totalVideosResult] = await db.select({ count: count() }).from(videos);
+    const [videosTodayResult] = await db
+      .select({ count: count() })
+      .from(videos)
+      .where(sql`${videos.createdAt} >= ${today}`);
+    
+    const [processingVideosResult] = await db
+      .select({ count: count() })
+      .from(videos)
+      .where(sql`${videos.status} IN ('generating', 'processing')`);
+    
+    const [completedVideos] = await db
+      .select({ count: count() })
+      .from(videos)
+      .where(sql`${videos.status} IN ('ready', 'approved', 'published')`);
+    
+    const [failedVideos] = await db
+      .select({ count: count() })
+      .from(videos)
+      .where(eq(videos.status, 'failed'));
+    
+    const total = completedVideos.count + failedVideos.count;
+    const successRate = total > 0 ? Math.round((completedVideos.count / total) * 100) : 100;
+
+    return {
+      totalVideos: totalVideosResult.count,
+      todayVideos: videosTodayResult.count,
+      processingVideos: processingVideosResult.count,
+      successRate
+    };
+  }
+
+  // Update video progress
+  async updateVideoProgress(id: string, progress: number): Promise<void> {
+    await db
+      .update(videos)
+      .set({ 
+        progress,
+        updatedAt: new Date() 
+      })
+      .where(eq(videos.id, id));
   }
 }
 

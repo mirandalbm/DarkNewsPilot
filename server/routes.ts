@@ -133,6 +133,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Video statistics endpoint
+  app.get('/api/videos/stats', isAuthenticated, async (req, res) => {
+    try {
+      const stats = await storage.getVideoStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching video stats:", error);
+      res.status(500).json({ message: "Failed to fetch video stats" });
+    }
+  });
+
+  // Generate single video
+  app.post('/api/videos/generate', isAuthenticated, async (req, res) => {
+    try {
+      const { newsId, language, avatar, customScript } = req.body;
+      const videoId = await videoService.generateVideo(newsId, language, avatar, customScript);
+      res.json({ message: "Video generation started", videoId });
+    } catch (error) {
+      console.error("Error generating video:", error);
+      res.status(500).json({ message: "Failed to start video generation" });
+    }
+  });
+
+  // Batch generate videos
+  app.post('/api/videos/batch-generate', isAuthenticated, async (req, res) => {
+    try {
+      const { newsId, languages, avatar } = req.body;
+      const videoIds = [];
+      
+      for (const language of languages) {
+        const videoId = await videoService.generateVideo(newsId, language, avatar);
+        videoIds.push(videoId);
+      }
+      
+      res.json({ message: "Batch video generation started", videoIds });
+    } catch (error) {
+      console.error("Error batch generating videos:", error);
+      res.status(500).json({ message: "Failed to start batch video generation" });
+    }
+  });
+
+  // Edit video
+  app.put('/api/videos/:id/edit', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { script, voiceover, avatar, customInstruction } = req.body;
+      
+      // Create edit job
+      await storage.createJob({
+        type: 'video_edit',
+        status: 'pending',
+        data: {
+          videoId: id,
+          editOptions: {
+            regenerateScript: script,
+            regenerateVoiceover: voiceover,
+            changeAvatar: avatar,
+            customInstruction
+          }
+        },
+      });
+      
+      // Update video status to processing
+      await storage.updateVideoStatus(id, 'processing');
+      
+      res.json({ message: "Video edit started" });
+    } catch (error) {
+      console.error("Error editing video:", error);
+      res.status(500).json({ message: "Failed to edit video" });
+    }
+  });
+
+  // Download video
+  app.get('/api/videos/:id/download', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      // TODO: Implement video download logic
+      res.json({ message: "Video download endpoint - TODO: implement" });
+    } catch (error) {
+      console.error("Error downloading video:", error);
+      res.status(500).json({ message: "Failed to download video" });
+    }
+  });
+
+  // Avatar thumbnail
+  app.get('/api/avatar/:id/thumbnail', async (req, res) => {
+    try {
+      const { id } = req.params;
+      // TODO: Return actual avatar thumbnail
+      res.json({ message: `Avatar thumbnail for ${id} - TODO: implement` });
+    } catch (error) {
+      console.error("Error fetching avatar thumbnail:", error);
+      res.status(500).json({ message: "Failed to fetch avatar thumbnail" });
+    }
+  });
+
   app.put('/api/videos/:id/approve', isAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;

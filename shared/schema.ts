@@ -41,7 +41,7 @@ export const users = pgTable("users", {
 
 // Enums
 export const newsStatusEnum = pgEnum('news_status', ['discovered', 'processed', 'approved', 'rejected']);
-export const videoStatusEnum = pgEnum('video_status', ['pending', 'generating', 'ready', 'approved', 'published', 'failed']);
+export const videoStatusEnum = pgEnum('video_status', ['pending', 'generating', 'processing', 'ready', 'approved', 'published', 'failed']);
 export const jobStatusEnum = pgEnum('job_status', ['pending', 'processing', 'completed', 'failed']);
 export const languageEnum = pgEnum('language', ['en-US', 'pt-BR', 'es-ES', 'es-MX', 'de-DE', 'fr-FR', 'hi-IN', 'ja-JP']);
 
@@ -68,6 +68,7 @@ export const videos = pgTable("videos", {
   language: languageEnum("language").notNull(),
   avatarTemplate: varchar("avatar_template").notNull(),
   status: videoStatusEnum("status").default('pending'),
+  progress: integer("progress").default(0), // Progress percentage (0-100)
   videoUrl: varchar("video_url"),
   thumbnailUrl: varchar("thumbnail_url"),
   duration: integer("duration"), // in seconds
