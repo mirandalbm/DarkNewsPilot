@@ -73,7 +73,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/news/fetch', isAuthenticated, async (req, res) => {
     try {
-      await newsService.triggerNewsFetch();
+      const { sources, keywords } = req.body;
+      await newsService.triggerNewsFetch(sources, keywords);
       res.json({ message: "News fetch triggered successfully" });
     } catch (error) {
       console.error("Error triggering news fetch:", error);
@@ -90,6 +91,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating news status:", error);
       res.status(500).json({ message: "Failed to update news status" });
+    }
+  });
+
+  // News statistics endpoint
+  app.get('/api/news/stats', isAuthenticated, async (req, res) => {
+    try {
+      const stats = await storage.getNewsStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching news stats:", error);
+      res.status(500).json({ message: "Failed to fetch news stats" });
+    }
+  });
+
+  // News sources endpoint
+  app.get('/api/news/sources', isAuthenticated, async (req, res) => {
+    try {
+      const sources = await storage.getNewsSources();
+      res.json(sources);
+    } catch (error) {
+      console.error("Error fetching news sources:", error);
+      res.status(500).json({ message: "Failed to fetch news sources" });
     }
   });
 

@@ -276,6 +276,30 @@ export class DatabaseStorage implements IStorage {
       successRate,
     };
   }
+
+  // News statistics
+  async getNewsStats(): Promise<any> {
+    const [newsStats] = await db
+      .select({
+        totalNews: count(),
+        todayNews: count(sql`case when DATE(${newsArticles.createdAt}) = DATE(NOW()) then 1 end`),
+        approvedNews: count(sql`case when ${newsArticles.status} = 'approved' then 1 end`),
+        averageScore: sql<number>`CAST(AVG(${newsArticles.viralScore}) AS INTEGER)`,
+      })
+      .from(newsArticles);
+
+    return newsStats;
+  }
+
+  // News sources
+  async getNewsSources(): Promise<string[]> {
+    const sources = await db
+      .selectDistinct({ source: newsArticles.source })
+      .from(newsArticles)
+      .where(sql`${newsArticles.source} IS NOT NULL`);
+    
+    return sources.map(s => s.source).filter(Boolean);
+  }
 }
 
 export const storage = new DatabaseStorage();

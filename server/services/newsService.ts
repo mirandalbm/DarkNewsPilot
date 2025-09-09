@@ -133,11 +133,11 @@ class NewsService {
     return filteredNews.sort((a, b) => b.viralScore - a.viralScore);
   }
 
-  async triggerNewsFetch(): Promise<void> {
+  async triggerNewsFetch(sources?: string[], keywords?: string): Promise<void> {
     await storage.createJob({
       type: 'news_fetch',
       status: 'pending',
-      data: {},
+      data: { sources, keywords },
     });
   }
 }
