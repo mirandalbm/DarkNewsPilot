@@ -71,7 +71,13 @@ function Router() {
           <Route path="/configuracoes/assinaturas" component={Assinaturas} />
           <Route path="/configuracoes/usuarios" component={Usuarios} />
           <Route path="/configuracoes/canais" component={Canais} />
-          <Route path="/settings" component={ApiSettings} />
+          <Route path="/settings" component={ConfiguracaoIndex} />
+          <Route path="/settings/integracoes" component={Integracoes} />
+          <Route path="/settings/painel" component={Painel} />
+          <Route path="/settings/saldos" component={Saldos} />
+          <Route path="/settings/assinaturas" component={Assinaturas} />
+          <Route path="/settings/usuarios" component={Usuarios} />
+          <Route path="/settings/canais" component={Canais} />
         </>
       )}
       <Route component={NotFound} />
