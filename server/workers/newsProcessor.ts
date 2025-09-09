@@ -88,7 +88,8 @@ class NewsProcessor {
       
     } catch (error) {
       console.error(`Error processing news fetch job ${jobId}:`, error);
-      await storage.completeJob(jobId, 'failed', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await storage.completeJob(jobId, 'failed', errorMessage);
     }
   }
 
