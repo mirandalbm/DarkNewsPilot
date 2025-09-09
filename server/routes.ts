@@ -9,6 +9,7 @@ import { cryptoService } from "./services/cryptoService";
 import { openaiService } from "./services/openaiService";
 import { elevenlabsService } from "./services/elevenlabsService";
 import { heygenService } from "./services/heygenService";
+import { automationService } from "./services/automationService";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
 
@@ -679,6 +680,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error generating YouTube auth URL:', error);
       res.status(500).json({ message: 'Failed to generate authorization URL' });
+    }
+  });
+
+  // Automation pipeline endpoints
+  app.post('/api/automation/start', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Start full automation cycle
+      await automationService.runFullAutomationCycle(userId);
+      
+      res.json({ 
+        message: 'Automation pipeline started',
+        status: 'running'
+      });
+    } catch (error) {
+      console.error('Error starting automation:', error);
+      res.status(500).json({ message: 'Failed to start automation pipeline' });
+    }
+  });
+
+  app.get('/api/automation/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      const status = await automationService.getAutomationStatus(userId);
+      
+      res.json(status);
+    } catch (error) {
+      console.error('Error getting automation status:', error);
+      res.status(500).json({ message: 'Failed to get automation status' });
+    }
+  });
+
+  app.post('/api/automation/news/fetch', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { category = 'general' } = req.body;
+      
+      // Manual news fetch trigger
+      const config = {
+        userId,
+        isActive: true,
+        autoPublish: false,
+        targetLanguages: ['en'],
+        maxVideosPerDay: 10,
+        contentFilters: {
+          categories: [category],
+          keywords: [],
+          minViralScore: 0.4
+        },
+        publishingSchedule: {
+          timezone: 'UTC',
+          publishTimes: [],
+          enabled: false
+        }
+      };
+      
+      await automationService.fetchAndFilterNews(userId, config);
+      
+      res.json({ 
+        message: 'News fetch completed',
+        category
+      });
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      res.status(500).json({ message: 'Failed to fetch news' });
     }
   });
 
