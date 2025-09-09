@@ -10,10 +10,10 @@ interface VideoGenerationOptions {
 }
 
 class VideoService {
-  private readonly synthesiaTeplates = {
-    dark_anchor: 'synthesia_avatar_1',
-    mystery_narrator: 'synthesia_avatar_2', 
-    tech_analyst: 'synthesia_avatar_3',
+  private readonly heygenTemplates = {
+    dark_anchor: 'Susan_public_pro2_20230608',
+    mystery_narrator: 'Tyler_public_20240711',
+    tech_analyst: 'Josh_public_20240711',
   };
 
   private readonly elevenLabsVoices = {
@@ -26,6 +26,21 @@ class VideoService {
     'hi-IN': 'Arjun',
     'ja-JP': 'Takeshi',
   };
+
+  private readonly heygenVoices = {
+    'en-US': '2d5b0e6cf36f460aa7fc47e3eee3b8b9',
+    'pt-BR': '87f86aba5e1a4b2c8ad2b65b77c50c31',
+    'es-ES': '846d3bf5e7eb4c6a9b5b7e2d7e3c4f6a',
+    'es-MX': '7d4e8f9a1b2c3d4e5f6a7b8c9d0e1f2a',
+    'de-DE': '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d',
+    'fr-FR': '9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c',
+    'hi-IN': '3f2e1d0c9b8a7f6e5d4c3f2e1d0c9b8a',
+    'ja-JP': '5d4c3f2e1d0c9b8a7f6e5d4c3f2e1d0c',
+  };
+
+  private getHeyGenVoiceId(language: string): string {
+    return this.heygenVoices[language as keyof typeof this.heygenVoices] || this.heygenVoices['en-US'];
+  }
 
   async generateVideo(newsArticleId: string, language: string = 'en-US'): Promise<string> {
     try {
@@ -69,55 +84,63 @@ class VideoService {
     }
   }
 
-  async renderWithSynthesia(script: string, language: string, avatarTemplate: string): Promise<string> {
+  async renderWithHeyGen(script: string, language: string, avatarTemplate: string): Promise<string> {
     try {
-      if (!process.env.SYNTHESIA_API_KEY) {
-        throw new Error("Synthesia API key not configured");
+      if (!process.env.HEYGEN_API_KEY) {
+        throw new Error("HeyGen API key not configured");
       }
 
       const payload = {
-        title: `DarkNews Video ${Date.now()}`,
-        description: "Auto-generated dark news video",
-        visibility: "private",
-        avatar: this.synthesiaTeplates[avatarTemplate as keyof typeof this.synthesiaTeplates] || this.synthesiaTeplates.dark_anchor,
-        language: language,
-        script: [{
-          type: "text",
-          text: script,
+        video_inputs: [{
+          character: {
+            type: "avatar",
+            avatar_id: this.heygenTemplates[avatarTemplate as keyof typeof this.heygenTemplates] || this.heygenTemplates.dark_anchor,
+            avatar_style: "normal"
+          },
+          voice: {
+            type: "text",
+            input_text: script,
+            voice_id: this.getHeyGenVoiceId(language)
+          },
+          background: {
+            type: "color",
+            value: "#1a1a1a"
+          }
         }],
-        background: "dark_newsroom",
-        settings: {
-          quality: "1080p",
-          subtitles: true,
-        }
+        dimension: {
+          width: 1920,
+          height: 1080
+        },
+        aspect_ratio: "16:9",
+        callback_id: `darknews_${Date.now()}`
       };
 
-      const response = await fetch("https://api.synthesia.io/v2/videos", {
+      const response = await fetch("https://api.heygen.com/v2/video/generate", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${process.env.SYNTHESIA_API_KEY}`,
+          "X-Api-Key": process.env.HEYGEN_API_KEY,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error(`Synthesia API error: ${response.status} ${response.statusText}`);
+        throw new Error(`HeyGen API error: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
       
       await storage.updateApiStatus({
-        serviceName: "Synthesia",
+        serviceName: "HeyGen",
         status: "operational",
         lastChecked: new Date(),
       });
 
-      return result.id;
+      return result.data.video_id;
     } catch (error) {
-      console.error("Error rendering with Synthesia:", error);
+      console.error("Error rendering with HeyGen:", error);
       await storage.updateApiStatus({
-        serviceName: "Synthesia", 
+        serviceName: "HeyGen", 
         status: "down",
         lastChecked: new Date(),
       });
@@ -125,27 +148,27 @@ class VideoService {
     }
   }
 
-  async checkVideoStatus(synthesiVideoId: string): Promise<{
+  async checkVideoStatus(heygenVideoId: string): Promise<{
     status: string;
     downloadUrl?: string;
     thumbnailUrl?: string;
   }> {
     try {
-      const response = await fetch(`https://api.synthesia.io/v2/videos/${synthesiVideoId}`, {
+      const response = await fetch(`https://api.heygen.com/v1/video_status.get?video_id=${heygenVideoId}`, {
         headers: {
-          "Authorization": `Bearer ${process.env.SYNTHESIA_API_KEY}`,
+          "X-Api-Key": process.env.HEYGEN_API_KEY!,
         },
       });
 
       if (!response.ok) {
-        throw new Error(`Synthesia API error: ${response.status}`);
+        throw new Error(`HeyGen API error: ${response.status}`);
       }
 
       const result = await response.json();
       return {
-        status: result.status,
-        downloadUrl: result.download_url,
-        thumbnailUrl: result.thumbnail_url,
+        status: result.data.status,
+        downloadUrl: result.data.video_url,
+        thumbnailUrl: result.data.thumbnail_url,
       };
     } catch (error) {
       console.error("Error checking video status:", error);

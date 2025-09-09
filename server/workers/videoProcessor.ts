@@ -66,8 +66,8 @@ class VideoProcessor {
       
       await storage.updateJobProgress(jobId, 10);
       
-      // Start video rendering with Synthesia
-      const synthesiVideoId = await videoService.renderWithSynthesia(
+      // Start video rendering with HeyGen
+      const heygenVideoId = await videoService.renderWithHeyGen(
         script, 
         language, 
         avatarTemplate
@@ -80,7 +80,7 @@ class VideoProcessor {
       const maxAttempts = 60; // 30 minutes max
       
       while (attempts < maxAttempts) {
-        const status = await videoService.checkVideoStatus(synthesiVideoId);
+        const status = await videoService.checkVideoStatus(heygenVideoId);
         
         if (status.status === 'complete') {
           // Update video record

@@ -54,7 +54,7 @@ The system implements a multi-stage automated pipeline:
 2. **Content Filtering**: AI-powered ranking and selection based on viral potential and dark theme suitability
 3. **Script Generation**: GPT-powered script writing in dark documentary style with dramatic structure
 4. **Voice Synthesis**: ElevenLabs integration for high-quality narration with consistent voice profiles
-5. **Avatar Generation**: Synthesia API integration for professional video avatar creation
+5. **Avatar Generation**: HeyGen API integration for professional video avatar creation with realistic AI presenters
 6. **Multi-language Dubbing**: Automated translation and voice synthesis for 8+ languages
 7. **Publishing Automation**: YouTube API integration for multi-channel publishing with optimized metadata
 
@@ -76,7 +76,7 @@ Custom-built worker system handling:
 ### AI and Content Generation Services
 - **OpenAI GPT API**: Primary content generation engine for script writing and metadata creation
 - **ElevenLabs**: Voice synthesis and multi-language dubbing with professional voice models
-- **Synthesia**: AI avatar generation and video rendering with custom templates
+- **HeyGen**: AI avatar generation and video rendering with custom avatar templates
 
 ### News and Data Sources
 - **NewsAPI**: Primary news aggregation service for breaking news content
