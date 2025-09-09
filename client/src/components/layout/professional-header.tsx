@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface Breadcrumb {
   name: string;
@@ -114,6 +115,9 @@ export default function ProfessionalHeader() {
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span className="text-sm text-muted-foreground">Ao vivo</span>
         </div>
+
+        {/* Theme Toggle */}
+        <ThemeToggle />
 
         {/* Language */}
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
