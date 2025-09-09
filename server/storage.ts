@@ -35,6 +35,7 @@ export interface IStorage {
   // News operations
   createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle>;
   getNewsArticles(limit?: number): Promise<NewsArticle[]>;
+  getNewsArticleById(id: string): Promise<NewsArticle | null>;
   updateNewsArticleStatus(id: string, status: 'discovered' | 'processed' | 'approved' | 'rejected'): Promise<void>;
 
   // Video operations
@@ -60,6 +61,7 @@ export interface IStorage {
   getActiveJobs(): Promise<ProcessingJob[]>;
   updateJobProgress(id: string, progress: number): Promise<void>;
   completeJob(id: string, status: 'completed' | 'failed', error?: string): Promise<void>;
+  updateJob(id: string, updates: Partial<any>): Promise<any>;
 
   // Metrics operations
   recordMetric(metric: InsertSystemMetric): Promise<void>;
@@ -127,6 +129,14 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async getNewsArticleById(id: string): Promise<NewsArticle | null> {
+    const [article] = await db
+      .select()
+      .from(newsArticles)
+      .where(eq(newsArticles.id, id));
+    return article || null;
+  }
+
   async updateNewsArticleStatus(id: string, status: 'discovered' | 'processed' | 'approved' | 'rejected'): Promise<void> {
     await db
       .update(newsArticles)
@@ -168,6 +178,15 @@ export class DatabaseStorage implements IStorage {
       .update(videos)
       .set({ youtubeVideoId: youtubeId, updatedAt: new Date() })
       .where(eq(videos.id, id));
+  }
+
+  async updateJob(id: string, updates: Partial<any>): Promise<any> {
+    const [job] = await db
+      .update(processingJobs)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(processingJobs.id, id))
+      .returning();
+    return job;
   }
 
   // Channel operations

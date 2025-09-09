@@ -53,6 +53,8 @@ export const newsArticles = pgTable("news_articles", {
   content: text("content").notNull(),
   url: varchar("url").notNull(),
   source: varchar("source").notNull(),
+  imageUrl: varchar("image_url"),
+  category: varchar("category"),
   viralScore: integer("viral_score").notNull(),
   status: newsStatusEnum("status").default('discovered'),
   publishedAt: timestamp("published_at"),
@@ -71,6 +73,8 @@ export const videos = pgTable("videos", {
   status: videoStatusEnum("status").default('pending'),
   progress: integer("progress").default(0), // Progress percentage (0-100)
   videoUrl: varchar("video_url"),
+  videoPath: varchar("video_path"),
+  audioPath: varchar("audio_path"),
   thumbnailUrl: varchar("thumbnail_url"),
   duration: integer("duration"), // in seconds
   youtubeVideoId: varchar("youtube_video_id"),

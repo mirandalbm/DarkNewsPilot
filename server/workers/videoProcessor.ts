@@ -188,7 +188,7 @@ class VideoProcessor {
           status: 'ready',
           duration: 60, // Estimate - would get from actual video metadata
           thumbnailUrl: videoStatus.thumbnail_url,
-          videoPath,
+          videoPath: videoUrl,
           audioPath,
         });
         

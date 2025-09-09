@@ -161,7 +161,8 @@ class YouTubeService {
     videoCount: number;
   }> {
     try {
-      const response = await this.youtube.channels.list({
+      const client = await this.getClient(userId);
+      const response = await client.channels.list({
         part: 'statistics',
         id: channelId,
       });

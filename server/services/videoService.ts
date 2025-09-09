@@ -61,7 +61,7 @@ class VideoService {
         title: article.title,
         script,
         language: language as any,
-        avatarTemplate: avatarTemplate as any,
+        avatarTemplate: 'dark_anchor' as any,
         status: 'generating',
       });
 
@@ -73,7 +73,7 @@ class VideoService {
           videoId: video.id,
           script,
           language,
-          avatarTemplate: avatarTemplate as any,
+          avatarTemplate: 'dark_anchor' as any,
         },
       });
 
