@@ -10,6 +10,7 @@ import ProfessionalDashboard from "@/pages/professional-dashboard";
 import NewsManagement from "@/pages/news-management";
 import VideoProduction from "@/pages/video-production";
 import Analytics from "@/pages/analytics";
+import ApiSettings from "@/pages/api-settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -54,7 +55,7 @@ function Router() {
           <Route path="/fact-checking" component={() => <div className="p-8"><h1>Fact-Checking - Em desenvolvimento</h1></div>} />
           <Route path="/copyright" component={() => <div className="p-8"><h1>Proteção de Copyright - Em desenvolvimento</h1></div>} />
           <Route path="/audit" component={() => <div className="p-8"><h1>Sistema de Auditoria - Em desenvolvimento</h1></div>} />
-          <Route path="/settings" component={() => <div className="p-8"><h1>Configurações - Em desenvolvimento</h1></div>} />
+          <Route path="/settings" component={ApiSettings} />
         </>
       )}
       <Route component={NotFound} />

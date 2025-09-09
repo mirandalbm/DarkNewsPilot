@@ -6,6 +6,7 @@ import {
   processingJobs,
   systemMetrics,
   apiStatus,
+  apiConfigurations,
   type User,
   type UpsertUser,
   type NewsArticle,
@@ -20,6 +21,8 @@ import {
   type InsertSystemMetric,
   type ApiStatus,
   type InsertApiStatus,
+  type ApiConfiguration,
+  type InsertApiConfiguration,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
@@ -65,6 +68,17 @@ export interface IStorage {
   // API status operations
   updateApiStatus(status: InsertApiStatus): Promise<void>;
   getApiStatuses(): Promise<ApiStatus[]>;
+
+  // API Configuration operations
+  getApiConfiguration(userId: string, serviceId: string): Promise<ApiConfiguration | undefined>;
+  getAllApiConfigurations(userId: string): Promise<ApiConfiguration[]>;
+  upsertApiConfiguration(userId: string, serviceId: string, config: {
+    serviceName: string;
+    isActive: boolean;
+    encryptedConfig: string;
+    status: 'active' | 'inactive' | 'error';
+  }): Promise<ApiConfiguration>;
+  updateApiConfigStatus(userId: string, serviceId: string, status: 'active' | 'inactive' | 'error'): Promise<void>;
 
   // Dashboard data
   getDashboardStats(): Promise<{
@@ -306,6 +320,72 @@ export class DatabaseStorage implements IStorage {
       .where(sql`${newsArticles.source} IS NOT NULL`);
     
     return sources.map(s => s.source).filter(Boolean);
+  }
+
+  // API Configuration operations
+  async getApiConfiguration(userId: string, serviceId: string): Promise<ApiConfiguration | undefined> {
+    const [config] = await db
+      .select()
+      .from(apiConfigurations)
+      .where(and(
+        eq(apiConfigurations.userId, userId),
+        eq(apiConfigurations.serviceId, serviceId)
+      ));
+    return config;
+  }
+
+  async getAllApiConfigurations(userId: string): Promise<ApiConfiguration[]> {
+    return await db
+      .select()
+      .from(apiConfigurations)
+      .where(eq(apiConfigurations.userId, userId))
+      .orderBy(apiConfigurations.serviceName);
+  }
+
+  async upsertApiConfiguration(userId: string, serviceId: string, config: {
+    serviceName: string;
+    isActive: boolean;
+    encryptedConfig: string;
+    status: 'active' | 'inactive' | 'error';
+  }): Promise<ApiConfiguration> {
+    const [result] = await db
+      .insert(apiConfigurations)
+      .values({
+        userId,
+        serviceId,
+        serviceName: config.serviceName,
+        isActive: config.isActive,
+        encryptedConfig: config.encryptedConfig,
+        status: config.status,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [apiConfigurations.userId, apiConfigurations.serviceId],
+        set: {
+          serviceName: config.serviceName,
+          isActive: config.isActive,
+          encryptedConfig: config.encryptedConfig,
+          status: config.status,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    
+    return result;
+  }
+
+  async updateApiConfigStatus(userId: string, serviceId: string, status: 'active' | 'inactive' | 'error'): Promise<void> {
+    await db
+      .update(apiConfigurations)
+      .set({ 
+        status,
+        lastTested: new Date(),
+        updatedAt: new Date()
+      })
+      .where(and(
+        eq(apiConfigurations.userId, userId),
+        eq(apiConfigurations.serviceId, serviceId)
+      ));
   }
 
   // Video statistics

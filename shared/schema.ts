@@ -44,6 +44,7 @@ export const newsStatusEnum = pgEnum('news_status', ['discovered', 'processed', 
 export const videoStatusEnum = pgEnum('video_status', ['pending', 'generating', 'processing', 'ready', 'approved', 'published', 'failed']);
 export const jobStatusEnum = pgEnum('job_status', ['pending', 'processing', 'completed', 'failed']);
 export const languageEnum = pgEnum('language', ['en-US', 'pt-BR', 'es-ES', 'es-MX', 'de-DE', 'fr-FR', 'hi-IN', 'ja-JP']);
+export const apiConfigStatusEnum = pgEnum('api_config_status', ['active', 'inactive', 'error']);
 
 // News articles table
 export const newsArticles = pgTable("news_articles", {
@@ -123,6 +124,22 @@ export const apiStatus = pgTable("api_status", {
   lastChecked: timestamp("last_checked").defaultNow(),
 });
 
+// API configurations table
+export const apiConfigurations = pgTable("api_configurations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  serviceId: varchar("service_id").notNull(), // openai, elevenlabs, heygen, etc.
+  serviceName: varchar("service_name").notNull(),
+  isActive: boolean("is_active").default(false),
+  encryptedConfig: text("encrypted_config"), // JSON encrypted
+  status: apiConfigStatusEnum("status").default('inactive'),
+  lastTested: timestamp("last_tested"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_api_config_user_service").on(table.userId, table.serviceId),
+]);
+
 // Relations
 export const newsArticlesRelations = relations(newsArticles, ({ many }) => ({
   videos: many(videos),
@@ -150,8 +167,11 @@ export type SystemMetric = typeof systemMetrics.$inferSelect;
 export type InsertSystemMetric = typeof systemMetrics.$inferInsert;
 export type ApiStatus = typeof apiStatus.$inferSelect;
 export type InsertApiStatus = typeof apiStatus.$inferInsert;
+export type ApiConfiguration = typeof apiConfigurations.$inferSelect;
+export type InsertApiConfiguration = typeof apiConfigurations.$inferInsert;
 
 // Insert schemas
 export const insertNewsArticleSchema = createInsertSchema(newsArticles);
 export const insertVideoSchema = createInsertSchema(videos);
 export const insertProcessingJobSchema = createInsertSchema(processingJobs);
+export const insertApiConfigurationSchema = createInsertSchema(apiConfigurations);

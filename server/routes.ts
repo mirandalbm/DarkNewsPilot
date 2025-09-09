@@ -5,6 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { newsService } from "./services/newsService";
 import { videoService } from "./services/videoService";
 import { youtubeService } from "./services/youtubeService";
+import { cryptoService } from "./services/cryptoService";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
 
@@ -292,6 +293,152 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching metrics:", error);
       res.status(500).json({ message: "Failed to fetch metrics" });
+    }
+  });
+
+  // API Settings endpoints
+  app.get('/api/settings/apis', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const configs = await storage.getAllApiConfigurations(userId);
+      
+      // Return configurations without sensitive data
+      const safeConfigs = configs.map(config => {
+        try {
+          const decryptedConfig = config.encryptedConfig 
+            ? JSON.parse(cryptoService.simpleDecrypt(config.encryptedConfig))
+            : {};
+          
+          // Return config without sensitive values
+          const safeFields = Object.keys(decryptedConfig).reduce((acc, key) => {
+            acc[key] = key.toLowerCase().includes('secret') || key.toLowerCase().includes('key') || key.toLowerCase().includes('token')
+              ? '***hidden***' 
+              : decryptedConfig[key];
+            return acc;
+          }, {} as any);
+          
+          return {
+            id: config.id,
+            serviceId: config.serviceId,
+            serviceName: config.serviceName,
+            isActive: config.isActive,
+            status: config.status,
+            fields: safeFields,
+            lastTested: config.lastTested
+          };
+        } catch (error) {
+          return {
+            id: config.id,
+            serviceId: config.serviceId,
+            serviceName: config.serviceName,
+            isActive: config.isActive,
+            status: 'error',
+            fields: {},
+            lastTested: config.lastTested
+          };
+        }
+      });
+      
+      res.json(safeConfigs);
+    } catch (error) {
+      console.error("Error fetching API configurations:", error);
+      res.status(500).json({ message: "Failed to fetch API configurations" });
+    }
+  });
+
+  app.put('/api/settings/apis/:serviceId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { serviceId } = req.params;
+      const { isActive, fields } = req.body;
+      
+      // Service name mapping
+      const serviceNames: Record<string, string> = {
+        'openai': 'OpenAI GPT',
+        'elevenlabs': 'ElevenLabs Voice',
+        'heygen': 'HeyGen Avatars',
+        'youtube': 'YouTube API',
+        'newsapi': 'NewsAPI',
+        'newsdata': 'NewsData.io',
+        'twitter': 'Twitter/X',
+        'facebook': 'Facebook',
+        'instagram': 'Instagram',
+        'discord': 'Discord Bot'
+      };
+      
+      const serviceName = serviceNames[serviceId] || serviceId;
+      const encryptedConfig = cryptoService.simpleEncrypt(JSON.stringify(fields));
+      
+      await storage.upsertApiConfiguration(userId, serviceId, {
+        serviceName,
+        isActive,
+        encryptedConfig,
+        status: 'inactive'
+      });
+      
+      res.json({ message: "API configuration saved successfully" });
+    } catch (error) {
+      console.error("Error saving API configuration:", error);
+      res.status(500).json({ message: "Failed to save API configuration" });
+    }
+  });
+
+  app.post('/api/settings/test/:serviceId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { serviceId } = req.params;
+      
+      const config = await storage.getApiConfiguration(userId, serviceId);
+      if (!config || !config.encryptedConfig) {
+        return res.status(400).json({ message: "API configuration not found" });
+      }
+      
+      try {
+        const decryptedConfig = JSON.parse(cryptoService.simpleDecrypt(config.encryptedConfig));
+        
+        // Test API based on service type
+        let testResult = false;
+        
+        switch (serviceId) {
+          case 'openai':
+            testResult = !!decryptedConfig.api_key && decryptedConfig.api_key.startsWith('sk-');
+            break;
+          case 'elevenlabs':
+            testResult = !!decryptedConfig.api_key && decryptedConfig.api_key.length > 20;
+            break;
+          case 'heygen':
+            testResult = !!decryptedConfig.api_key;
+            break;
+          case 'youtube':
+            testResult = !!decryptedConfig.client_id && !!decryptedConfig.client_secret;
+            break;
+          case 'newsapi':
+          case 'newsdata':
+            testResult = !!decryptedConfig.api_key && decryptedConfig.api_key.length > 10;
+            break;
+          default:
+            testResult = true; // Social media APIs
+        }
+        
+        const status = testResult ? 'active' : 'error';
+        await storage.updateApiConfigStatus(userId, serviceId, status);
+        
+        res.json({ 
+          success: testResult,
+          status,
+          message: testResult ? "API connection successful" : "API connection failed"
+        });
+      } catch (decryptError) {
+        await storage.updateApiConfigStatus(userId, serviceId, 'error');
+        res.status(400).json({ 
+          success: false, 
+          status: 'error',
+          message: "Failed to decrypt configuration"
+        });
+      }
+    } catch (error) {
+      console.error("Error testing API:", error);
+      res.status(500).json({ message: "Failed to test API configuration" });
     }
   });
 
