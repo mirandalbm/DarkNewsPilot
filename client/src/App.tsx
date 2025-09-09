@@ -17,6 +17,8 @@ import SEOOptimization from "@/pages/seo";
 import HashtagGenerator from "@/pages/hashtags";
 import YouTubeAnalytics from "@/pages/youtube-analytics";
 import TrendsAnalysis from "@/pages/trends";
+import RevenueAnalysis from "@/pages/revenue";
+import ABTesting from "@/pages/ab-testing";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -46,8 +48,8 @@ function Router() {
           {/* Analytics Avançado */}
           <Route path="/youtube-analytics" component={YouTubeAnalytics} />
           <Route path="/trends" component={TrendsAnalysis} />
-          <Route path="/revenue" component={() => <div className="p-8"><h1>ROI & Receitas - Em desenvolvimento</h1></div>} />
-          <Route path="/ab-testing" component={() => <div className="p-8"><h1>A/B Testing - Em desenvolvimento</h1></div>} />
+          <Route path="/revenue" component={RevenueAnalysis} />
+          <Route path="/ab-testing" component={ABTesting} />
           {/* Automação & IA */}
           <Route path="/automation" component={() => <div className="p-8"><h1>Pipelines Automáticos - Em desenvolvimento</h1></div>} />
           <Route path="/ai-models" component={() => <div className="p-8"><h1>Modelos de IA Custom - Em desenvolvimento</h1></div>} />
