@@ -454,6 +454,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Video generation endpoints
+  app.post('/api/videos/generate', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { newsArticleId, language = 'en' } = req.body;
+      
+      if (!newsArticleId) {
+        return res.status(400).json({ message: 'News article ID is required' });
+      }
+      
+      // Check if article exists
+      const article = await storage.getNewsArticleById(newsArticleId);
+      if (!article) {
+        return res.status(404).json({ message: 'News article not found' });
+      }
+      
+      // Create video generation job
+      const job = await storage.createJob({
+        type: 'video_generation',
+        status: 'pending',
+        data: {
+          newsArticleId,
+          userId,
+          language
+        },
+        progress: 0
+      });
+      
+      res.json({ 
+        message: 'Video generation started',
+        jobId: job.id,
+        status: 'pending'
+      });
+    } catch (error) {
+      console.error('Error starting video generation:', error);
+      res.status(500).json({ message: 'Failed to start video generation' });
+    }
+  });
+
+  app.get('/api/videos/job/:jobId/status', isAuthenticated, async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      
+      const jobs = await storage.getActiveJobs();
+      const job = jobs.find(j => j.id === jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      
+      res.json({
+        jobId: job.id,
+        status: job.status,
+        progress: job.progress,
+        error: job.error,
+        completedAt: job.completedAt,
+        createdAt: job.createdAt
+      });
+    } catch (error) {
+      console.error('Error fetching job status:', error);
+      res.status(500).json({ message: 'Failed to fetch job status' });
+    }
+  });
+
+  app.post('/api/videos/generate-batch', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { newsArticleIds, language = 'en' } = req.body;
+      
+      if (!newsArticleIds || !Array.isArray(newsArticleIds)) {
+        return res.status(400).json({ message: 'News article IDs array is required' });
+      }
+      
+      const jobs = [];
+      
+      for (const newsArticleId of newsArticleIds) {
+        // Check if article exists
+        const article = await storage.getNewsArticleById(newsArticleId);
+        if (article) {
+          const job = await storage.createJob({
+            type: 'video_generation',
+            status: 'pending',
+            data: {
+              newsArticleId,
+              userId,
+              language
+            },
+            progress: 0
+          });
+          jobs.push({ articleId: newsArticleId, jobId: job.id });
+        }
+      }
+      
+      res.json({ 
+        message: `Started ${jobs.length} video generation jobs`,
+        jobs
+      });
+    } catch (error) {
+      console.error('Error starting batch video generation:', error);
+      res.status(500).json({ message: 'Failed to start batch video generation' });
+    }
+  });
+
+  app.get('/api/videos/ready', isAuthenticated, async (req, res) => {
+    try {
+      const readyVideos = await storage.getVideosByStatus('ready');
+      res.json(readyVideos);
+    } catch (error) {
+      console.error('Error fetching ready videos:', error);
+      res.status(500).json({ message: 'Failed to fetch ready videos' });
+    }
+  });
+
+  app.post('/api/videos/:videoId/publish', isAuthenticated, async (req: any, res) => {
+    try {
+      const { videoId } = req.params;
+      const { channelId } = req.body;
+      
+      // Create publish job
+      const job = await storage.createJob({
+        type: 'publish',
+        status: 'pending',
+        data: {
+          videoId,
+          channelId
+        },
+        progress: 0
+      });
+      
+      res.json({ 
+        message: 'Video publishing started',
+        jobId: job.id
+      });
+    } catch (error) {
+      console.error('Error starting video publish:', error);
+      res.status(500).json({ message: 'Failed to start video publish' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

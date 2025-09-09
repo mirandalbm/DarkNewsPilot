@@ -1,6 +1,11 @@
 import { storage } from "../storage";
 import { videoService } from "../services/videoService";
 import { youtubeService } from "../services/youtubeService";
+import { openaiService } from "../services/openaiService";
+import { elevenlabsService } from "../services/elevenlabsService";
+import { heygenService } from "../services/heygenService";
+import fs from 'fs/promises';
+import path from 'path';
 
 class VideoProcessor {
   private isRunning = false;
@@ -32,22 +37,184 @@ class VideoProcessor {
 
   private async processVideos(): Promise<void> {
     try {
-      // Process video render jobs
+      // Ensure temp directory exists
+      await fs.mkdir('./temp', { recursive: true }).catch(() => {});
+      
+      // Process video generation jobs
       const jobs = await storage.getActiveJobs();
-      const videoJobs = jobs.filter(job => 
-        (job.type === 'video_render' || job.type === 'publish') && 
+      const pendingJobs = jobs.filter(job => 
+        (job.type === 'video_generation' || job.type === 'video_render' || job.type === 'publish') && 
         job.status === 'pending'
       );
       
-      for (const job of videoJobs) {
-        if (job.type === 'video_render') {
+      const processingJobs = jobs.filter(job => 
+        job.type === 'video_generation' && 
+        job.status === 'processing'
+      );
+      
+      for (const job of pendingJobs) {
+        if (job.type === 'video_generation') {
+          await this.processVideoGenerationJob(job.id);
+        } else if (job.type === 'video_render') {
           await this.processVideoRenderJob(job.id);
         } else if (job.type === 'publish') {
           await this.processPublishJob(job.id);
         }
       }
+      
+      // Check external video status for processing jobs
+      for (const job of processingJobs) {
+        await this.checkExternalVideoStatus(job.id);
+      }
     } catch (error) {
       console.error("Error in video processor:", error);
+    }
+  }
+
+  private async processVideoGenerationJob(jobId: string): Promise<void> {
+    try {
+      console.log(`Processing video generation job: ${jobId}`);
+      
+      const jobs = await storage.getActiveJobs();
+      const job = jobs.find(j => j.id === jobId);
+      
+      if (!job || !job.data) {
+        throw new Error("Job data not found");
+      }
+
+      const { newsArticleId, userId, language = 'en' } = job.data as any;
+      
+      if (!newsArticleId || !userId) {
+        throw new Error('Missing required job data: newsArticleId or userId');
+      }
+      
+      await storage.updateJobProgress(jobId, 10);
+      
+      // Get news article
+      const article = await storage.getNewsArticleById(newsArticleId);
+      if (!article) {
+        throw new Error('News article not found');
+      }
+      
+      // Step 1: Generate script using OpenAI
+      console.log(`Generating script for job ${jobId}`);
+      const scriptData = await openaiService.generateScript(
+        article.title,
+        article.content,
+        userId
+      );
+      
+      if (!scriptData) {
+        throw new Error('Failed to generate script');
+      }
+      
+      await storage.updateJobProgress(jobId, 30);
+      
+      // Step 2: Generate audio using ElevenLabs
+      console.log(`Generating audio for job ${jobId}`);
+      const audioBuffer = await elevenlabsService.generateSpeechMultilingual(
+        userId,
+        scriptData,
+        language
+      );
+      
+      // Save audio to temp file
+      const audioPath = path.join('./temp', `audio_${jobId}.mp3`);
+      await fs.writeFile(audioPath, audioBuffer);
+      
+      await storage.updateJobProgress(jobId, 60);
+      
+      // Step 3: Create video with HeyGen
+      console.log(`Creating video for job ${jobId}`);
+      const videoId = await heygenService.createVideo(
+        userId,
+        scriptData,
+        {
+          language: language,
+          background: '#1a1a1a' // Dark theme for mystery content
+        }
+      );
+      
+      // Store external video ID for polling
+      await storage.updateJobProgress(jobId, 70);
+      const updatedJobData = { ...job.data, videoId, audioPath, script: scriptData };
+      await storage.updateJob(jobId, {
+        status: 'processing',
+        data: updatedJobData
+      });
+      
+      console.log(`Video creation initiated for job ${jobId}, HeyGen video ID: ${videoId}`);
+      
+    } catch (error) {
+      console.error(`Error processing video generation job ${jobId}:`, error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await storage.completeJob(jobId, 'failed', errorMessage);
+    }
+  }
+
+  private async checkExternalVideoStatus(jobId: string): Promise<void> {
+    try {
+      const jobs = await storage.getActiveJobs();
+      const job = jobs.find(j => j.id === jobId);
+      
+      if (!job || !job.data) {
+        return;
+      }
+      
+      const jobData = job.data as any;
+      const { videoId, userId, newsArticleId, audioPath, script } = jobData;
+      
+      if (!videoId || !userId) {
+        return;
+      }
+      
+      // Check video status with HeyGen
+      const videoStatus = await heygenService.getVideoStatus(userId, videoId);
+      
+      if (videoStatus.status === 'completed' && videoStatus.video_url) {
+        console.log(`Video completed for job ${jobId}`);
+        
+        // Download the completed video
+        const videoBuffer = await heygenService.downloadVideo(userId, videoStatus.video_url);
+        const videoPath = path.join('./temp', `video_${jobId}.mp4`);
+        await fs.writeFile(videoPath, videoBuffer);
+        
+        // Create video record
+        const video = await storage.createVideo({
+          newsArticleId,
+          title: `Dark News: ${script.substring(0, 50)}...`,
+          script,
+          language: jobData.language || 'en',
+          status: 'ready',
+          duration: 60, // Estimate - would get from actual video metadata
+          thumbnailUrl: videoStatus.thumbnail_url,
+          videoPath,
+          audioPath,
+        });
+        
+        // Complete the job
+        await storage.updateJobProgress(jobId, 100);
+        await storage.completeJob(jobId, 'completed');
+        
+        console.log(`Completed video generation job: ${jobId}, created video: ${video.id}`);
+        
+      } else if (videoStatus.status === 'failed') {
+        console.error(`Video generation failed for job ${jobId}: ${videoStatus.error}`);
+        await storage.completeJob(jobId, 'failed', videoStatus.error || 'Video generation failed');
+        
+        // Clean up temp files
+        if (audioPath) {
+          try {
+            await fs.unlink(audioPath);
+          } catch (error) {
+            console.error('Error cleaning up audio file:', error);
+          }
+        }
+      }
+      // If still processing, we continue polling
+      
+    } catch (error) {
+      console.error(`Error checking external video status for job ${jobId}:`, error);
     }
   }
 
