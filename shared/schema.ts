@@ -116,7 +116,7 @@ export const systemMetrics = pgTable("system_metrics", {
 // API status table
 export const apiStatus = pgTable("api_status", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  serviceName: varchar("service_name").notNull(),
+  serviceName: varchar("service_name").notNull().unique(),
   status: varchar("status").notNull(), // 'operational', 'degraded', 'down'
   responseTime: integer("response_time"), // in ms
   lastChecked: timestamp("last_checked").defaultNow(),
