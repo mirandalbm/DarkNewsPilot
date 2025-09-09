@@ -12,6 +12,7 @@ import VideoProduction from "@/pages/video-production";
 import Analytics from "@/pages/analytics";
 import ApiSettings from "@/pages/api-settings";
 import NotFound from "@/pages/not-found";
+import ThumbnailGenerator from "@/pages/thumbnails";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -35,7 +36,7 @@ function Router() {
           <Route path="/production" component={VideoProduction} />
           <Route path="/analytics" component={Analytics} />
           {/* Ferramentas de Conteúdo */}
-          <Route path="/thumbnails" component={() => <div className="p-8"><h1>Gerador de Thumbnails - Em desenvolvimento</h1></div>} />
+          <Route path="/thumbnails" component={ThumbnailGenerator} />
           <Route path="/seo" component={() => <div className="p-8"><h1>Otimização SEO - Em desenvolvimento</h1></div>} />
           <Route path="/hashtags" component={() => <div className="p-8"><h1>Gerador de Hashtags - Em desenvolvimento</h1></div>} />
           {/* Analytics Avançado */}
