@@ -293,12 +293,16 @@ class VideoProcessor {
         throw new Error("Job data not found");
       }
 
-      const { videoId } = job.data as any;
+      const { videoId, userId } = job.data as any;
+      
+      if (!userId) {
+        throw new Error('User ID required for publishing');
+      }
       
       await storage.updateJobProgress(jobId, 10);
       
       // Upload to YouTube
-      const youtubeVideoId = await youtubeService.uploadVideo(videoId);
+      const youtubeVideoId = await youtubeService.uploadVideo(videoId, userId);
       
       await storage.updateJobProgress(jobId, 80);
       

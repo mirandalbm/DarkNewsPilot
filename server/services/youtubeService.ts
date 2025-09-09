@@ -1,40 +1,79 @@
 import { google } from 'googleapis';
 import { storage } from "../storage";
 import { openaiService } from "./openaiService";
+import { cryptoService } from "./cryptoService";
 
 class YouTubeService {
-  private youtube: any;
+  private clients: Map<string, any> = new Map();
 
-  constructor() {
-    this.initializeYouTube();
-  }
-
-  private async initializeYouTube() {
+  async getClient(userId: string): Promise<any> {
     try {
-      const credentials = JSON.parse(process.env.YOUTUBE_CREDENTIALS || '{}');
-      const auth = new google.auth.GoogleAuth({
-        credentials,
-        scopes: ['https://www.googleapis.com/auth/youtube.upload'],
-      });
+      // Check cache first
+      if (this.clients.has(userId)) {
+        return this.clients.get(userId);
+      }
 
-      this.youtube = google.youtube({ version: 'v3', auth });
+      // Get YouTube API configuration
+      const config = await storage.getApiConfiguration(userId, 'youtube');
+      if (!config || !config.encryptedConfig || !config.isActive) {
+        // Fallback to global credentials if available
+        if (process.env.YOUTUBE_CLIENT_ID && process.env.YOUTUBE_CLIENT_SECRET) {
+          return this.createGlobalClient();
+        }
+        return null;
+      }
+
+      const decryptedConfig = JSON.parse(cryptoService.simpleDecrypt(config.encryptedConfig));
       
-      await storage.updateApiStatus({
-        serviceName: "YouTube API",
-        status: "operational",
-        lastChecked: new Date(),
-      });
+      if (!decryptedConfig.client_id || !decryptedConfig.client_secret) {
+        return this.createGlobalClient();
+      }
+
+      const oauth2Client = new google.auth.OAuth2(
+        decryptedConfig.client_id,
+        decryptedConfig.client_secret,
+        'http://localhost:5000/auth/youtube/callback'
+      );
+
+      // Set refresh token if available
+      if (decryptedConfig.refresh_token) {
+        oauth2Client.setCredentials({
+          refresh_token: decryptedConfig.refresh_token,
+          access_token: decryptedConfig.access_token
+        });
+      }
+
+      const client = google.youtube({ version: 'v3', auth: oauth2Client });
+      
+      // Cache the client
+      this.clients.set(userId, client);
+      
+      return client;
     } catch (error) {
-      console.error("Error initializing YouTube API:", error);
-      await storage.updateApiStatus({
-        serviceName: "YouTube API",
-        status: "down",
-        lastChecked: new Date(),
-      });
+      console.error('Error creating YouTube client:', error);
+      return this.createGlobalClient();
     }
   }
 
-  async uploadVideo(videoId: string): Promise<string> {
+  private createGlobalClient(): any {
+    try {
+      if (process.env.YOUTUBE_CLIENT_ID && process.env.YOUTUBE_CLIENT_SECRET) {
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.YOUTUBE_CLIENT_ID,
+          process.env.YOUTUBE_CLIENT_SECRET,
+          'http://localhost:5000/auth/youtube/callback'
+        );
+        
+        return google.youtube({ version: 'v3', auth: oauth2Client });
+      }
+      return null;
+    } catch (error) {
+      console.error('Error creating global YouTube client:', error);
+      return null;
+    }
+  }
+
+  async uploadVideo(videoId: string, userId: string): Promise<string> {
     try {
       const videos = await storage.getVideos(1000);
       const video = videos.find(v => v.id === videoId);
@@ -43,10 +82,17 @@ class YouTubeService {
         throw new Error("Video not found or not ready");
       }
 
+      // Get YouTube client
+      const youtubeClient = await this.getClient(userId);
+      if (!youtubeClient) {
+        throw new Error('YouTube API not configured for user');
+      }
+
       // Generate metadata
       const metadata = await openaiService.generateVideoMetadata(
         video.script, 
-        video.language
+        video.language,
+        userId
       );
 
       // Get appropriate channel for language
@@ -79,7 +125,7 @@ class YouTubeService {
         body: videoBuffer,
       };
 
-      const response = await this.youtube.videos.insert({
+      const response = await youtubeClient.videos.insert({
         part: 'snippet,status',
         requestBody,
         media,

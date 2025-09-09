@@ -569,6 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/videos/:videoId/publish', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
       const { videoId } = req.params;
       const { channelId } = req.body;
       
@@ -578,7 +579,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'pending',
         data: {
           videoId,
-          channelId
+          channelId,
+          userId
         },
         progress: 0
       });
@@ -590,6 +592,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error starting video publish:', error);
       res.status(500).json({ message: 'Failed to start video publish' });
+    }
+  });
+
+  // YouTube channel management endpoints
+  app.get('/api/youtube/channels', isAuthenticated, async (req, res) => {
+    try {
+      const channels = await storage.getYoutubeChannels();
+      res.json(channels);
+    } catch (error) {
+      console.error('Error fetching YouTube channels:', error);
+      res.status(500).json({ message: 'Failed to fetch YouTube channels' });
+    }
+  });
+
+  app.post('/api/youtube/channels', isAuthenticated, async (req: any, res) => {
+    try {
+      const { channelId, channelName, language, isActive } = req.body;
+      
+      const channel = await storage.createYoutubeChannel({
+        channelId,
+        channelName,
+        language,
+        isActive: isActive || false
+      });
+      
+      res.json(channel);
+    } catch (error) {
+      console.error('Error creating YouTube channel:', error);
+      res.status(500).json({ message: 'Failed to create YouTube channel' });
+    }
+  });
+
+  app.put('/api/youtube/channels/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { channelName, language, isActive } = req.body;
+      
+      await storage.updateYoutubeChannel(id, {
+        channelName,
+        language,
+        isActive
+      });
+      
+      res.json({ message: 'Channel updated successfully' });
+    } catch (error) {
+      console.error('Error updating YouTube channel:', error);
+      res.status(500).json({ message: 'Failed to update YouTube channel' });
+    }
+  });
+
+  app.delete('/api/youtube/channels/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      await storage.deleteYoutubeChannel(id);
+      
+      res.json({ message: 'Channel deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting YouTube channel:', error);
+      res.status(500).json({ message: 'Failed to delete YouTube channel' });
+    }
+  });
+
+  app.get('/api/youtube/auth-url', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get or create YouTube client
+      const client = await youtubeService.getClient(userId);
+      if (!client) {
+        return res.status(400).json({ message: 'YouTube API not configured' });
+      }
+      
+      // Generate authorization URL
+      const authUrl = client.generateAuthUrl({
+        access_type: 'offline',
+        scope: [
+          'https://www.googleapis.com/auth/youtube.upload',
+          'https://www.googleapis.com/auth/youtube.readonly'
+        ],
+        state: userId // Pass user ID in state
+      });
+      
+      res.json({ authUrl });
+    } catch (error) {
+      console.error('Error generating YouTube auth URL:', error);
+      res.status(500).json({ message: 'Failed to generate authorization URL' });
     }
   });
 
