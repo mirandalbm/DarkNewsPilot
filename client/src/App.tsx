@@ -22,6 +22,7 @@ import ABTesting from "@/pages/ab-testing";
 import AutomationPipelines from "@/pages/automation";
 import AIModels from "@/pages/ai-models";
 import VoiceCloning from "@/pages/voice-cloning";
+import Predictions from "@/pages/predictions";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -57,7 +58,7 @@ function Router() {
           <Route path="/automation" component={AutomationPipelines} />
           <Route path="/ai-models" component={AIModels} />
           <Route path="/voice-cloning" component={VoiceCloning} />
-          <Route path="/predictions" component={() => <div className="p-8"><h1>Previsões - Em desenvolvimento</h1></div>} />
+          <Route path="/predictions" component={Predictions} />
           {/* Monetização */}
           <Route path="/subscriptions" component={() => <div className="p-8"><h1>Sistema de Assinaturas - Em desenvolvimento</h1></div>} />
           <Route path="/affiliates" component={() => <div className="p-8"><h1>Marketing de Afiliados - Em desenvolvimento</h1></div>} />
