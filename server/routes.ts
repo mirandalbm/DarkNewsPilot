@@ -10,6 +10,7 @@ import { openaiService } from "./services/openaiService";
 import { elevenlabsService } from "./services/elevenlabsService";
 import { heygenService } from "./services/heygenService";
 import { automationService } from "./services/automationService";
+import { analyticsService } from "./services/analyticsService";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
 
@@ -747,6 +748,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching news:', error);
       res.status(500).json({ message: 'Failed to fetch news' });
+    }
+  });
+
+  // Analytics endpoints
+  app.get('/api/analytics/dashboard', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { timeframe = '30d' } = req.query;
+      
+      const dashboard = await analyticsService.getDashboard(userId, timeframe);
+      
+      res.json(dashboard);
+    } catch (error) {
+      console.error('Error getting analytics dashboard:', error);
+      res.status(500).json({ message: 'Failed to get analytics dashboard' });
+    }
+  });
+
+  app.get('/api/analytics/realtime', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      const metrics = await analyticsService.getRealtimeMetrics(userId);
+      
+      res.json(metrics);
+    } catch (error) {
+      console.error('Error getting realtime metrics:', error);
+      res.status(500).json({ message: 'Failed to get realtime metrics' });
+    }
+  });
+
+  app.get('/api/analytics/report', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { type = 'monthly' } = req.query;
+      
+      const report = await analyticsService.generateReport(userId, type as 'weekly' | 'monthly' | 'quarterly');
+      
+      res.json({ report, type });
+    } catch (error) {
+      console.error('Error generating report:', error);
+      res.status(500).json({ message: 'Failed to generate report' });
     }
   });
 
