@@ -148,12 +148,12 @@ export default function Canais() {
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { data: channels = mockChannels, isLoading } = useQuery({
+  const { data: channels = mockChannels, isLoading } = useQuery<YouTubeChannel[]>({
     queryKey: ['/api/youtube/channels'],
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 
-  const { data: analytics = mockAnalytics } = useQuery({
+  const { data: analytics = mockAnalytics } = useQuery<Record<string, ChannelAnalytics>>({
     queryKey: ['/api/youtube/analytics'],
   });
 

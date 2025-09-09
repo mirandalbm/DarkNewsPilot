@@ -128,15 +128,15 @@ export default function Usuarios() {
   const [newMemberRole, setNewMemberRole] = useState<'admin' | 'editor' | 'viewer'>('viewer');
   const { toast } = useToast();
 
-  const { data: currentUser = mockProfile } = useQuery({
+  const { data: currentUser = mockProfile } = useQuery<UserProfile>({
     queryKey: ['/api/user/profile'],
   });
 
-  const { data: sessions = mockSessions } = useQuery({
+  const { data: sessions = mockSessions } = useQuery<Session[]>({
     queryKey: ['/api/user/sessions'],
   });
 
-  const { data: teamMembers = mockTeamMembers } = useQuery({
+  const { data: teamMembers = mockTeamMembers } = useQuery<TeamMember[]>({
     queryKey: ['/api/team/members'],
   });
 
