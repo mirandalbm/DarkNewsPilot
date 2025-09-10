@@ -160,11 +160,11 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
         <div key={item.path}>
           <div
             className={cn(
-              "flex items-center space-x-2 py-1 px-2 hover:bg-muted/50 cursor-pointer rounded transition-colors",
+              "flex items-center space-x-2 py-1 px-2 hover:bg-muted/50 cursor-pointer rounded transition-colors min-w-0",
               isSelected && "bg-blue-500/20 border-l-2 border-blue-500",
               level > 0 && "ml-4"
             )}
-            style={{ paddingLeft: `${level * 16 + 8}px` }}
+            style={{ paddingLeft: `${Math.min(level * 16 + 8, 80)}px` }}
             onClick={() => {
               if (item.type === 'directory') {
                 toggleExpanded(item.path);
@@ -173,22 +173,22 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
               }
             }}
           >
-            <Icon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium flex-1">{item.name}</span>
+            <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-sm font-medium flex-1 truncate min-w-0" title={item.name}>{item.name}</span>
             
             {item.type === 'file' && item.size && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground flex-shrink-0 hidden sm:inline">
                 {formatFileSize(item.size)}
               </span>
             )}
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100">
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 flex-shrink-0">
                   <MoreHorizontal className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent align="end" sideOffset={5}>
                 <DropdownMenuItem onClick={() => onFileSelect?.(item)}>
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
@@ -230,12 +230,12 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
   );
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col min-w-0 overflow-hidden">
       {/* Header */}
-      <div className="p-3 border-b">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm">File Explorer</h3>
-          <div className="flex space-x-1">
+      <div className="p-3 border-b flex-shrink-0">
+        <div className="flex items-center justify-between mb-2 min-w-0">
+          <h3 className="font-semibold text-sm truncate">File Explorer</h3>
+          <div className="flex space-x-1 flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
@@ -268,11 +268,11 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
 
       {/* Create Item Modal */}
       {createMode && (
-        <div className="p-3 bg-muted/50 border-b">
+        <div className="p-3 bg-muted/50 border-b flex-shrink-0">
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              {createMode.type === 'file' ? <File className="h-4 w-4" /> : <Folder className="h-4 w-4" />}
-              <span className="text-sm font-medium">
+            <div className="flex items-center space-x-2 min-w-0">
+              {createMode.type === 'file' ? <File className="h-4 w-4 flex-shrink-0" /> : <Folder className="h-4 w-4 flex-shrink-0" />}
+              <span className="text-sm font-medium truncate">
                 Criar {createMode.type === 'file' ? 'Arquivo' : 'Pasta'}
               </span>
             </div>
@@ -310,14 +310,14 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
       )}
 
       {/* File Tree */}
-      <ScrollArea className="flex-1">
-        <div className="p-2">
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-2 min-w-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
             </div>
           ) : (
-            <div className="group">
+            <div className="group min-w-0">
               {renderFileTree(filteredTree || [])}
             </div>
           )}
@@ -325,12 +325,12 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
       </ScrollArea>
 
       {/* Footer Info */}
-      <div className="p-2 border-t bg-muted/30">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{fileTree?.length || 0} itens</span>
-          <div className="flex items-center space-x-1">
+      <div className="p-2 border-t bg-muted/30 flex-shrink-0">
+        <div className="flex items-center justify-between text-xs text-muted-foreground min-w-0">
+          <span className="truncate">{fileTree?.length || 0} itens</span>
+          <div className="flex items-center space-x-1 flex-shrink-0">
             <Clock className="h-3 w-3" />
-            <span>Sincronizado</span>
+            <span className="hidden sm:inline">Sincronizado</span>
           </div>
         </div>
       </div>
