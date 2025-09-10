@@ -21,7 +21,6 @@ import {
   Target,
   Zap,
   Brain,
-  Crystal,
   Sparkles,
   AlertTriangle,
   CheckCircle,
@@ -1020,7 +1019,7 @@ export default function PredictiveAnalyticsSystem() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-              <Crystal className="h-5 w-5 text-white" />
+              <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">Sistema de Previsões e Analytics</h1>
@@ -1595,7 +1594,7 @@ export default function PredictiveAnalyticsSystem() {
                   </div>
 
                   <Button className="w-full" data-testid="button-predict-performance">
-                    <Crystal className="h-4 w-4 mr-2" />
+                    <Sparkles className="h-4 w-4 mr-2" />
                     Prever Performance
                   </Button>
                 </CardContent>
