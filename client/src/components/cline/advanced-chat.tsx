@@ -100,7 +100,7 @@ interface ClineState {
   uploadedFiles: File[];
 }
 
-export function AdvancedChat() {
+export function AdvancedChat({ compact = false }: { compact?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const [input, setInput] = useState("");
@@ -344,6 +344,263 @@ export function AdvancedChat() {
     inputRef.current?.focus();
   };
 
+  // Compact mode for sidebar usage
+  if (compact) {
+    return (
+      <div className="h-full flex flex-col bg-background">
+        {/* Compact Header */}
+        <div className="flex-shrink-0 border-b px-3 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Bot className="h-4 w-4 text-primary" />
+              <span className="font-medium text-sm">Cline AI</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Button size="sm" variant="ghost" onClick={startNewChat} data-testid="button-new-chat">
+                <Plus className="h-3 w-3" />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setShowSettings(!showSettings)} data-testid="button-settings">
+                <Settings className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Compact Controls */}
+        <div className="flex-shrink-0 p-2 border-b bg-muted/20">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <AgentSelector 
+                value={clineState.activeAgent}
+                onChange={(agent) => setClineState(prev => ({ ...prev, activeAgent: agent }))}
+                compact
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <ModelSelector 
+                value={clineState.currentModel}
+                onChange={(model) => setClineState(prev => ({ ...prev, currentModel: model }))}
+                providers={providers}
+                compact
+              />
+            </div>
+            {clineState.selectedContexts.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {clineState.selectedContexts.map((contextId) => {
+                  const context = contextOptions.find(c => c.id === contextId);
+                  return context ? (
+                    <Badge key={contextId} variant="secondary" className="text-xs px-1 py-0">
+                      {context.icon} {context.name}
+                      <X 
+                        className="h-3 w-3 ml-1 cursor-pointer" 
+                        onClick={() => {
+                          setClineState(prev => ({
+                            ...prev,
+                            selectedContexts: prev.selectedContexts.filter(id => id !== contextId)
+                          }));
+                        }}
+                      />
+                    </Badge>
+                  ) : null;
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <ScrollArea ref={scrollRef} className="flex-1 p-3">
+            <div className="space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center py-8">
+                  <Bot className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="font-semibold text-lg mb-2">Cline AI Assistant</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Olá! Eu sou o Cline, seu assistente de desenvolvimento.<br/>
+                    Digite sua pergunta ou tarefa abaixo.
+                  </p>
+                </div>
+              )}
+              
+              {messages.map((message) => (
+                <div key={message.id} className={cn(
+                  "flex gap-3",
+                  message.role === 'user' ? "justify-end" : "justify-start"
+                )}>
+                  {message.role === 'assistant' && (
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                        <Bot className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className={cn(
+                    "max-w-[85%] rounded-lg px-3 py-2 text-sm",
+                    message.role === 'user' 
+                      ? "bg-primary text-primary-foreground ml-auto" 
+                      : "bg-muted"
+                  )}>
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    
+                    {message.role === 'assistant' && (
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-muted-foreground/20">
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleCopy(message.content, message.id)}
+                            className="h-6 p-1"
+                            data-testid={`button-copy-${message.id}`}
+                          >
+                            {copiedId === message.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRating(message.id, 'good')}
+                            className={cn("h-6 p-1", message.rating === 'good' && "text-green-600")}
+                            data-testid={`button-like-${message.id}`}
+                          >
+                            <ThumbsUp className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRating(message.id, 'bad')}
+                            className={cn("h-6 p-1", message.rating === 'bad' && "text-red-600")}
+                            data-testid={`button-dislike-${message.id}`}
+                          >
+                            <ThumbsDown className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        {message.model && (
+                          <span className="text-xs text-muted-foreground">{message.model}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {message.role === 'user' && (
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 text-primary-foreground animate-spin" />
+                    </div>
+                  </div>
+                  <div className="bg-muted rounded-lg px-3 py-2">
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span className="text-sm text-muted-foreground">Pensando...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+
+          {/* Compact Input */}
+          <div className="flex-shrink-0 p-3 border-t bg-background">
+            <form onSubmit={handleSubmit} className="relative">
+              <div className="flex items-center space-x-2">
+                <div className="flex-1 relative">
+                  <Input
+                    ref={inputRef}
+                    value={input}
+                    onChange={handleInputChange}
+                    placeholder="Digite sua mensagem... (use # para contexto)"
+                    disabled={isLoading}
+                    className="pr-12 text-sm"
+                    data-testid="input-message"
+                  />
+                  
+                  {/* Inline Context Dropdown */}
+                  {showInlineContexts && (
+                    <div className="absolute bottom-full left-0 right-0 mb-1 bg-popover border rounded-md shadow-lg z-50 max-h-40 overflow-y-auto">
+                      <div className="p-1">
+                        {contextOptions.map((context) => (
+                          <button
+                            key={context.id}
+                            type="button"
+                            onClick={() => handleInlineContextSelect(context.id, context.name)}
+                            className="w-full text-left px-2 py-1.5 hover:bg-accent rounded text-xs flex items-center space-x-2"
+                          >
+                            <span>{context.icon}</span>
+                            <span>{context.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <FileUploader 
+                  files={clineState.uploadedFiles}
+                  onChange={(files) => setClineState(prev => ({ ...prev, uploadedFiles: files }))}
+                  compact
+                />
+                
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  disabled={isLoading || (!input.trim() && clineState.uploadedFiles.length === 0)}
+                  className={cn(
+                    "transition-all duration-200",
+                    hasContent ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground hover:bg-muted-foreground/90"
+                  )}
+                  data-testid="button-send"
+                >
+                  {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                </Button>
+              </div>
+              
+              {clineState.uploadedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {clineState.uploadedFiles.map((file, index) => (
+                    <Badge key={index} variant="outline" className="text-xs px-1 py-0">
+                      📎 {file.name}
+                      <X 
+                        className="h-3 w-3 ml-1 cursor-pointer" 
+                        onClick={() => {
+                          setClineState(prev => ({
+                            ...prev,
+                            uploadedFiles: prev.uploadedFiles.filter((_, i) => i !== index)
+                          }));
+                        }}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <SettingsPanel 
+            onClose={() => setShowSettings(false)}
+            clineState={clineState}
+            onStateChange={setClineState}
+            compact
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Full mode for standalone usage
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Header Compacto */}

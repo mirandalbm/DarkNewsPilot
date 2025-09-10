@@ -13,6 +13,7 @@ import {
 interface AgentSelectorProps {
   value: string;
   onChange: (agent: string) => void;
+  compact?: boolean;
 }
 
 interface Agent {

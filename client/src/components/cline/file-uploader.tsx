@@ -5,10 +5,13 @@ import { Image as ImageIcon, File, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface FileUploaderProps {
-  onFilesSelected: (files: File[]) => void;
+  files?: File[];
+  onChange?: (files: File[]) => void;
+  onFilesSelected?: (files: File[]) => void;
+  compact?: boolean;
 }
 
-export function FileUploader({ onFilesSelected }: FileUploaderProps) {
+export function FileUploader({ onFilesSelected, onChange, files, compact = false }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -49,7 +52,8 @@ export function FileUploader({ onFilesSelected }: FileUploaderProps) {
     });
 
     if (validFiles.length > 0) {
-      onFilesSelected(validFiles);
+      onFilesSelected?.(validFiles);
+      onChange?.(validFiles);
       toast({
         title: "Arquivos Carregados",
         description: `${validFiles.length} arquivo${validFiles.length > 1 ? 's' : ''} selecionado${validFiles.length > 1 ? 's' : ''}`,

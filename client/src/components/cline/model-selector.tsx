@@ -13,6 +13,7 @@ interface ModelSelectorProps {
   value: string;
   onChange: (model: string) => void;
   providers?: any;
+  compact?: boolean;
 }
 
 interface Model {

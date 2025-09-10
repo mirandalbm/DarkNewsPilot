@@ -394,7 +394,7 @@ export default function ProfessionalDashboard() {
               sidebar.isTablet ? "w-72" : "w-80"
             )}>
               <div className="h-full p-4">
-                <AdvancedChat />
+                <AdvancedChat compact={true} />
               </div>
             </aside>
           )}
@@ -403,7 +403,7 @@ export default function ProfessionalDashboard() {
           {sidebar.isMobile && (
             <div className="p-4 border-t bg-background/50">
               <div className="h-96">
-                <AdvancedChat />
+                <AdvancedChat compact={true} />
               </div>
             </div>
           )}

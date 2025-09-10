@@ -25,9 +25,10 @@ interface SettingsPanelProps {
   onClose: () => void;
   clineState: any;
   onStateChange: (state: any) => void;
+  compact?: boolean;
 }
 
-export function SettingsPanel({ onClose, clineState, onStateChange }: SettingsPanelProps) {
+export function SettingsPanel({ onClose, clineState, onStateChange, compact = false }: SettingsPanelProps) {
   const [activeTab, setActiveTab] = useState("general");
 
   const handleToggle = (key: string, value: boolean) => {
