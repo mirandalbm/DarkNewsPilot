@@ -34,6 +34,7 @@ import Moderation from "@/pages/moderation";
 import ContentVerification from "@/pages/content-verification";
 import FactChecking from "@/pages/fact-checking";
 import Copyright from "@/pages/copyright";
+import Audit from "@/pages/audit";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -84,7 +85,7 @@ function Router() {
           <Route path="/content-verification" component={ContentVerification} />
           <Route path="/fact-checking" component={FactChecking} />
           <Route path="/copyright" component={Copyright} />
-          <Route path="/audit" component={() => <div className="p-8"><h1>Sistema de Auditoria - Em desenvolvimento</h1></div>} />
+          <Route path="/audit" component={Audit} />
           {/* Configurações */}
           <Route path="/configuracoes" component={ConfiguracaoIndex} />
           <Route path="/configuracoes/integracoes" component={Integracoes} />

@@ -16,7 +16,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   ShieldX,
-  Copyright,
+  Copyright as CopyrightIcon,
   Scale,
   Gavel,
   FileText,
@@ -511,7 +511,7 @@ const mockDMCANotices: DMCANotice[] = [
     contentDescription: 'Segmento de documentário usado para análise crítica',
     violationDescription: 'Contestação de alegação de violação - alegando uso justo',
     legalBasis: 'Fair Use Doctrine - 17 U.S.C. § 107',
-    requestedAction: 'restore',
+    requestedAction: 'remove',
     sentAt: '2024-03-06 16:30:00',
     responseDeadline: '2024-03-16 16:30:00',
     documents: [
@@ -626,7 +626,7 @@ export default function Copyright() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-              <Copyright className="h-5 w-5 text-white" />
+              <CopyrightIcon className="h-5 w-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">Proteção de Copyright</h1>
