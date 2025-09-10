@@ -52,7 +52,6 @@ import {
   UserPlus,
   UserMinus,
   Ban,
-  Unban,
   AlertTriangle,
   Info,
   HelpCircle,
