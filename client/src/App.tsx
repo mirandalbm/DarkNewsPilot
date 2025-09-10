@@ -33,6 +33,7 @@ import Notifications from "@/pages/notifications";
 import Moderation from "@/pages/moderation";
 import ContentVerification from "@/pages/content-verification";
 import FactChecking from "@/pages/fact-checking";
+import Copyright from "@/pages/copyright";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -82,7 +83,7 @@ function Router() {
           {/* Segurança */}
           <Route path="/content-verification" component={ContentVerification} />
           <Route path="/fact-checking" component={FactChecking} />
-          <Route path="/copyright" component={() => <div className="p-8"><h1>Proteção de Copyright - Em desenvolvimento</h1></div>} />
+          <Route path="/copyright" component={Copyright} />
           <Route path="/audit" component={() => <div className="p-8"><h1>Sistema de Auditoria - Em desenvolvimento</h1></div>} />
           {/* Configurações */}
           <Route path="/configuracoes" component={ConfiguracaoIndex} />
