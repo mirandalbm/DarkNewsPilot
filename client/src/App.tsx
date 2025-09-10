@@ -36,6 +36,7 @@ import FactChecking from "@/pages/fact-checking";
 import Copyright from "@/pages/copyright";
 import Audit from "@/pages/audit";
 import BackupRecovery from "@/pages/backup";
+import EmotionAnimations from "@/pages/emotion-animations";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -88,6 +89,7 @@ function Router() {
           <Route path="/copyright" component={Copyright} />
           <Route path="/audit" component={Audit} />
           <Route path="/backup" component={BackupRecovery} />
+          <Route path="/emotion-animations" component={EmotionAnimations} />
           {/* Configurações */}
           <Route path="/configuracoes" component={ConfiguracaoIndex} />
           <Route path="/configuracoes/integracoes" component={Integracoes} />
