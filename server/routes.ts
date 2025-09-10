@@ -884,37 +884,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // File Management System Routes - Cline Integration
   // Security helper function to validate file paths
-  const validatePath = (inputPath: string): string => {
+  const validatePath = async (inputPath: string): Promise<string> => {
     const pathModule = require('path');
+    const fs = require('fs').promises;
     const projectRoot = process.cwd();
     
     // Normalize and resolve the path
     const normalizedPath = pathModule.normalize(inputPath);
     const resolvedPath = pathModule.resolve(projectRoot, normalizedPath);
     
+    // Use realpath to resolve symlinks and check actual path
+    let realPath: string;
+    try {
+      realPath = await fs.realpath(resolvedPath);
+    } catch (error) {
+      // If realpath fails, use resolved path for creation operations
+      realPath = resolvedPath;
+    }
+    
     // Ensure path is within project root
-    if (!resolvedPath.startsWith(projectRoot)) {
+    if (!realPath.startsWith(projectRoot)) {
       throw new Error('Access denied: Path outside project directory');
     }
     
+    // Check if it's a symlink (security risk)
+    try {
+      const stats = await fs.lstat(resolvedPath);
+      if (stats.isSymbolicLink()) {
+        throw new Error('Access denied: Symbolic links not allowed');
+      }
+    } catch (error) {
+      // File doesn't exist, that's okay for creation operations
+    }
+    
     // Block access to sensitive files and directories
-    const relativePath = pathModule.relative(projectRoot, resolvedPath);
+    const relativePath = pathModule.relative(projectRoot, realPath);
     const pathSegments = relativePath.split(pathModule.sep);
     
-    // Block hidden files except specific allowed ones
+    // Block entire .git directory and all hidden files except specific allowed ones
     for (const segment of pathSegments) {
+      if (segment === '.git') {
+        throw new Error('Access denied: Git directory not allowed');
+      }
       if (segment.startsWith('.') && !['', '.gitignore', '.gitattributes'].includes(segment)) {
         throw new Error('Access denied: Hidden files not allowed');
       }
     }
     
     // Block sensitive directories
-    const blockedDirs = ['node_modules', '.git', '.replit', 'dist', 'build'];
+    const blockedDirs = ['node_modules', '.replit', 'dist', 'build', '.npm', '.cache'];
     if (pathSegments.some(segment => blockedDirs.includes(segment))) {
       throw new Error('Access denied: System directory not allowed');
     }
     
-    return resolvedPath;
+    return realPath;
   };
 
   app.get('/api/cline/files/tree', isAuthenticated, async (req, res) => {
@@ -924,7 +947,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pathModule = await import('path');
       
       // Validate path security
-      const safePath = validatePath(path as string);
+      const safePath = await validatePath(path as string);
       
       const buildFileTree = async (dirPath: string, basePath: string = ''): Promise<any[]> => {
         const items = await fs.readdir(dirPath, { withFileTypes: true });
@@ -978,11 +1001,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Validate path security
-      const safePath = validatePath(path as string);
+      const safePath = await validatePath(path as string);
       
       const fs = await import('fs/promises');
-      const content = await fs.readFile(safePath, 'utf-8');
+      
+      // Check file size before reading (prevent reading huge files)
       const stats = await fs.stat(safePath);
+      const maxFileSize = 10 * 1024 * 1024; // 10MB limit
+      if (stats.size > maxFileSize) {
+        return res.status(413).json({ 
+          message: `File too large: ${(stats.size / 1024 / 1024).toFixed(1)}MB. Maximum allowed: ${maxFileSize / 1024 / 1024}MB` 
+        });
+      }
+      
+      const content = await fs.readFile(safePath, 'utf-8');
       
       res.json({
         content,
@@ -1004,7 +1036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Validate path security
-      const safePath = validatePath(path);
+      const safePath = await validatePath(path);
       
       const fs = await import('fs/promises');
       const pathModule = await import('path');
@@ -1047,7 +1079,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Validate path security
-      const safePath = validatePath(path);
+      const safePath = await validatePath(path);
       
       const fs = await import('fs/promises');
       const pathModule = await import('path');
@@ -1079,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const path = decodeURIComponent(req.params.encodedPath);
       // Validate path security
-      const safePath = validatePath(path);
+      const safePath = await validatePath(path);
       
       const fs = await import('fs/promises');
       
@@ -1106,39 +1138,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Validate working directory security
-      const safeWorkingDir = validatePath(workingDirectory);
+      const safeWorkingDir = await validatePath(workingDirectory);
       
-      // Basic command validation - block dangerous commands
-      const dangerousCommands = ['rm -rf /', 'sudo', 'chmod 777', 'mv /etc', 'cp /etc'];
-      if (dangerousCommands.some(dangerous => command.includes(dangerous))) {
-        return res.status(403).json({ message: 'Command blocked for security reasons' });
+      // Parse command into binary and args
+      const commandParts = command.trim().split(/\s+/);
+      const binary = commandParts[0];
+      const args = commandParts.slice(1);
+      
+      // Allowlist of safe commands
+      const allowedCommands = [
+        'ls', 'cat', 'pwd', 'echo', 'head', 'tail', 'grep', 'find',
+        'git', 'node', 'npm', 'npx', 'yarn', 'pnpm', 'python3', 'python',
+        'tsc', 'tsx', 'curl', 'wget', 'which', 'file', 'du', 'df'
+      ];
+      
+      if (!allowedCommands.includes(binary)) {
+        return res.status(403).json({ 
+          message: `Command '${binary}' not allowed. Permitted commands: ${allowedCommands.join(', ')}` 
+        });
+      }
+      
+      // Additional restrictions for certain commands
+      if ((binary === 'npm' || binary === 'npx') && args.includes('install')) {
+        return res.status(403).json({ message: 'Package installation not allowed from terminal' });
+      }
+      
+      if (binary === 'find' && args.some(arg => arg.includes('..'))) {
+        return res.status(403).json({ message: 'Directory traversal not allowed in find command' });
       }
       
       const { spawn } = await import('child_process');
-      const childProcess = spawn('bash', ['-c', command], {
+      const childProcess = spawn(binary, args, {
         cwd: safeWorkingDir,
         stdio: 'pipe',
-        env: { ...process.env }
+        shell: false, // Critical: no shell to prevent injection
+        env: { 
+          PATH: process.env.PATH,
+          NODE_ENV: process.env.NODE_ENV,
+          HOME: process.env.HOME 
+        },
+        timeout: 30000 // 30 second timeout
       });
       
       let stdout = '';
       let stderr = '';
+      const maxOutputSize = 1024 * 1024; // 1MB limit
       
       childProcess.stdout?.on('data', (data) => {
         stdout += data.toString();
+        if (stdout.length > maxOutputSize) {
+          childProcess.kill('SIGTERM');
+          stderr += '\nOutput truncated: size limit exceeded';
+        }
       });
       
       childProcess.stderr?.on('data', (data) => {
         stderr += data.toString();
+        if (stderr.length > maxOutputSize) {
+          childProcess.kill('SIGTERM');
+          stderr += '\nError output truncated: size limit exceeded';
+        }
       });
       
+      // Set timeout
+      const timeout = setTimeout(() => {
+        childProcess.kill('SIGTERM');
+        stderr += '\nCommand timed out after 30 seconds';
+      }, 30000);
+      
       childProcess.on('close', (code) => {
+        clearTimeout(timeout);
         res.json({
-          command,
+          command: `${binary} ${args.join(' ')}`, // Don't echo raw input
           exitCode: code,
-          stdout,
-          stderr,
-          workingDirectory
+          stdout: stdout.slice(0, maxOutputSize),
+          stderr: stderr.slice(0, maxOutputSize),
+          workingDirectory: workingDirectory
         });
       });
       
@@ -1173,6 +1248,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error getting git status:', error);
       res.status(500).json({ message: 'Failed to get git status' });
+    }
+  });
+
+  // Add GET endpoint for git diff to match frontend expectations
+  app.get('/api/cline/git/diff', isAuthenticated, async (req, res) => {
+    try {
+      const { file, staged = false } = req.query;
+      const { spawn } = await import('child_process');
+      
+      const args = ['diff'];
+      if (staged === 'true') args.push('--staged');
+      if (file) args.push(file as string);
+      
+      const gitDiff = spawn('git', args, { stdio: 'pipe' });
+      
+      let stdout = '';
+      gitDiff.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      gitDiff.on('close', (code) => {
+        res.json({ diff: stdout });
+      });
+    } catch (error) {
+      console.error('Error getting git diff:', error);
+      res.status(500).json({ message: 'Failed to get git diff' });
     }
   });
 
