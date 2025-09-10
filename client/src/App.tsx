@@ -26,6 +26,7 @@ import Predictions from "@/pages/predictions";
 import Subscriptions from "@/pages/subscriptions";
 import Affiliates from "@/pages/affiliates";
 import Sponsors from "@/pages/sponsors";
+import EmailMarketing from "@/pages/email-marketing";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -68,7 +69,7 @@ function Router() {
           <Route path="/sponsors" component={Sponsors} />
           <Route path="/adsense" component={() => <div className="p-8"><h1>Integração AdSense - Em desenvolvimento</h1></div>} />
           {/* Comunicação */}
-          <Route path="/email" component={() => <div className="p-8"><h1>Email Marketing - Em desenvolvimento</h1></div>} />
+          <Route path="/email" component={EmailMarketing} />
           <Route path="/discord" component={() => <div className="p-8"><h1>Discord Bot - Em desenvolvimento</h1></div>} />
           <Route path="/notifications" component={() => <div className="p-8"><h1>Sistema de Notificações - Em desenvolvimento</h1></div>} />
           <Route path="/moderation" component={() => <div className="p-8"><h1>Moderação Automática - Em desenvolvimento</h1></div>} />
