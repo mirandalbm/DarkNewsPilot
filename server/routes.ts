@@ -11,6 +11,7 @@ import { elevenlabsService } from "./services/elevenlabsService";
 import { heygenService } from "./services/heygenService";
 import { automationService } from "./services/automationService";
 import { analyticsService } from "./services/analyticsService";
+import { aiProviderService } from "./services/aiProviderService";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
 
@@ -154,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/videos/generate', isAuthenticated, async (req, res) => {
     try {
       const { newsId, language, avatar, customScript } = req.body;
-      const videoId = await videoService.generateVideo(newsId, language, avatar, customScript);
+      const videoId = await videoService.generateVideo(newsId, language);
       res.json({ message: "Video generation started", videoId });
     } catch (error) {
       console.error("Error generating video:", error);
@@ -169,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const videoIds = [];
       
       for (const language of languages) {
-        const videoId = await videoService.generateVideo(newsId, language, avatar);
+        const videoId = await videoService.generateVideo(newsId, language);
         videoIds.push(videoId);
       }
       
@@ -614,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const channel = await storage.createYoutubeChannel({
         channelId,
-        channelName,
+        name: channelName,
         language,
         isActive: isActive || false
       });
@@ -631,11 +632,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const { channelName, language, isActive } = req.body;
       
-      await storage.updateYoutubeChannel(id, {
-        channelName,
-        language,
-        isActive
-      });
+      // TODO: Implement updateYoutubeChannel method
+      res.status(501).json({ message: 'Update functionality not implemented yet' });
+      return;
       
       res.json({ message: 'Channel updated successfully' });
     } catch (error) {
@@ -648,7 +647,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       
-      await storage.deleteYoutubeChannel(id);
+      // TODO: Implement deleteYoutubeChannel method
+      res.status(501).json({ message: 'Delete functionality not implemented yet' });
+      return;
       
       res.json({ message: 'Channel deleted successfully' });
     } catch (error) {
