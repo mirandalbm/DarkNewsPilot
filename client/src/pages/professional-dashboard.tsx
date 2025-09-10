@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { DashboardStats } from "@shared/schema";
 import ProfessionalSidebar from "@/components/layout/professional-sidebar";
 import ProfessionalHeader from "@/components/layout/professional-header";
+import { ClineChat } from "@/components/cline/cline-chat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -193,48 +194,55 @@ export default function ProfessionalDashboard() {
       <ProfessionalSidebar />
       
       <div className={cn(
-        "responsive-container flex flex-col transition-all duration-300",
+        "responsive-container transition-all duration-300",
         sidebar.isMobile && "w-full"
       )}>
         <ProfessionalHeader />
         
-        <main className={cn(
-          "main-responsive space-y-6 transition-all duration-300",
-          sidebar.isMobile ? "p-4" : sidebar.isTablet ? "p-5" : "p-6"
+        {/* Three Column Layout */}
+        <div className={cn(
+          "flex h-[calc(100vh-64px)] transition-all duration-300",
+          sidebar.isMobile ? "flex-col" : "flex-row"
         )}>
-          {/* Welcome Section */}
-          <div className={cn(
-            "flex justify-between transition-all duration-300",
-            sidebar.isMobile ? "flex-col space-y-2" : "items-center"
+          {/* Main Content Area */}
+          <main className={cn(
+            "flex-1 overflow-y-auto space-y-6 transition-all duration-300",
+            sidebar.isMobile ? "p-4" : sidebar.isTablet ? "p-5" : "p-6",
+            !sidebar.isMobile && "pr-0" // Remove right padding when Cline is visible
           )}>
-            <div>
-              <h1 className={cn(
-                "font-bold text-foreground transition-all duration-300",
-                sidebar.isMobile ? "text-2xl" : sidebar.isTablet ? "text-2xl" : "text-3xl"
-              )}>Dashboard Principal</h1>
-              <p className={cn(
-                "text-muted-foreground mt-1 transition-all duration-300",
-                sidebar.isMobile ? "text-sm" : "text-base"
-              )}>
-                Monitore sua produção de conteúdo automatizada
-              </p>
-            </div>
+            {/* Welcome Section */}
             <div className={cn(
-              "flex items-center space-x-2 text-muted-foreground transition-all duration-300",
-              sidebar.isMobile ? "text-xs" : "text-sm"
+              "flex justify-between transition-all duration-300",
+              sidebar.isMobile ? "flex-col space-y-2" : "items-center"
             )}>
-              <Clock className={cn(
-                "transition-all duration-300",
-                sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
-              )} />
-              <span>
-                {sidebar.isMobile 
-                  ? `${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
-                  : `Última atualização: ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
-                }
-              </span>
+              <div>
+                <h1 className={cn(
+                  "font-bold text-foreground transition-all duration-300",
+                  sidebar.isMobile ? "text-2xl" : sidebar.isTablet ? "text-2xl" : "text-3xl"
+                )}>Dashboard Principal</h1>
+                <p className={cn(
+                  "text-muted-foreground mt-1 transition-all duration-300",
+                  sidebar.isMobile ? "text-sm" : "text-base"
+                )}>
+                  Monitore sua produção de conteúdo automatizada
+                </p>
+              </div>
+              <div className={cn(
+                "flex items-center space-x-2 text-muted-foreground transition-all duration-300",
+                sidebar.isMobile ? "text-xs" : "text-sm"
+              )}>
+                <Clock className={cn(
+                  "transition-all duration-300",
+                  sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
+                )} />
+                <span>
+                  {sidebar.isMobile 
+                    ? `${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                    : `Última atualização: ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                  }
+                </span>
+              </div>
             </div>
-          </div>
 
           {/* Metrics Cards */}
           <div className={cn(
@@ -376,7 +384,29 @@ export default function ProfessionalDashboard() {
               </div>
             </CardContent>
           </Card>
-        </main>
+          </main>
+
+          {/* Cline AI Assistant Column - Fixed Right */}
+          {!sidebar.isMobile && (
+            <aside className={cn(
+              "w-80 border-l bg-background/50 transition-all duration-300",
+              sidebar.isTablet ? "w-72" : "w-80"
+            )}>
+              <div className="h-full p-4">
+                <ClineChat />
+              </div>
+            </aside>
+          )}
+
+          {/* Mobile Cline Chat */}
+          {sidebar.isMobile && (
+            <div className="p-4 border-t bg-background/50">
+              <div className="h-96">
+                <ClineChat />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

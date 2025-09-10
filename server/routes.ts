@@ -794,6 +794,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Provider Routes - Cline Integration
+  app.get('/api/ai-providers', isAuthenticated, async (req, res) => {
+    try {
+      const providers = aiProviderService.getAvailableProviders();
+      const extensibleProviders = aiProviderService.getExtensibleProviders();
+      
+      res.json({
+        active: providers,
+        extensible: extensibleProviders,
+        total: providers.length + extensibleProviders.filter(p => p.enabled).length
+      });
+    } catch (error) {
+      console.error('Error fetching AI providers:', error);
+      res.status(500).json({ message: 'Failed to fetch AI providers' });
+    }
+  });
+
+  app.post('/api/ai-providers/chat', isAuthenticated, async (req, res) => {
+    try {
+      const { provider, model, messages, temperature, maxTokens } = req.body;
+      
+      if (!provider || !model || !messages) {
+        return res.status(400).json({ message: 'Provider, model, and messages are required' });
+      }
+
+      const response = await aiProviderService.sendRequest({
+        provider,
+        model,
+        messages,
+        temperature: temperature || 0.7,
+        maxTokens: maxTokens || 2048
+      });
+
+      res.json(response);
+    } catch (error) {
+      console.error('Error sending AI request:', error);
+      res.status(500).json({ message: 'Failed to send AI request' });
+    }
+  });
+
+  app.get('/api/ai-providers/:providerId/models', isAuthenticated, async (req, res) => {
+    try {
+      const { providerId } = req.params;
+      const provider = aiProviderService.getProvider(providerId);
+      
+      if (!provider) {
+        return res.status(404).json({ message: 'Provider not found' });
+      }
+
+      res.json(provider.models);
+    } catch (error) {
+      console.error('Error fetching provider models:', error);
+      res.status(500).json({ message: 'Failed to fetch provider models' });
+    }
+  });
+
+  app.post('/api/ai-providers/extension', isAuthenticated, async (req, res) => {
+    try {
+      const extensionRequest = req.body;
+      const success = await aiProviderService.addCustomProvider(extensionRequest);
+      
+      if (success) {
+        res.json({ message: 'Provider extension added successfully' });
+      } else {
+        res.status(400).json({ message: 'Failed to add provider extension' });
+      }
+    } catch (error) {
+      console.error('Error adding provider extension:', error);
+      res.status(500).json({ message: 'Failed to add provider extension' });
+    }
+  });
+
+  app.get('/api/ai-providers/best/:task', isAuthenticated, async (req, res) => {
+    try {
+      const { task } = req.params;
+      const bestProvider = aiProviderService.getBestProvider(task as any);
+      
+      if (!bestProvider) {
+        return res.status(404).json({ message: 'No suitable provider found for this task' });
+      }
+
+      res.json({ provider: bestProvider });
+    } catch (error) {
+      console.error('Error finding best provider:', error);
+      res.status(500).json({ message: 'Failed to find best provider' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
