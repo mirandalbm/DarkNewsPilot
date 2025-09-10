@@ -31,6 +31,14 @@ export class AIProviderService {
       });
     }
 
+    // Add OpenAI direct support
+    if (process.env.OPENAI_API_KEY) {
+      this.configs.set('openai', {
+        apiKey: process.env.OPENAI_API_KEY,
+        baseUrl: 'https://api.openai.com/v1'
+      });
+    }
+
     // Future extensible providers will be loaded here
     this.loadExtensibleProviders();
   }
@@ -88,6 +96,9 @@ export class AIProviderService {
         case 'openrouter':
           response = await this.callOpenRouter(request, config);
           break;
+        case 'openai':
+          response = await this.callOpenAI(request, config);
+          break;
         case 'xai':
           response = await this.callXAI(request, config);
           break;
@@ -108,6 +119,45 @@ export class AIProviderService {
       console.error(`AI Provider Error (${request.provider}):`, error);
       throw error;
     }
+  }
+
+  private async callOpenAI(request: AIRequest, config: ProviderConfig): Promise<AIResponse> {
+    const response = await fetch(`${config.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: request.model.includes('/') ? request.model.split('/')[1] : request.model,
+        messages: request.messages,
+        temperature: request.temperature || 0.7,
+        max_tokens: request.maxTokens,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const usage = data.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+
+    return {
+      id: data.id,
+      provider: 'openai',
+      model: request.model,
+      content: data.choices[0]?.message?.content || '',
+      tokensUsed: {
+        input: usage.prompt_tokens,
+        output: usage.completion_tokens,
+        total: usage.total_tokens
+      },
+      cost: (usage.prompt_tokens * 0.01 / 1000) + (usage.completion_tokens * 0.03 / 1000), // GPT-4o pricing
+      finishReason: data.choices[0]?.finish_reason || 'stop',
+      duration: 0
+    };
   }
 
   private async callOpenRouter(request: AIRequest, config: ProviderConfig): Promise<AIResponse> {

@@ -83,6 +83,20 @@ const contextOptions: ContextOption[] = [
     icon: Book,
     path: "replit.md",
     description: "Documentação do projeto"
+  },
+  {
+    id: "web-search",
+    name: "Web Search Results",
+    type: "web",
+    icon: Globe,
+    description: "Resultados de pesquisa web em tempo real"
+  },
+  {
+    id: "current-url", 
+    name: "Current URL Content",
+    type: "web",
+    icon: Globe,
+    description: "Conteúdo da URL atual sendo exibida"
   }
 ];
 

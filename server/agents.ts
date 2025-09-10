@@ -366,6 +366,10 @@ Please try again in a moment or contact support if the issue persists.`;
           return await this.getFileContext('shared/schema.ts');
         case 'replit-md':
           return await this.getFileContext('replit.md');
+        case 'web-search':
+          return await this.getWebSearchContext();
+        case 'current-url':
+          return await this.getCurrentUrlContext();
         default:
           return null;
       }
@@ -423,6 +427,26 @@ Please try again in a moment or contact support if the issue persists.`;
       return `File content for ${filePath}:\n${content}`;
     } catch (error) {
       return `File content for ${filePath} (error reading): ${error}`;
+    }
+  }
+
+  private async getWebSearchContext(): Promise<string> {
+    try {
+      // Simulated web search context for now
+      // TODO: Implement real web search integration
+      return `Web Search Context:\n- Real-time web search results would appear here\n- Integration with search APIs (Google, Bing, etc.)\n- Recent news and information from the web\n- Current trends and developments`;
+    } catch (error) {
+      return `Web search context (error): ${error}`;
+    }
+  }
+
+  private async getCurrentUrlContext(): Promise<string> {
+    try {
+      // Simulated current URL context for now
+      // TODO: Implement browser integration to get current URL content
+      return `Current URL Context:\n- Content from the currently viewed webpage\n- Meta information (title, description)\n- Main text content extracted from the page\n- Links and navigation structure`;
+    } catch (error) {
+      return `Current URL context (error): ${error}`;
     }
   }
 

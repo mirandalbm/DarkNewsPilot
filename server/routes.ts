@@ -11,7 +11,9 @@ import { elevenlabsService } from "./services/elevenlabsService";
 import { heygenService } from "./services/heygenService";
 import { automationService } from "./services/automationService";
 import { analyticsService } from "./services/analyticsService";
-// AI Provider Service will be imported and initialized later
+import { aiProviderService } from "./services/aiProviderService";
+import { BUILTIN_AGENTS } from "./agents";
+import { z } from "zod";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
 
@@ -797,14 +799,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Provider Routes - Cline Integration
   app.get('/api/ai-providers', isAuthenticated, async (req, res) => {
     try {
-      // TODO: Fix this when AI provider service is properly available
-      const providers = [];
-      const extensibleProviders = [];
+      const availableProviders = aiProviderService.getAvailableProviders();
       
       res.json({
-        active: providers,
-        extensible: extensibleProviders,
-        total: providers.length + extensibleProviders.filter(p => p.enabled).length
+        active: availableProviders,
+        extensible: [], // Extensible providers handled separately
+        total: availableProviders.length
       });
     } catch (error) {
       console.error('Error fetching AI providers:', error);
@@ -814,15 +814,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/ai-providers/chat', isAuthenticated, async (req, res) => {
     try {
-      const { provider, model, messages, temperature, maxTokens } = req.body;
+      const { provider, model, messages, temperature, maxTokens, tools } = req.body;
       
       if (!provider || !model || !messages) {
         return res.status(400).json({ message: 'Provider, model, and messages are required' });
       }
 
-      // TODO: Fix this when AI provider service is properly available
-      const response = { content: 'AI provider service not available', cost: 0, tokensUsed: { total: 0 } };
+      const aiRequest = {
+        provider,
+        model,
+        messages,
+        temperature: temperature || 0.7,
+        maxTokens,
+        tools
+      };
 
+      const response = await aiProviderService.sendRequest(aiRequest);
       res.json(response);
     } catch (error) {
       console.error('Error sending AI request:', error);
@@ -833,8 +840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/ai-providers/:providerId/models', isAuthenticated, async (req, res) => {
     try {
       const { providerId } = req.params;
-      // TODO: Fix this when AI provider service is properly available
-      const provider = null;
+      const provider = aiProviderService.getProvider(providerId);
       
       if (!provider) {
         return res.status(404).json({ message: 'Provider not found' });
@@ -850,8 +856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/ai-providers/extension', isAuthenticated, async (req, res) => {
     try {
       const extensionRequest = req.body;
-      // TODO: Fix this when AI provider service is properly available
-      const success = false;
+      const success = await aiProviderService.addCustomProvider(extensionRequest);
       
       if (success) {
         res.json({ message: 'Provider extension added successfully' });
@@ -866,9 +871,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/ai-providers/best/:task', isAuthenticated, async (req, res) => {
     try {
-      const { task } = req.params;
-      // TODO: Fix this when AI provider service is properly available
-      const bestProvider = null;
+      const { task } = req.params as { task: 'coding' | 'research' | 'analysis' | 'creative' };
+      const bestProvider = aiProviderService.getBestProvider(task);
       
       if (!bestProvider) {
         return res.status(404).json({ message: 'No suitable provider found for this task' });
@@ -878,6 +882,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error finding best provider:', error);
       res.status(500).json({ message: 'Failed to find best provider' });
+    }
+  });
+
+  // Agent Routes - Built-in Agents
+  app.get('/api/agents', isAuthenticated, async (req, res) => {
+    try {
+      // Return built-in agents configuration
+      const agents = Object.values(BUILTIN_AGENTS).map(agent => ({
+        id: agent.id,
+        name: agent.name,
+        description: agent.description,
+        capabilities: agent.capabilities,
+        maxTokens: agent.maxTokens,
+        temperature: agent.temperature,
+        tools: agent.tools
+      }));
+      
+      res.json(agents);
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+      res.status(500).json({ message: 'Failed to fetch agents' });
+    }
+  });
+
+  // Chat Request Schema
+  const ChatRequestSchema = z.object({
+    message: z.string().min(1, 'Message is required'),
+    agent: z.string().min(1, 'Agent is required'),
+    contexts: z.array(z.string()).default([]),
+    model: z.string().min(1, 'Model is required'),
+    files: z.array(z.any()).optional()
+  });
+
+  // Cline Chat Integration Endpoint
+  app.post('/api/cline/chat', isAuthenticated, async (req, res) => {
+    try {
+      // Validate request body
+      const validationResult = ChatRequestSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid request body', 
+          errors: validationResult.error.issues 
+        });
+      }
+
+      const { message, agent, contexts, model, files } = validationResult.data;
+
+      // Get the selected agent
+      const selectedAgent = BUILTIN_AGENTS[agent];
+      if (!selectedAgent) {
+        return res.status(400).json({ 
+          message: `Invalid agent: ${agent}. Available agents: ${Object.keys(BUILTIN_AGENTS).join(', ')}` 
+        });
+      }
+
+      // Build context content (simplified for now)
+      let contextContent = '';
+      if (contexts && contexts.length > 0) {
+        contextContent = `\n\nContext Information:\n${contexts.map(ctx => `- ${ctx}`).join('\n')}`;
+      }
+
+      // Process uploaded files (simplified for now) 
+      let filesContent = '';
+      if (files && files.length > 0) {
+        filesContent = `\n\nUploaded Files: ${files.length} file(s) provided`;
+      }
+
+      // Build the complete prompt
+      const userPrompt = `${selectedAgent.systemPrompt}\n\nUser Message: ${message}${contextContent}${filesContent}`;
+
+      // Extract provider from model (assuming format like "openrouter/model-name")
+      const provider = model.includes('/') ? model.split('/')[0] : 'openrouter';
+      const actualModel = model.includes('/') ? model : `${provider}/${model}`;
+
+      // Send request to AI provider
+      const aiRequest = {
+        provider,
+        model: actualModel,
+        messages: [
+          {
+            role: 'user' as const,
+            content: userPrompt
+          }
+        ],
+        temperature: selectedAgent.temperature,
+        maxTokens: selectedAgent.maxTokens
+      };
+
+      console.log(`Chat request: Agent=${agent}, Model=${actualModel}, Provider=${provider}`);
+      
+      const aiResponse = await aiProviderService.sendRequest(aiRequest);
+      
+      console.log(`Chat response: ${aiResponse.tokensUsed?.total || 0} tokens, Cost=$${aiResponse.cost?.toFixed(4) || 0}`);
+
+      res.json({
+        response: aiResponse.content,
+        provider: aiResponse.provider,
+        model: aiResponse.model,
+        cost: aiResponse.cost,
+        tokensUsed: aiResponse.tokensUsed?.total || 0,
+        finishReason: aiResponse.finishReason,
+        duration: aiResponse.duration
+      });
+
+    } catch (error) {
+      console.error('Error processing chat request:', error);
+      
+      // Return a helpful error response
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      res.status(500).json({ 
+        message: 'Failed to process chat request',
+        error: errorMessage,
+        fallbackResponse: 'I apologize, but I encountered an error processing your request. Please try again or check your AI provider configuration.'
+      });
     }
   });
 

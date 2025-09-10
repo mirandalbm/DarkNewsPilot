@@ -125,6 +125,10 @@ export function AdvancedChat() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [chatHistory, setChatHistory] = useState<string[]>([]);
   
+  // Inline context selection state
+  const [showInlineContexts, setShowInlineContexts] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  
   // Advanced state
   const [clineState, setClineState] = useState<ClineState>({
     activeAgent: "builder",
@@ -286,6 +290,68 @@ export function AdvancedChat() {
 
   // Check if input has content for button color
   const hasContent = input.trim().length > 0 || clineState.uploadedFiles.length > 0;
+
+  // Context options for inline selection (same as ContextSelector)
+  const contextOptions = [
+    { id: "workspace", name: "Workspace", icon: "🏢", description: "Todo o workspace atual" },
+    { id: "client-src", name: "Frontend Source", icon: "📁", description: "Código frontend da aplicação" },
+    { id: "server", name: "Backend Source", icon: "📁", description: "Código backend da aplicação" },
+    { id: "shared", name: "Shared Types", icon: "📁", description: "Tipos compartilhados" },
+    { id: "package-json", name: "package.json", icon: "📄", description: "Dependências do projeto" },
+    { id: "schema", name: "Database Schema", icon: "📄", description: "Schema do banco" },
+    { id: "replit-md", name: "Project Doc", icon: "📖", description: "Documentação" },
+    { id: "web-search", name: "Web Search", icon: "🌐", description: "Resultados de pesquisa web" },
+    { id: "current-url", name: "Current URL", icon: "🌐", description: "Conteúdo da URL atual" }
+  ];
+
+  // Handle input changes and detect # for inline context selection
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart || 0;
+    
+    setInput(value);
+    setCursorPosition(cursorPos);
+    
+    // Check if user typed # at current position
+    const beforeCursor = value.substring(0, cursorPos);
+    const hashIndex = beforeCursor.lastIndexOf('#');
+    
+    if (hashIndex !== -1 && hashIndex === cursorPos - 1) {
+      // User just typed #, show context dropdown
+      setShowInlineContexts(true);
+    } else if (hashIndex !== -1 && cursorPos > hashIndex) {
+      // User is typing after #, keep dropdown open
+      const afterHash = beforeCursor.substring(hashIndex + 1);
+      setShowInlineContexts(afterHash.length <= 20); // Close if too long
+    } else {
+      // No # in current context, hide dropdown
+      setShowInlineContexts(false);
+    }
+  };
+
+  // Handle inline context selection
+  const handleInlineContextSelect = (contextId: string, contextName: string) => {
+    const beforeCursor = input.substring(0, cursorPosition);
+    const afterCursor = input.substring(cursorPosition);
+    const hashIndex = beforeCursor.lastIndexOf('#');
+    
+    if (hashIndex !== -1) {
+      const beforeHash = beforeCursor.substring(0, hashIndex);
+      const newInput = beforeHash + `#${contextName} ` + afterCursor;
+      setInput(newInput);
+      
+      // Add to selected contexts if not already there
+      if (!clineState.selectedContexts.includes(contextId)) {
+        setClineState(prev => ({
+          ...prev,
+          selectedContexts: [...prev.selectedContexts, contextId]
+        }));
+      }
+    }
+    
+    setShowInlineContexts(false);
+    inputRef.current?.focus();
+  };
 
   return (
     <Card className="flex flex-col h-full border-0 shadow-none bg-background">
@@ -577,15 +643,55 @@ export function AdvancedChat() {
                         onChange={(model) => setClineState(prev => ({ ...prev, currentModel: model }))}
                         providers={providers}
                       />
-                      <Input
-                        ref={inputRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Digite sua mensagem... Use @ para agentes e # para contexto"
-                        disabled={isLoading}
-                        className="min-h-[44px] resize-none"
-                        data-testid="input-message"
-                      />
+                      <div className="relative">
+                        <Input
+                          ref={inputRef}
+                          value={input}
+                          onChange={handleInputChange}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape' && showInlineContexts) {
+                              setShowInlineContexts(false);
+                              e.preventDefault();
+                            }
+                          }}
+                          placeholder="Digite sua mensagem... Use @ para agentes e # para contexto"
+                          disabled={isLoading}
+                          className="min-h-[44px] resize-none"
+                          data-testid="input-message"
+                        />
+                        
+                        {/* Inline Context Dropdown */}
+                        {showInlineContexts && (
+                          <div className="absolute bottom-full left-0 mb-1 w-80 bg-popover border rounded-md shadow-lg z-50 max-h-48 overflow-y-auto">
+                            <div className="p-2">
+                              <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center">
+                                <Hash className="h-3 w-3 mr-1" />
+                                Selecione um contexto
+                              </div>
+                              <div className="space-y-1">
+                                {contextOptions.map((option) => (
+                                  <button
+                                    key={option.id}
+                                    onClick={() => handleInlineContextSelect(option.id, option.name)}
+                                    className="w-full text-left p-2 rounded-md hover:bg-accent transition-colors text-sm"
+                                    data-testid={`inline-context-${option.id}`}
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-base">{option.icon}</span>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium">{option.name}</div>
+                                        <div className="text-xs text-muted-foreground truncate">
+                                          {option.description}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Right Icons */}

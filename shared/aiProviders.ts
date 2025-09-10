@@ -93,6 +93,49 @@ export interface ExtensionRequest {
 
 // Predefined AI Providers Configuration
 export const AI_PROVIDERS: Record<string, AIProvider> = {
+  openai: {
+    id: 'openai',
+    name: 'OpenAI',
+    displayName: 'OpenAI GPT',
+    models: [
+      {
+        id: 'gpt-4o',
+        name: 'gpt-4o',
+        displayName: 'GPT-4 Omni',
+        contextWindow: 128000,
+        inputCost: 0.005,
+        outputCost: 0.015,
+        isDefault: true
+      },
+      {
+        id: 'gpt-4-turbo',
+        name: 'gpt-4-turbo',
+        displayName: 'GPT-4 Turbo',
+        contextWindow: 128000,
+        inputCost: 0.01,
+        outputCost: 0.03
+      },
+      {
+        id: 'gpt-3.5-turbo',
+        name: 'gpt-3.5-turbo', 
+        displayName: 'GPT-3.5 Turbo',
+        contextWindow: 16385,
+        inputCost: 0.0015,
+        outputCost: 0.002
+      }
+    ],
+    capabilities: [
+      { type: 'coding', level: 'expert' },
+      { type: 'analysis', level: 'expert' },
+      { type: 'reasoning', level: 'expert' },
+      { type: 'creative', level: 'advanced' }
+    ],
+    pricing: 'medium',
+    maxTokens: 4096,
+    supportsStreaming: true,
+    supportsImages: true,
+    supportsFunctions: true
+  },
   openrouter: {
     id: 'openrouter',
     name: 'openrouter',
@@ -170,13 +213,14 @@ export interface ExtensibleProvider {
 
 // Default provider configurations
 export const DEFAULT_PROVIDERS = {
-  coding: 'openrouter',
+  coding: 'openai',
   research: 'openrouter',
-  analysis: 'openrouter',
-  creative: 'openrouter'
+  analysis: 'openai',
+  creative: 'openai'
 };
 
 export const DEFAULT_MODELS = {
+  openai: 'gpt-4o',
   openrouter: 'anthropic/claude-3.5-sonnet'
 };
 
