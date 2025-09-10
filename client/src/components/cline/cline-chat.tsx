@@ -21,7 +21,8 @@ import {
   Folder,
   Code,
   Terminal as TerminalIcon,
-  FileText
+  FileText,
+  Monitor
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -30,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { FileExplorer } from "./file-explorer";
 import { CodeEditor } from "./code-editor";
 import { Terminal } from "./terminal";
+import { BrowserAutomation } from "./browser-automation";
 
 interface Message {
   id: string;
@@ -252,7 +254,7 @@ ESTILO DE RESPOSTA:
 
       <CardContent className="flex-1 flex flex-col p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="flex-shrink-0 grid w-full grid-cols-4 bg-muted/50">
+          <TabsList className="flex-shrink-0 grid w-full grid-cols-5 bg-muted/50">
             <TabsTrigger value="chat" className="flex items-center space-x-1">
               <MessageSquare className="h-3 w-3" />
               <span>Chat</span>
@@ -268,6 +270,10 @@ ESTILO DE RESPOSTA:
             <TabsTrigger value="terminal" className="flex items-center space-x-1">
               <TerminalIcon className="h-3 w-3" />
               <span>Terminal</span>
+            </TabsTrigger>
+            <TabsTrigger value="browser" className="flex items-center space-x-1">
+              <Monitor className="h-3 w-3" />
+              <span>Browser</span>
             </TabsTrigger>
           </TabsList>
 
@@ -414,6 +420,10 @@ ESTILO DE RESPOSTA:
 
           <TabsContent value="terminal" className="flex-1 mt-0">
             <Terminal />
+          </TabsContent>
+
+          <TabsContent value="browser" className="flex-1 mt-0">
+            <BrowserAutomation />
           </TabsContent>
         </Tabs>
       </CardContent>

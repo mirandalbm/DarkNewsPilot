@@ -933,7 +933,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     // Block sensitive directories
     const blockedDirs = ['node_modules', '.replit', 'dist', 'build', '.npm', '.cache'];
-    if (pathSegments.some(segment => blockedDirs.includes(segment))) {
+    if (pathSegments.some((segment: string) => blockedDirs.includes(segment))) {
       throw new Error('Access denied: System directory not allowed');
     }
     
@@ -1163,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Package installation not allowed from terminal' });
       }
       
-      if (binary === 'find' && args.some(arg => arg.includes('..'))) {
+      if (binary === 'find' && args.some((arg: string) => arg.includes('..'))) {
         return res.status(403).json({ message: 'Directory traversal not allowed in find command' });
       }
       
@@ -1220,6 +1220,341 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error executing command:', error);
       res.status(500).json({ message: 'Failed to execute command' });
+    }
+  });
+
+  // Security helper for URL validation to prevent SSRF attacks
+  const validateUrlSafety = async (url: string): Promise<void> => {
+    const dns = await import('dns');
+    const { promisify } = await import('util');
+    const lookup = promisify(dns.lookup);
+    const ipaddr = await import('ipaddr.js') as any;
+    
+    const validUrl = new URL(url);
+    if (!['http:', 'https:'].includes(validUrl.protocol)) {
+      throw new Error('Only HTTP/HTTPS URLs are allowed');
+    }
+    
+    // Block localhost variants
+    const hostname = validUrl.hostname.toLowerCase();
+    const localhostVariants = ['localhost', '127.0.0.1', '::1', '0.0.0.0'];
+    if (localhostVariants.includes(hostname)) {
+      throw new Error('Localhost URLs are not allowed');
+    }
+    
+    try {
+      // Resolve all addresses for the hostname
+      const addresses = await new Promise<string[]>((resolve, reject) => {
+        dns.resolve(hostname, (err, addresses) => {
+          if (err) {
+            dns.resolve6(hostname, (err6, addresses6) => {
+              if (err6) reject(err);
+              else resolve(addresses6 || []);
+            });
+          } else {
+            resolve(addresses || []);
+          }
+        });
+      });
+      
+      // Check all resolved addresses
+      for (const address of addresses) {
+        try {
+          const addr = ipaddr.process(address);
+          
+          // Block private, loopback, and special-use addresses
+          if (addr.kind() === 'ipv4') {
+            if (
+              addr.match(ipaddr.IPv4.parse('127.0.0.0'), 8) ||  // Loopback
+              addr.match(ipaddr.IPv4.parse('10.0.0.0'), 8) ||   // Private A
+              addr.match(ipaddr.IPv4.parse('172.16.0.0'), 12) || // Private B
+              addr.match(ipaddr.IPv4.parse('192.168.0.0'), 16) || // Private C
+              addr.match(ipaddr.IPv4.parse('169.254.0.0'), 16) || // Link-local
+              addr.match(ipaddr.IPv4.parse('100.64.0.0'), 10) ||  // CGNAT
+              addr.match(ipaddr.IPv4.parse('224.0.0.0'), 4) ||    // Multicast
+              addr.match(ipaddr.IPv4.parse('0.0.0.0'), 8)         // This network
+            ) {
+              throw new Error('Private or restricted IP address not allowed');
+            }
+          } else if (addr.kind() === 'ipv6') {
+            if (
+              addr.match(ipaddr.IPv6.parse('::1'), 128) ||        // Loopback
+              addr.match(ipaddr.IPv6.parse('fc00::'), 7) ||       // ULA
+              addr.match(ipaddr.IPv6.parse('fe80::'), 10) ||      // Link-local
+              addr.match(ipaddr.IPv6.parse('ff00::'), 8) ||       // Multicast
+              addr.isIPv4MappedAddress()                          // IPv4-mapped
+            ) {
+              throw new Error('Private or restricted IP address not allowed');
+            }
+            
+            // Check IPv4-mapped addresses
+            if (addr.isIPv4MappedAddress()) {
+              const ipv4 = addr.toIPv4Address();
+              if (
+                ipv4.match(ipaddr.IPv4.parse('127.0.0.0'), 8) ||
+                ipv4.match(ipaddr.IPv4.parse('10.0.0.0'), 8) ||
+                ipv4.match(ipaddr.IPv4.parse('172.16.0.0'), 12) ||
+                ipv4.match(ipaddr.IPv4.parse('192.168.0.0'), 16) ||
+                ipv4.match(ipaddr.IPv4.parse('169.254.0.0'), 16)
+              ) {
+                throw new Error('Private or restricted IP address not allowed');
+              }
+            }
+          }
+        } catch (parseError) {
+          throw new Error('Invalid IP address format');
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('not allowed')) {
+        throw error;
+      }
+      throw new Error('Invalid hostname or DNS resolution failed');
+    }
+  };
+
+  // Browser Automation Routes - Playwright Integration
+  app.post('/api/cline/browser/screenshot', isAuthenticated, async (req, res) => {
+    let browser: any = null;
+    try {
+      const { url, selector, fullPage = false, width = 1280, height = 720 } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: 'URL is required' });
+      }
+      
+      // Validate dimensions
+      const safeWidth = Math.min(Math.max(width, 320), 1920);
+      const safeHeight = Math.min(Math.max(height, 240), 1080);
+      
+      // Validate URL to prevent SSRF attacks
+      await validateUrlSafety(url);
+      
+      const { chromium } = await import('playwright');
+      browser = await chromium.launch({ headless: true });
+      const context = await browser.newContext({
+        viewport: { width: safeWidth, height: safeHeight },
+        userAgent: 'DarkNews-Autopilot-Browser/1.0'
+      });
+      
+      const page = await context.newPage();
+      
+      // Set timeout
+      page.setDefaultTimeout(30000);
+      
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+      
+      let screenshotBuffer;
+      if (selector) {
+        await page.waitForSelector(selector, { timeout: 10000 });
+        const element = await page.locator(selector).first();
+        screenshotBuffer = await element.screenshot({ type: 'png' });
+      } else {
+        screenshotBuffer = await page.screenshot({ 
+          type: 'png', 
+          fullPage,
+          clip: fullPage ? undefined : { x: 0, y: 0, width: safeWidth, height: safeHeight }
+        });
+      }
+      
+      // Convert buffer to base64 for JSON response
+      const base64Screenshot = screenshotBuffer.toString('base64');
+      
+      res.json({
+        screenshot: `data:image/png;base64,${base64Screenshot}`,
+        url,
+        timestamp: new Date().toISOString(),
+        dimensions: { width: safeWidth, height: safeHeight }
+      });
+      
+    } catch (error) {
+      console.error('Error taking screenshot:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Failed to take screenshot' 
+      });
+    } finally {
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (e) {
+          console.error('Error closing browser:', e);
+        }
+      }
+    }
+  });
+
+  app.post('/api/cline/browser/console', isAuthenticated, async (req, res) => {
+    let browser: any = null;
+    try {
+      const { url, duration = 10000 } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: 'URL is required' });
+      }
+      
+      // Clamp duration to safe limits
+      const safeDuration = Math.min(Math.max(duration, 1000), 30000); // 1-30 seconds
+      
+      // Validate URL to prevent SSRF attacks
+      await validateUrlSafety(url);
+      
+      const { chromium } = await import('playwright');
+      browser = await chromium.launch({ headless: true });
+      const context = await browser.newContext({
+        userAgent: 'DarkNews-Autopilot-Browser/1.0'
+      });
+      const page = await context.newPage();
+      
+      const consoleLogs: any[] = [];
+      const errors: any[] = [];
+      
+      // Capture console messages
+      page.on('console', (msg: any) => {
+        consoleLogs.push({
+          type: msg.type(),
+          text: msg.text(),
+          timestamp: new Date().toISOString()
+        });
+      });
+      
+      // Capture page errors
+      page.on('pageerror', (error: any) => {
+        errors.push({
+          message: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString()
+        });
+      });
+      
+      page.setDefaultTimeout(30000);
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+      
+      // Wait for specified duration to capture logs
+      await page.waitForTimeout(safeDuration);
+      
+      res.json({
+        url,
+        consoleLogs,
+        errors,
+        duration: safeDuration,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Error monitoring console:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Failed to monitor console' 
+      });
+    } finally {
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (e) {
+          console.error('Error closing browser:', e);
+        }
+      }
+    }
+  });
+
+  app.post('/api/cline/browser/interact', isAuthenticated, async (req, res) => {
+    let browser: any = null;
+    try {
+      const { url, actions } = req.body;
+      
+      if (!url || !actions || !Array.isArray(actions)) {
+        return res.status(400).json({ message: 'URL and actions array are required' });
+      }
+      
+      if (actions.length > 20) {
+        return res.status(400).json({ message: 'Maximum 20 actions allowed per request' });
+      }
+      
+      // Validate URL to prevent SSRF attacks
+      await validateUrlSafety(url);
+      
+      const { chromium } = await import('playwright');
+      browser = await chromium.launch({ headless: true });
+      const context = await browser.newContext({
+        userAgent: 'DarkNews-Autopilot-Browser/1.0'
+      });
+      const page = await context.newPage();
+      
+      page.setDefaultTimeout(30000);
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+      
+      const results = [];
+      
+      for (const action of actions) {
+        try {
+          switch (action.type) {
+            case 'click':
+              if (!action.selector) {
+                results.push({ action: action.type, success: false, error: 'Selector required for click action' });
+                continue;
+              }
+              await page.waitForSelector(action.selector, { timeout: 5000 });
+              await page.locator(action.selector).click();
+              results.push({ action: action.type, selector: action.selector, success: true });
+              break;
+            case 'fill':
+              if (!action.selector || !action.text) {
+                results.push({ action: action.type, success: false, error: 'Selector and text required for fill action' });
+                continue;
+              }
+              await page.waitForSelector(action.selector, { timeout: 5000 });
+              await page.locator(action.selector).fill(action.text);
+              results.push({ action: action.type, selector: action.selector, text: action.text, success: true });
+              break;
+            case 'wait':
+              const waitDuration = Math.min(Math.max(action.duration || 1000, 100), 10000); // 0.1-10 seconds
+              await page.waitForTimeout(waitDuration);
+              results.push({ action: action.type, duration: waitDuration, success: true });
+              break;
+            case 'waitForSelector':
+              if (!action.selector) {
+                results.push({ action: action.type, success: false, error: 'Selector required for waitForSelector action' });
+                continue;
+              }
+              const timeout = Math.min(Math.max(action.timeout || 5000, 1000), 30000); // 1-30 seconds
+              await page.waitForSelector(action.selector, { timeout });
+              results.push({ action: action.type, selector: action.selector, success: true });
+              break;
+            default:
+              results.push({ action: action.type, success: false, error: 'Unknown action type' });
+          }
+        } catch (error) {
+          results.push({ 
+            action: action.type, 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      }
+      
+      // Take final screenshot
+      const screenshotBuffer = await page.screenshot({ type: 'png' });
+      const base64Screenshot = screenshotBuffer.toString('base64');
+      
+      res.json({
+        url,
+        results,
+        screenshot: `data:image/png;base64,${base64Screenshot}`,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Error performing browser interactions:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Failed to perform browser interactions' 
+      });
+    } finally {
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (e) {
+          console.error('Error closing browser:', e);
+        }
+      }
     }
   });
 

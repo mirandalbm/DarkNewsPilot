@@ -4,6 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["chromium"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -48,6 +49,10 @@ externalPort = 3000
 [[ports]]
 localPort = 35487
 externalPort = 3001
+
+[[ports]]
+localPort = 45493
+externalPort = 3002
 
 [objectStorage]
 defaultBucketID = "replit-objstore-7a610293-0c95-4038-90b3-5f51057f4458"
