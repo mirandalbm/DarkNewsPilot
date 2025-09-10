@@ -12,7 +12,7 @@ interface MCPTool {
 }
 
 // MCP Server for DarkNews Autopilot System
-class DarkNewsMCPServer {
+export class DarkNewsMCPServer {
   private server: Server;
 
   constructor() {

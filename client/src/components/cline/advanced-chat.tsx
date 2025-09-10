@@ -45,14 +45,13 @@ import { CodeEditor } from "./code-editor";
 import { Terminal } from "./terminal";
 import { BrowserAutomation } from "./browser-automation";
 import { MCPIntegration } from "./mcp-integration";
-// Import components (will be implemented)
-// import { AgentSelector } from "./agent-selector";
-// import { ContextSelector } from "./context-selector";
-// import { ModelSelector } from "./model-selector";
-// import { VoiceTranscription } from "./voice-transcription";
-// import { FileUploader } from "./file-uploader";
-// import { SettingsPanel } from "./settings-panel";
-// import { TaskManager } from "./task-manager";
+import { AgentSelector } from "./agent-selector";
+import { ContextSelector } from "./context-selector";
+import { ModelSelector } from "./model-selector";
+import { VoiceTranscription } from "./voice-transcription";
+import { FileUploader } from "./file-uploader";
+import { SettingsPanel } from "./settings-panel";
+import { TaskManager } from "./task-manager";
 
 interface Message {
   id: string;
@@ -558,24 +557,26 @@ export function AdvancedChat() {
                   <div className="flex items-end space-x-2">
                     {/* Left Icons */}
                     <div className="flex items-center space-x-1">
-                      <Button type="button" variant="outline" size="sm">
-                        <AtSign className="h-3 w-3" />
-                      </Button>
-                      <Button type="button" variant="outline" size="sm">
-                        <Hash className="h-3 w-3" />
-                      </Button>
-                      <Button type="button" variant="outline" size="sm">
-                        <ImageIcon className="h-4 w-4" />
-                      </Button>
+                      <AgentSelector 
+                        value={clineState.activeAgent}
+                        onChange={(agent) => setClineState(prev => ({ ...prev, activeAgent: agent }))}
+                      />
+                      <ContextSelector 
+                        value={clineState.selectedContexts}
+                        onChange={(contexts) => setClineState(prev => ({ ...prev, selectedContexts: contexts }))}
+                      />
+                      <FileUploader 
+                        onFilesSelected={(files) => setClineState(prev => ({ ...prev, uploadedFiles: files }))}
+                      />
                     </div>
 
                     {/* Center - Input + Model Selector */}
                     <div className="flex-1 flex flex-col space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Brain className="h-4 w-4" />
-                        <span className="font-medium text-sm">{clineState.currentModel}</span>
-                        <ChevronDown className="h-4 w-4" />
-                      </div>
+                      <ModelSelector 
+                        value={clineState.currentModel}
+                        onChange={(model) => setClineState(prev => ({ ...prev, currentModel: model }))}
+                        providers={providers}
+                      />
                       <Input
                         ref={inputRef}
                         value={input}
@@ -589,9 +590,10 @@ export function AdvancedChat() {
 
                     {/* Right Icons */}
                     <div className="flex items-center space-x-1">
-                      <Button type="button" variant="outline" size="sm">
-                        <Mic className="h-4 w-4" />
-                      </Button>
+                      <VoiceTranscription 
+                        enabled={clineState.voiceEnabled}
+                        onTranscription={(text) => setInput(text)}
+                      />
                       <Button
                         type="submit"
                         disabled={!hasContent || isLoading}
@@ -651,21 +653,11 @@ export function AdvancedChat() {
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-2xl">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Configurações</h3>
-                <Button size="sm" variant="ghost" onClick={() => setShowSettings(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p>Painel de configurações em desenvolvimento...</p>
-            </CardContent>
-          </Card>
-        </div>
+        <SettingsPanel 
+          onClose={() => setShowSettings(false)}
+          clineState={clineState}
+          onStateChange={setClineState}
+        />
       )}
     </Card>
   );
