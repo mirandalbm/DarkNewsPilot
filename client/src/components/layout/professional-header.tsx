@@ -83,7 +83,7 @@ export default function ProfessionalHeader() {
 
   return (
     <header className={cn(
-      "h-16 bg-card border-b border-border flex items-center justify-between transition-all duration-300",
+      "header-responsive h-16 bg-card border-b border-border flex items-center justify-between",
       sidebar.isMobile || sidebar.isTablet ? "px-4" : "px-6",
       sidebar.isMobile ? "pl-16" : ""
     )}>

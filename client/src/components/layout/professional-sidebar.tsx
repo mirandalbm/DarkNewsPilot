@@ -420,7 +420,7 @@ export default function ProfessionalSidebar() {
     return (
       <div className="relative">
         <aside className={cn(
-          "bg-card border-r border-border flex flex-col h-screen transition-all duration-300 ease-in-out",
+          "sidebar-responsive bg-card border-r border-border flex flex-col",
           sidebar.isCollapsed ? "w-16" : "w-72"
         )}>
           <SidebarContent isCollapsed={sidebar.isCollapsed} />

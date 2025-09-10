@@ -188,17 +188,17 @@ export default function ProfessionalDashboard() {
   };
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="app-container bg-background">
       <ProfessionalSidebar />
       
       <div className={cn(
-        "flex-1 flex flex-col transition-all duration-300",
+        "responsive-container flex flex-col transition-all duration-300",
         sidebar.isMobile && "w-full"
       )}>
         <ProfessionalHeader />
         
         <main className={cn(
-          "flex-1 overflow-auto space-y-6 transition-all duration-300",
+          "main-responsive space-y-6 transition-all duration-300",
           sidebar.isMobile ? "p-4" : sidebar.isTablet ? "p-5" : "p-6"
         )}>
           {/* Welcome Section */}
@@ -237,12 +237,8 @@ export default function ProfessionalDashboard() {
 
           {/* Metrics Cards */}
           <div className={cn(
-            "grid gap-6 transition-all duration-300",
-            sidebar.isMobile 
-              ? "grid-cols-1 gap-4" 
-              : sidebar.isTablet 
-                ? "grid-cols-2 gap-4" 
-                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+            "auto-grid transition-all duration-300",
+            sidebar.isMobile ? "gap-4" : "gap-6"
           )}>
             {metrics.map((metric) => (
               <Card key={metric.title} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
