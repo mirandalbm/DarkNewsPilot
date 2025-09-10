@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useSidebar } from "@/hooks/useSidebar";
+import { cn } from "@/lib/utils";
 import ProfessionalSidebar from "@/components/layout/professional-sidebar";
 import ProfessionalHeader from "@/components/layout/professional-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +32,7 @@ import {
 export default function ProfessionalDashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
+  const sidebar = useSidebar();
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -188,31 +191,59 @@ export default function ProfessionalDashboard() {
     <div className="h-screen flex bg-background">
       <ProfessionalSidebar />
       
-      <div className="flex-1 flex flex-col">
+      <div className={cn(
+        "flex-1 flex flex-col transition-all duration-300",
+        sidebar.isMobile && "w-full"
+      )}>
         <ProfessionalHeader />
         
-        <main className="flex-1 overflow-auto p-6 space-y-6">
+        <main className={cn(
+          "flex-1 overflow-auto space-y-6 transition-all duration-300",
+          sidebar.isMobile ? "p-4" : sidebar.isTablet ? "p-5" : "p-6"
+        )}>
           {/* Welcome Section */}
-          <div className="flex items-center justify-between">
+          <div className={cn(
+            "flex justify-between transition-all duration-300",
+            sidebar.isMobile ? "flex-col space-y-2" : "items-center"
+          )}>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Dashboard Principal</h1>
-              <p className="text-muted-foreground mt-1">
+              <h1 className={cn(
+                "font-bold text-foreground transition-all duration-300",
+                sidebar.isMobile ? "text-2xl" : sidebar.isTablet ? "text-2xl" : "text-3xl"
+              )}>Dashboard Principal</h1>
+              <p className={cn(
+                "text-muted-foreground mt-1 transition-all duration-300",
+                sidebar.isMobile ? "text-sm" : "text-base"
+              )}>
                 Monitore sua produção de conteúdo automatizada
               </p>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
+            <div className={cn(
+              "flex items-center space-x-2 text-muted-foreground transition-all duration-300",
+              sidebar.isMobile ? "text-xs" : "text-sm"
+            )}>
+              <Clock className={cn(
+                "transition-all duration-300",
+                sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
+              )} />
               <span>
-                Última atualização: {new Date().toLocaleTimeString('pt-BR', { 
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+                {sidebar.isMobile 
+                  ? `${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                  : `Última atualização: ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                }
               </span>
             </div>
           </div>
 
           {/* Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={cn(
+            "grid gap-6 transition-all duration-300",
+            sidebar.isMobile 
+              ? "grid-cols-1 gap-4" 
+              : sidebar.isTablet 
+                ? "grid-cols-2 gap-4" 
+                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+          )}>
             {metrics.map((metric) => (
               <Card key={metric.title} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardContent className="p-6">
