@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useSidebar } from "@/hooks/useSidebar";
 import { cn } from "@/lib/utils";
+import type { DashboardStats } from "@shared/schema";
 import ProfessionalSidebar from "@/components/layout/professional-sidebar";
 import ProfessionalHeader from "@/components/layout/professional-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,19 +50,19 @@ export default function ProfessionalDashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
     enabled: isAuthenticated,
     refetchInterval: 30000,
   });
 
-  const { data: jobs } = useQuery({
+  const { data: jobs } = useQuery<any[]>({
     queryKey: ["/api/dashboard/jobs"],
     enabled: isAuthenticated,
     refetchInterval: 5000,
   });
 
-  const { data: apiStatuses } = useQuery({
+  const { data: apiStatuses } = useQuery<any[]>({
     queryKey: ["/api/dashboard/api-status"],
     enabled: isAuthenticated,
     refetchInterval: 60000,

@@ -41,11 +41,11 @@ import {
   Heart,
   Sparkles,
   Archive,
-  RotateCcw,
-  Backup
+  RotateCcw
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import type { DashboardStats } from "@shared/schema";
 
 const navigationStructure = [
   {
@@ -141,7 +141,7 @@ function SidebarContent({ isCollapsed = false, onNavigate }: SidebarContentProps
   const [location] = useLocation();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Gerenciamento de Conteúdo']));
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
     refetchInterval: 30000,
   });
