@@ -15,7 +15,7 @@ import {
   Zap,
   Play,
   Pause,
-  Stop,
+  Square,
   SkipForward,
   RefreshCw,
   Settings,
@@ -2323,7 +2323,7 @@ export default function AutomationPipelines() {
                           )}
                           {execution.status === 'running' && (
                             <Button variant="destructive" size="sm" data-testid={`button-cancel-${execution.id}`}>
-                              <Stop className="h-4 w-4 mr-1" />
+                              <Square className="h-4 w-4 mr-1" />
                               Cancelar
                             </Button>
                           )}
