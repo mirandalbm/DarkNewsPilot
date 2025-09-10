@@ -29,6 +29,7 @@ import Sponsors from "@/pages/sponsors";
 import EmailMarketing from "@/pages/email-marketing";
 import AdSense from "@/pages/adsense";
 import DiscordBot from "@/pages/discord-bot";
+import Notifications from "@/pages/notifications";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -73,7 +74,7 @@ function Router() {
           {/* Comunicação */}
           <Route path="/email" component={EmailMarketing} />
           <Route path="/discord" component={DiscordBot} />
-          <Route path="/notifications" component={() => <div className="p-8"><h1>Sistema de Notificações - Em desenvolvimento</h1></div>} />
+          <Route path="/notifications" component={Notifications} />
           <Route path="/moderation" component={() => <div className="p-8"><h1>Moderação Automática - Em desenvolvimento</h1></div>} />
           {/* Segurança */}
           <Route path="/content-verification" component={() => <div className="p-8"><h1>Verificação de Conteúdo - Em desenvolvimento</h1></div>} />
