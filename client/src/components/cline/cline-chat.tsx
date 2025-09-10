@@ -32,6 +32,7 @@ import { FileExplorer } from "./file-explorer";
 import { CodeEditor } from "./code-editor";
 import { Terminal } from "./terminal";
 import { BrowserAutomation } from "./browser-automation";
+import { MCPIntegration } from "./mcp-integration";
 
 interface Message {
   id: string;
@@ -254,7 +255,7 @@ ESTILO DE RESPOSTA:
 
       <CardContent className="flex-1 flex flex-col p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="flex-shrink-0 grid w-full grid-cols-5 bg-muted/50">
+          <TabsList className="flex-shrink-0 grid w-full grid-cols-6 bg-muted/50">
             <TabsTrigger value="chat" className="flex items-center space-x-1">
               <MessageSquare className="h-3 w-3" />
               <span>Chat</span>
@@ -274,6 +275,10 @@ ESTILO DE RESPOSTA:
             <TabsTrigger value="browser" className="flex items-center space-x-1">
               <Monitor className="h-3 w-3" />
               <span>Browser</span>
+            </TabsTrigger>
+            <TabsTrigger value="mcp" className="flex items-center space-x-1">
+              <FileText className="h-3 w-3" />
+              <span>MCP</span>
             </TabsTrigger>
           </TabsList>
 
@@ -424,6 +429,10 @@ ESTILO DE RESPOSTA:
 
           <TabsContent value="browser" className="flex-1 mt-0">
             <BrowserAutomation />
+          </TabsContent>
+
+          <TabsContent value="mcp" className="flex-1 mt-0">
+            <MCPIntegration />
           </TabsContent>
         </Tabs>
       </CardContent>
