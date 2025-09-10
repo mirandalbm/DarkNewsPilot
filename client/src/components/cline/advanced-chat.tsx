@@ -570,10 +570,10 @@ export function AdvancedChat() {
               </TabsList>
 
           {/* Tab Content - Chat */}
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
-            <div className="flex-1 flex flex-col">
-              {/* Messages Area */}
-              <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
+            {/* Messages Area - Takes most space */}
+            <div className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full p-4" ref={scrollRef}>
                 <div className="space-y-4">
                   {messages.map((message) => (
                     <div
@@ -718,48 +718,53 @@ export function AdvancedChat() {
                   )}
                 </div>
               </ScrollArea>
-
+            </div>
+            
+            {/* Input Area - Fixed at bottom */}
+            <div className="flex-shrink-0">
               {/* Action Icons Above Prompt */}
-              <div className="px-4 py-2">
-                <div className="flex justify-center space-x-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleRating(messages[messages.length - 1]?.id, 'good')}
-                    data-testid="button-good"
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleRating(messages[messages.length - 1]?.id, 'bad')}
-                    data-testid="button-bad"
-                  >
-                    <ThumbsDown className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleCopy(messages[messages.length - 1]?.content || '', messages[messages.length - 1]?.id)}
-                    data-testid="button-copy"
-                  >
-                    {copiedId === messages[messages.length - 1]?.id ? (
-                      <Check className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleRetry(messages[messages.length - 1]?.id)}
-                    data-testid="button-retry"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
+              {messages.length > 0 && (
+                <div className="px-4 py-2 border-t">
+                  <div className="flex justify-center space-x-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRating(messages[messages.length - 1]?.id, 'good')}
+                      data-testid="button-good"
+                    >
+                      <ThumbsUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRating(messages[messages.length - 1]?.id, 'bad')}
+                      data-testid="button-bad"
+                    >
+                      <ThumbsDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleCopy(messages[messages.length - 1]?.content || '', messages[messages.length - 1]?.id)}
+                      data-testid="button-copy"
+                    >
+                      {copiedId === messages[messages.length - 1]?.id ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRetry(messages[messages.length - 1]?.id)}
+                      data-testid="button-retry"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Advanced Prompt Area */}
               <div className="p-4 border-t bg-muted/30">
