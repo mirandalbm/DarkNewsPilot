@@ -35,6 +35,7 @@ import ContentVerification from "@/pages/content-verification";
 import FactChecking from "@/pages/fact-checking";
 import Copyright from "@/pages/copyright";
 import Audit from "@/pages/audit";
+import BackupRecovery from "@/pages/backup";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -86,6 +87,7 @@ function Router() {
           <Route path="/fact-checking" component={FactChecking} />
           <Route path="/copyright" component={Copyright} />
           <Route path="/audit" component={Audit} />
+          <Route path="/backup" component={BackupRecovery} />
           {/* Configurações */}
           <Route path="/configuracoes" component={ConfiguracaoIndex} />
           <Route path="/configuracoes/integracoes" component={Integracoes} />
