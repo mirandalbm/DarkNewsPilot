@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Copy,
   Check,
+  CheckCircle,
   Zap,
   Sparkles,
   Folder,
@@ -34,8 +35,12 @@ import {
   Hash,
   AtSign,
   ChevronDown,
-  X
+  X,
+  PanelLeft,
+  PanelRight,
+  GripVertical
 } from "lucide-react";
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -139,6 +144,11 @@ export function AdvancedChat() {
     voiceEnabled: true,
     uploadedFiles: []
   });
+
+  // Right panel tool state
+  const [activeRightTool, setActiveRightTool] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<string | undefined>(undefined);
+  const [rightPanelVisible, setRightPanelVisible] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -354,129 +364,219 @@ export function AdvancedChat() {
   };
 
   return (
-    <Card className="flex flex-col h-full border-0 shadow-none bg-background">
-      {/* Header Superior */}
-      <CardHeader className="flex-shrink-0 pb-2">
+    <div className="h-full flex flex-col bg-background">
+      {/* Header Compacto */}
+      <div className="flex-shrink-0 border-b px-3 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <h2 className="font-semibold text-lg">Cline AI Assistant</h2>
-            <Badge variant="outline" className="text-xs">
-              Avançado
-            </Badge>
+            <Bot className="h-4 w-4 text-primary" />
+            <span className="font-medium text-sm">Cline AI</span>
+            <Badge variant="outline" className="text-xs px-1 py-0">Avançado</Badge>
           </div>
           
-          {/* Menu Superior Direito */}
-          <div className="flex items-center space-x-2">
-            {/* Novo Chat */}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={startNewChat}
-              data-testid="button-new-chat"
-            >
-              <Plus className="h-4 w-4" />
+          <div className="flex items-center space-x-1">
+            <Button size="sm" variant="ghost" onClick={startNewChat} data-testid="button-new-chat">
+              <Plus className="h-3 w-3" />
             </Button>
-
-            {/* Histórico */}
-            <div className="relative">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {/* TODO: Implement history */}}
-                data-testid="button-history"
-              >
-                <History className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Configurações */}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowSettings(!showSettings)}
-              data-testid="button-settings"
-            >
-              <Settings className="h-4 w-4" />
+            <Button size="sm" variant="ghost" onClick={() => {}} data-testid="button-history">
+              <History className="h-3 w-3" />
             </Button>
-
-            {/* Menu Usuário */}
-            <div className="relative">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                data-testid="button-user-menu"
-              >
-                <UserCircle className="h-4 w-4" />
-              </Button>
-              
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-popover border rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Manage Account
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Mensagens
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Tema do Dashboard
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Linguagem
-                    </button>
-                    <Separator className="my-1" />
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Help Document
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Report Issue
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent">
-                      Contact Us
-                    </button>
-                    <Separator className="my-1" />
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-accent text-red-600">
-                      Log Out
-                    </button>
-                  </div>
+            <Button size="sm" variant="ghost" onClick={() => setShowSettings(!showSettings)} data-testid="button-settings">
+              <Settings className="h-3 w-3" />
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowUserMenu(!showUserMenu)} data-testid="button-user-menu">
+              <UserCircle className="h-3 w-3" />
+            </Button>
+            
+            {showUserMenu && (
+              <div className="absolute right-3 top-12 w-40 bg-popover border rounded-md shadow-lg z-50">
+                <div className="py-1 text-sm">
+                  <button className="w-full text-left px-2 py-1 hover:bg-accent">Account</button>
+                  <button className="w-full text-left px-2 py-1 hover:bg-accent">Settings</button>
+                  <Separator className="my-1" />
+                  <button className="w-full text-left px-2 py-1 hover:bg-accent text-red-600">Logout</button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-1 flex flex-col p-0">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          {/* Sistema de Tabs Principal */}
-          <TabsList className="flex-shrink-0 grid w-full grid-cols-6 bg-muted/50">
-            <TabsTrigger value="chat" className="flex items-center space-x-1">
-              <MessageSquare className="h-3 w-3" />
-              <span>Chat</span>
-            </TabsTrigger>
-            <TabsTrigger value="agents" className="flex items-center space-x-1">
-              <Bot className="h-3 w-3" />
-              <span>Agents</span>
-            </TabsTrigger>
-            <TabsTrigger value="mcp" className="flex items-center space-x-1">
-              <FileText className="h-3 w-3" />
-              <span>MCP</span>
-            </TabsTrigger>
-            <TabsTrigger value="context" className="flex items-center space-x-1">
-              <Hash className="h-3 w-3" />
-              <span>Context</span>
-            </TabsTrigger>
-            <TabsTrigger value="rules" className="flex items-center space-x-1">
-              <Settings className="h-3 w-3" />
-              <span>Rules</span>
-            </TabsTrigger>
-            <TabsTrigger value="models" className="flex items-center space-x-1">
-              <Brain className="h-3 w-3" />
-              <span>Models</span>
-            </TabsTrigger>
-          </TabsList>
+      {/* Layout Principal com Painéis Redimensionáveis */}
+      <PanelGroup direction="horizontal" className="flex-1">
+        {/* Painel Esquerdo - Navegação/Tools */}
+        <Panel defaultSize={20} minSize={15} maxSize={35}>
+          <div className="h-full border-r bg-muted/20">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+              <TabsList className="flex-shrink-0 grid w-full grid-cols-3 bg-transparent p-1 h-auto">
+                <TabsTrigger value="chat" className="flex flex-col items-center p-1 text-xs">
+                  <MessageSquare className="h-3 w-3" />
+                  <span className="mt-1">Chat</span>
+                </TabsTrigger>
+                <TabsTrigger value="tools" className="flex flex-col items-center p-1 text-xs">
+                  <Settings className="h-3 w-3" />
+                  <span className="mt-1">Tools</span>
+                </TabsTrigger>
+                <TabsTrigger value="mcp" className="flex flex-col items-center p-1 text-xs">
+                  <Zap className="h-3 w-3" />
+                  <span className="mt-1">MCP</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="flex-1 overflow-hidden">
+                <TabsContent value="chat" className="mt-0 h-full p-2">
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">Agentes</h4>
+                    <AgentSelector 
+                      value={clineState.activeAgent}
+                      onChange={(agent) => setClineState(prev => ({ ...prev, activeAgent: agent }))}
+                    />
+                    
+                    <h4 className="text-xs font-medium text-muted-foreground mt-3">Contexto</h4>
+                    <ContextSelector 
+                      value={clineState.selectedContexts}
+                      onChange={(contexts) => setClineState(prev => ({ ...prev, selectedContexts: contexts }))}
+                    />
+
+                    <h4 className="text-xs font-medium text-muted-foreground mt-3">Modelo</h4>
+                    <ModelSelector 
+                      value={clineState.currentModel}
+                      onChange={(model) => setClineState(prev => ({ ...prev, currentModel: model }))}
+                      providers={providers}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="tools" className="mt-0 h-full p-2">
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">Ferramentas</h4>
+                    <div className="space-y-1">
+                      <Button 
+                        variant={activeRightTool === 'files' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        className="w-full justify-start h-8 px-2"
+                        onClick={() => {
+                          setActiveRightTool('files');
+                          setRightPanelVisible(true);
+                        }}
+                        data-testid="button-tool-files"
+                      >
+                        <Folder className="h-3 w-3 mr-2" />
+                        <span className="text-xs">Files</span>
+                      </Button>
+                      <Button 
+                        variant={activeRightTool === 'code' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        className="w-full justify-start h-8 px-2"
+                        onClick={() => {
+                          setActiveRightTool('code');
+                          setRightPanelVisible(true);
+                        }}
+                        data-testid="button-tool-code"
+                      >
+                        <Code className="h-3 w-3 mr-2" />
+                        <span className="text-xs">Code</span>
+                      </Button>
+                      <Button 
+                        variant={activeRightTool === 'terminal' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        className="w-full justify-start h-8 px-2"
+                        onClick={() => {
+                          setActiveRightTool('terminal');
+                          setRightPanelVisible(true);
+                        }}
+                        data-testid="button-tool-terminal"
+                      >
+                        <TerminalIcon className="h-3 w-3 mr-2" />
+                        <span className="text-xs">Terminal</span>
+                      </Button>
+                      <Button 
+                        variant={activeRightTool === 'browser' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        className="w-full justify-start h-8 px-2"
+                        onClick={() => {
+                          setActiveRightTool('browser');
+                          setRightPanelVisible(true);
+                        }}
+                        data-testid="button-tool-browser"
+                      >
+                        <Monitor className="h-3 w-3 mr-2" />
+                        <span className="text-xs">Browser</span>
+                      </Button>
+                    </div>
+
+                    <Separator className="my-2" />
+                    
+                    <h4 className="text-xs font-medium text-muted-foreground">Utilitários</h4>
+                    <div className="space-y-1">
+                      <Button 
+                        variant={activeRightTool === 'tasks' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        className="w-full justify-start h-8 px-2"
+                        onClick={() => {
+                          setActiveRightTool('tasks');
+                          setRightPanelVisible(true);
+                        }}
+                        data-testid="button-tool-tasks"
+                      >
+                        <CheckCircle className="h-3 w-3 mr-2" />
+                        <span className="text-xs">Tasks</span>
+                      </Button>
+                      <Button 
+                        variant={activeRightTool === 'voice' ? 'default' : 'ghost'} 
+                        size="sm" 
+                        className="w-full justify-start h-8 px-2"
+                        onClick={() => {
+                          setActiveRightTool('voice');
+                          setRightPanelVisible(true);
+                        }}
+                        data-testid="button-tool-voice"
+                      >
+                        <Mic className="h-3 w-3 mr-2" />
+                        <span className="text-xs">Voice</span>
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="mcp" className="mt-0 h-full p-2">
+                  <MCPIntegration />
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
+        </Panel>
+
+        <PanelResizeHandle className="w-2 bg-muted hover:bg-accent transition-colors flex items-center justify-center">
+          <GripVertical className="h-3 w-3 text-muted-foreground" />
+        </PanelResizeHandle>
+
+        {/* Painel Central - Chat */}
+        <Panel defaultSize={rightPanelVisible ? 50 : 80} minSize={40}>
+          <div className="h-full flex flex-col">
+            <Tabs defaultValue="chat" className="h-full flex flex-col">
+              <TabsList className="flex-shrink-0 grid w-full grid-cols-5 bg-transparent p-1 h-auto">
+                <TabsTrigger value="chat" className="flex flex-col items-center p-1 text-xs" data-testid="tab-chat">
+                  <MessageSquare className="h-3 w-3" />
+                  <span className="mt-1">Chat</span>
+                </TabsTrigger>
+                <TabsTrigger value="agents" className="flex flex-col items-center p-1 text-xs" data-testid="tab-agents">
+                  <Bot className="h-3 w-3" />
+                  <span className="mt-1">Agents</span>
+                </TabsTrigger>
+                <TabsTrigger value="mcp" className="flex flex-col items-center p-1 text-xs" data-testid="tab-mcp">
+                  <Zap className="h-3 w-3" />
+                  <span className="mt-1">MCP</span>
+                </TabsTrigger>
+                <TabsTrigger value="context" className="flex flex-col items-center p-1 text-xs" data-testid="tab-context">
+                  <Hash className="h-3 w-3" />
+                  <span className="mt-1">Context</span>
+                </TabsTrigger>
+                <TabsTrigger value="models" className="flex flex-col items-center p-1 text-xs" data-testid="tab-models">
+                  <Brain className="h-3 w-3" />
+                  <span className="mt-1">Models</span>
+                </TabsTrigger>
+              </TabsList>
 
           {/* Tab Content - Chat */}
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
@@ -488,7 +588,7 @@ export function AdvancedChat() {
                     <div
                       key={message.id}
                       className={cn(
-                        "flex w-full",
+                        "flex w-full group",
                         message.role === "user" ? "justify-end" : "justify-start"
                       )}
                     >
@@ -514,7 +614,7 @@ export function AdvancedChat() {
                         </div>
                         <div
                           className={cn(
-                            "rounded-lg px-3 py-2 prose prose-sm max-w-none",
+                            "rounded-lg px-3 py-2 prose prose-sm max-w-none relative",
                             message.role === "user"
                               ? "bg-primary text-primary-foreground ml-2"
                               : "bg-muted text-foreground mr-2"
@@ -523,6 +623,71 @@ export function AdvancedChat() {
                           <div className="whitespace-pre-wrap break-words">
                             {message.content}
                           </div>
+                          
+                          {/* Message Actions */}
+                          {message.role === 'assistant' && (
+                            <div className="absolute -right-1 -top-1 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 bg-background hover:bg-accent border"
+                                onClick={() => handleCopy(message.content, message.id)}
+                                data-testid={`button-copy-${message.id}`}
+                              >
+                                {copiedId === message.id ? (
+                                  <Check className="h-3 w-3" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 bg-background hover:bg-accent border"
+                                onClick={() => handleRating(message.id, 'good')}
+                                data-testid={`button-like-${message.id}`}
+                              >
+                                <ThumbsUp className={cn("h-3 w-3", message.rating === 'good' && "text-green-600")} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 bg-background hover:bg-accent border"
+                                onClick={() => handleRating(message.id, 'bad')}
+                                data-testid={`button-dislike-${message.id}`}
+                              >
+                                <ThumbsDown className={cn("h-3 w-3", message.rating === 'bad' && "text-red-600")} />
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {/* User Message Actions */}
+                          {message.role === 'user' && (
+                            <div className="absolute -left-1 -top-1 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 bg-background hover:bg-accent border"
+                                onClick={() => handleRetry(message.id)}
+                                data-testid={`button-retry-${message.id}`}
+                              >
+                                <RotateCcw className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 bg-background hover:bg-accent border"
+                                onClick={() => handleCopy(message.content, message.id)}
+                                data-testid={`button-copy-user-${message.id}`}
+                              >
+                                {copiedId === message.id ? (
+                                  <Check className="h-3 w-3" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </div>
+                          )}
                           
                           {/* Message Metadata */}
                           {(message.provider || message.model) && (
@@ -723,39 +888,142 @@ export function AdvancedChat() {
           </TabsContent>
 
           {/* Other Tabs */}
-          <TabsContent value="agents" className="flex-1 mt-0">
-            <div className="p-4">
-              <h3 className="font-semibold mb-4">Configuração de Agentes</h3>
-              <p className="text-muted-foreground">Gerenciar agentes built-in e custom agents.</p>
+          <TabsContent value="agents" className="flex-1 flex flex-col mt-0">
+            <div className="p-4 space-y-4">
+              <h3 className="text-lg font-semibold">Agentes Disponíveis</h3>
+              <AgentSelector 
+                value={clineState.activeAgent}
+                onChange={(agent) => setClineState(prev => ({ ...prev, activeAgent: agent }))}
+              />
+              <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                <h4 className="text-sm font-medium mb-2">Agente Atual: {clineState.activeAgent}</h4>
+                <p className="text-xs text-muted-foreground">
+                  {clineState.activeAgent === 'builder' && 'Especialista em desenvolvimento, debugging e deploy.'}
+                  {clineState.activeAgent === 'analyzer' && 'Especialista em análise de código e performance.'}
+                  {clineState.activeAgent === 'automator' && 'Especialista em automação e workflows.'}
+                </p>
+              </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="mcp" className="flex-1 mt-0">
-            <MCPIntegration />
-          </TabsContent>
-
-          <TabsContent value="context" className="flex-1 mt-0">
+          <TabsContent value="mcp" className="flex-1 flex flex-col mt-0">
             <div className="p-4">
-              <h3 className="font-semibold mb-4">Gerenciamento de Contexto</h3>
-              <p className="text-muted-foreground">Configurar fontes de contexto para os agentes.</p>
+              <MCPIntegration />
             </div>
           </TabsContent>
 
-          <TabsContent value="rules" className="flex-1 mt-0">
-            <div className="p-4">
-              <h3 className="font-semibold mb-4">Regras e Configurações</h3>
-              <p className="text-muted-foreground">Definir comportamento e regras para os agentes.</p>
+          <TabsContent value="context" className="flex-1 flex flex-col mt-0">
+            <div className="p-4 space-y-4">
+              <h3 className="text-lg font-semibold">Contexto Selecionado</h3>
+              <ContextSelector 
+                value={clineState.selectedContexts}
+                onChange={(contexts) => setClineState(prev => ({ ...prev, selectedContexts: contexts }))}
+              />
+              {clineState.selectedContexts.length > 0 && (
+                <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                  <h4 className="text-sm font-medium mb-2">Contextos Ativos:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {clineState.selectedContexts.map(contextId => {
+                      const context = contextOptions.find(c => c.id === contextId);
+                      return context ? (
+                        <Badge key={contextId} variant="secondary" className="text-xs">
+                          {context.icon} {context.name}
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
-          <TabsContent value="models" className="flex-1 mt-0">
-            <div className="p-4">
-              <h3 className="font-semibold mb-4">Configuração de Modelos</h3>
-              <p className="text-muted-foreground">Gerenciar modelos Premium, Avançados e Custom.</p>
+          <TabsContent value="models" className="flex-1 flex flex-col mt-0">
+            <div className="p-4 space-y-4">
+              <h3 className="text-lg font-semibold">Modelos de AI</h3>
+              <ModelSelector 
+                value={clineState.currentModel}
+                onChange={(model) => setClineState(prev => ({ ...prev, currentModel: model }))}
+                providers={providers}
+              />
+              <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                <h4 className="text-sm font-medium mb-2">Modelo Atual: {clineState.currentModel}</h4>
+                <p className="text-xs text-muted-foreground">
+                  Modelo selecionado para as próximas interações.
+                </p>
+              </div>
             </div>
           </TabsContent>
-        </Tabs>
-      </CardContent>
+            </Tabs>
+          </div>
+        </Panel>
+
+        {/* Third Panel - Tools (Right) */}
+        {rightPanelVisible && (
+          <>
+            <PanelResizeHandle className="w-2 bg-muted hover:bg-accent transition-colors flex items-center justify-center">
+              <GripVertical className="h-3 w-3 text-muted-foreground" />
+            </PanelResizeHandle>
+            
+            <Panel defaultSize={30} minSize={20} maxSize={50}>
+              <div className="h-full border-l bg-muted/10">
+                <div className="p-3 border-b bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {activeRightTool === 'files' && <Folder className="h-4 w-4" />}
+                      {activeRightTool === 'code' && <Code className="h-4 w-4" />}
+                      {activeRightTool === 'terminal' && <TerminalIcon className="h-4 w-4" />}
+                      {activeRightTool === 'browser' && <Monitor className="h-4 w-4" />}
+                      {activeRightTool === 'tasks' && <CheckCircle className="h-4 w-4" />}
+                      {activeRightTool === 'voice' && <Mic className="h-4 w-4" />}
+                      <span className="font-medium text-sm capitalize">
+                        {activeRightTool}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setRightPanelVisible(false);
+                        setActiveRightTool(null);
+                      }}
+                      className="h-6 w-6 p-0"
+                      data-testid="button-close-right-panel"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex-1 overflow-hidden h-full">
+                  {activeRightTool === 'files' && (
+                    <FileExplorer 
+                      onFileSelect={(file) => {
+                        setSelectedFile(file.path);
+                        setActiveRightTool('code');
+                      }}
+                      selectedPath={selectedFile}
+                    />
+                  )}
+                  {activeRightTool === 'code' && (
+                    <CodeEditor 
+                      filePath={selectedFile}
+                      onClose={() => {
+                        setSelectedFile(undefined);
+                        setActiveRightTool('files');
+                      }}
+                    />
+                  )}
+                  {activeRightTool === 'terminal' && <Terminal />}
+                  {activeRightTool === 'browser' && <BrowserAutomation />}
+                  {activeRightTool === 'tasks' && <TaskManager />}
+                  {activeRightTool === 'voice' && <VoiceTranscription enabled={clineState.voiceEnabled} onTranscription={(text) => setInput(text)} />}
+                </div>
+              </div>
+            </Panel>
+          </>
+        )}
+
+      </PanelGroup>
 
       {/* Settings Panel */}
       {showSettings && (
@@ -765,6 +1033,6 @@ export function AdvancedChat() {
           onStateChange={setClineState}
         />
       )}
-    </Card>
+    </div>
   );
 }
