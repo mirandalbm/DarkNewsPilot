@@ -101,26 +101,7 @@ interface ClineState {
 }
 
 export function AdvancedChat() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: `👋 Olá! Sou o **Cline AI Assistant Avançado** integrado ao DarkNews Autopilot. 
-
-🎯 **Posso ajudar você com:**
-- 🔧 **Desenvolvimento Completo** - Code, debug, deploy
-- 🤖 **Automação Inteligente** - Workflows, pipelines, bots
-- 🗃️ **Gerenciamento de Arquivos** - CRUD, backup, organização
-- 💻 **Terminal Integration** - Comandos, scripts, monitoring
-- 🌐 **Browser Automation** - Screenshots, testing, scraping
-- 🔗 **MCP Integrations** - GitHub, Database, Slack, News, YouTube
-- 📊 **Project Analysis** - Estrutura, dependências, performance
-- ⚡ **Task Execution** - Troubleshooting automático
-
-💡 **Dica**: Use @ para selecionar agentes e # para contexto!`,
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -547,13 +528,23 @@ export function AdvancedChat() {
           </div>
         </Panel>
 
-        <PanelResizeHandle className="w-2 bg-muted hover:bg-accent transition-colors flex items-center justify-center">
-          <GripVertical className="h-3 w-3 text-muted-foreground" />
-        </PanelResizeHandle>
+        <PanelResizeHandle className="w-1 bg-transparent hover:bg-accent/50 transition-colors" />
 
         {/* Painel Central - Chat */}
         <Panel defaultSize={rightPanelVisible ? 50 : 80} minSize={40}>
           <div className="h-full flex flex-col">
+            {/* Mensagem de Boas Vindas */}
+            {messages.length === 0 && (
+              <div className="flex-1 flex items-center justify-center p-4">
+                <div className="text-center text-muted-foreground max-w-md">
+                  <Bot className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <h3 className="font-medium text-sm mb-2">Bem-vindo ao Cline AI</h3>
+                  <p className="text-xs leading-relaxed">
+                    Selecione um agente (@), escolha o contexto (#) e comece a conversar. Tenho acesso a todas as ferramentas para ajudá-lo com desenvolvimento e análise de código.
+                  </p>
+                </div>
+              </div>
+            )}
             <Tabs defaultValue="chat" className="h-full flex flex-col">
               <TabsList className="flex-shrink-0 grid w-full grid-cols-5 bg-transparent p-1 h-auto">
                 <TabsTrigger value="chat" className="flex flex-col items-center p-1 text-xs" data-testid="tab-chat">
