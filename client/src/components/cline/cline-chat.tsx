@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Bot, 
   User, 
@@ -16,12 +17,19 @@ import {
   Copy,
   Check,
   Zap,
-  Sparkles
+  Sparkles,
+  Folder,
+  Code,
+  Terminal as TerminalIcon,
+  FileText
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { FileExplorer } from "./file-explorer";
+import { CodeEditor } from "./code-editor";
+import { Terminal } from "./terminal";
 
 interface Message {
   id: string;
@@ -78,6 +86,8 @@ Digite suas perguntas ou comandos e eu te ajudo a maximizar sua produção autom
   const [selectedProvider, setSelectedProvider] = useState("openrouter");
   const [selectedModel, setSelectedModel] = useState("anthropic/claude-3.5-sonnet");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("chat");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -241,7 +251,28 @@ ESTILO DE RESPOSTA:
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <TabsList className="flex-shrink-0 grid w-full grid-cols-4 bg-muted/50">
+            <TabsTrigger value="chat" className="flex items-center space-x-1">
+              <MessageSquare className="h-3 w-3" />
+              <span>Chat</span>
+            </TabsTrigger>
+            <TabsTrigger value="files" className="flex items-center space-x-1">
+              <Folder className="h-3 w-3" />
+              <span>Files</span>
+            </TabsTrigger>
+            <TabsTrigger value="editor" className="flex items-center space-x-1">
+              <Code className="h-3 w-3" />
+              <span>Editor</span>
+            </TabsTrigger>
+            <TabsTrigger value="terminal" className="flex items-center space-x-1">
+              <TerminalIcon className="h-3 w-3" />
+              <span>Terminal</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -362,6 +393,29 @@ ESTILO DE RESPOSTA:
             </div>
           </div>
         </div>
+          </TabsContent>
+
+          <TabsContent value="files" className="flex-1 mt-0">
+            <FileExplorer 
+              onFileSelect={(file) => {
+                setSelectedFile(file.path);
+                setActiveTab("editor");
+              }}
+              selectedPath={selectedFile || undefined}
+            />
+          </TabsContent>
+
+          <TabsContent value="editor" className="flex-1 mt-0">
+            <CodeEditor 
+              filePath={selectedFile || undefined}
+              onClose={() => setSelectedFile(null)}
+            />
+          </TabsContent>
+
+          <TabsContent value="terminal" className="flex-1 mt-0">
+            <Terminal />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

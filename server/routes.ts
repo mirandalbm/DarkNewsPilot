@@ -882,6 +882,325 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // File Management System Routes - Cline Integration
+  // Security helper function to validate file paths
+  const validatePath = (inputPath: string): string => {
+    const pathModule = require('path');
+    const projectRoot = process.cwd();
+    
+    // Normalize and resolve the path
+    const normalizedPath = pathModule.normalize(inputPath);
+    const resolvedPath = pathModule.resolve(projectRoot, normalizedPath);
+    
+    // Ensure path is within project root
+    if (!resolvedPath.startsWith(projectRoot)) {
+      throw new Error('Access denied: Path outside project directory');
+    }
+    
+    // Block access to sensitive files and directories
+    const relativePath = pathModule.relative(projectRoot, resolvedPath);
+    const pathSegments = relativePath.split(pathModule.sep);
+    
+    // Block hidden files except specific allowed ones
+    for (const segment of pathSegments) {
+      if (segment.startsWith('.') && !['', '.gitignore', '.gitattributes'].includes(segment)) {
+        throw new Error('Access denied: Hidden files not allowed');
+      }
+    }
+    
+    // Block sensitive directories
+    const blockedDirs = ['node_modules', '.git', '.replit', 'dist', 'build'];
+    if (pathSegments.some(segment => blockedDirs.includes(segment))) {
+      throw new Error('Access denied: System directory not allowed');
+    }
+    
+    return resolvedPath;
+  };
+
+  app.get('/api/cline/files/tree', isAuthenticated, async (req, res) => {
+    try {
+      const { path = '.' } = req.query;
+      const fs = await import('fs/promises');
+      const pathModule = await import('path');
+      
+      // Validate path security
+      const safePath = validatePath(path as string);
+      
+      const buildFileTree = async (dirPath: string, basePath: string = ''): Promise<any[]> => {
+        const items = await fs.readdir(dirPath, { withFileTypes: true });
+        const tree = [];
+        
+        for (const item of items) {
+          if (item.name.startsWith('.') && !item.name.startsWith('.env')) continue;
+          
+          const fullPath = pathModule.join(dirPath, item.name);
+          const relativePath = pathModule.join(basePath, item.name);
+          
+          if (item.isDirectory()) {
+            const children = await buildFileTree(fullPath, relativePath);
+            tree.push({
+              name: item.name,
+              path: relativePath,
+              type: 'directory',
+              children
+            });
+          } else {
+            const stats = await fs.stat(fullPath);
+            tree.push({
+              name: item.name,
+              path: relativePath,
+              type: 'file',
+              size: stats.size,
+              lastModified: stats.mtime
+            });
+          }
+        }
+        
+        return tree.sort((a, b) => {
+          if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+      };
+      
+      const tree = await buildFileTree(safePath);
+      res.json(tree);
+    } catch (error) {
+      console.error('Error reading file tree:', error);
+      res.status(500).json({ message: 'Failed to read file tree' });
+    }
+  });
+
+  app.get('/api/cline/files/content', isAuthenticated, async (req, res) => {
+    try {
+      const { path } = req.query;
+      if (!path) {
+        return res.status(400).json({ message: 'Path is required' });
+      }
+      
+      // Validate path security
+      const safePath = validatePath(path as string);
+      
+      const fs = await import('fs/promises');
+      const content = await fs.readFile(safePath, 'utf-8');
+      const stats = await fs.stat(safePath);
+      
+      res.json({
+        content,
+        size: stats.size,
+        lastModified: stats.mtime,
+        encoding: 'utf-8'
+      });
+    } catch (error) {
+      console.error('Error reading file content:', error);
+      res.status(500).json({ message: 'Failed to read file content' });
+    }
+  });
+
+  app.post('/api/cline/files/write', isAuthenticated, async (req, res) => {
+    try {
+      const { path, content, backup = true } = req.body;
+      if (!path || content === undefined) {
+        return res.status(400).json({ message: 'Path and content are required' });
+      }
+      
+      // Validate path security
+      const safePath = validatePath(path);
+      
+      const fs = await import('fs/promises');
+      const pathModule = await import('path');
+      
+      // Create backup if requested
+      if (backup) {
+        try {
+          const backupDir = pathModule.join(pathModule.dirname(safePath), '.cline-backups');
+          await fs.mkdir(backupDir, { recursive: true });
+          
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const backupPath = pathModule.join(backupDir, `${pathModule.basename(safePath)}.${timestamp}.backup`);
+          
+          const originalContent = await fs.readFile(safePath, 'utf-8').catch(() => '');
+          await fs.writeFile(backupPath, originalContent);
+        } catch (backupError) {
+          console.warn('Failed to create backup:', backupError);
+        }
+      }
+      
+      await fs.writeFile(safePath, content, 'utf-8');
+      const stats = await fs.stat(safePath);
+      
+      res.json({
+        message: 'File written successfully',
+        size: stats.size,
+        lastModified: stats.mtime
+      });
+    } catch (error) {
+      console.error('Error writing file:', error);
+      res.status(500).json({ message: 'Failed to write file' });
+    }
+  });
+
+  app.post('/api/cline/files/create', isAuthenticated, async (req, res) => {
+    try {
+      const { path, type, content = '' } = req.body;
+      if (!path || !type) {
+        return res.status(400).json({ message: 'Path and type are required' });
+      }
+      
+      // Validate path security
+      const safePath = validatePath(path);
+      
+      const fs = await import('fs/promises');
+      const pathModule = await import('path');
+      
+      if (type === 'directory') {
+        await fs.mkdir(safePath, { recursive: true });
+        res.json({ message: 'Directory created successfully' });
+      } else {
+        // Ensure parent directory exists
+        const parentDir = pathModule.dirname(safePath);
+        await fs.mkdir(parentDir, { recursive: true });
+        
+        await fs.writeFile(safePath, content, 'utf-8');
+        const stats = await fs.stat(safePath);
+        
+        res.json({
+          message: 'File created successfully',
+          size: stats.size,
+          lastModified: stats.mtime
+        });
+      }
+    } catch (error) {
+      console.error('Error creating file/directory:', error);
+      res.status(500).json({ message: 'Failed to create file/directory' });
+    }
+  });
+
+  app.delete('/api/cline/files/:encodedPath', isAuthenticated, async (req, res) => {
+    try {
+      const path = decodeURIComponent(req.params.encodedPath);
+      // Validate path security
+      const safePath = validatePath(path);
+      
+      const fs = await import('fs/promises');
+      
+      const stats = await fs.stat(safePath);
+      if (stats.isDirectory()) {
+        await fs.rmdir(safePath, { recursive: true });
+        res.json({ message: 'Directory deleted successfully' });
+      } else {
+        await fs.unlink(safePath);
+        res.json({ message: 'File deleted successfully' });
+      }
+    } catch (error) {
+      console.error('Error deleting file/directory:', error);
+      res.status(500).json({ message: 'Failed to delete file/directory' });
+    }
+  });
+
+  // Terminal Integration Routes
+  app.post('/api/cline/terminal/execute', isAuthenticated, async (req, res) => {
+    try {
+      const { command, workingDirectory = '.' } = req.body;
+      if (!command) {
+        return res.status(400).json({ message: 'Command is required' });
+      }
+      
+      // Validate working directory security
+      const safeWorkingDir = validatePath(workingDirectory);
+      
+      // Basic command validation - block dangerous commands
+      const dangerousCommands = ['rm -rf /', 'sudo', 'chmod 777', 'mv /etc', 'cp /etc'];
+      if (dangerousCommands.some(dangerous => command.includes(dangerous))) {
+        return res.status(403).json({ message: 'Command blocked for security reasons' });
+      }
+      
+      const { spawn } = await import('child_process');
+      const childProcess = spawn('bash', ['-c', command], {
+        cwd: safeWorkingDir,
+        stdio: 'pipe',
+        env: { ...process.env }
+      });
+      
+      let stdout = '';
+      let stderr = '';
+      
+      childProcess.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      childProcess.stderr?.on('data', (data) => {
+        stderr += data.toString();
+      });
+      
+      childProcess.on('close', (code) => {
+        res.json({
+          command,
+          exitCode: code,
+          stdout,
+          stderr,
+          workingDirectory
+        });
+      });
+      
+    } catch (error) {
+      console.error('Error executing command:', error);
+      res.status(500).json({ message: 'Failed to execute command' });
+    }
+  });
+
+  // Git Integration Routes
+  app.get('/api/cline/git/status', isAuthenticated, async (req, res) => {
+    try {
+      const { spawn } = await import('child_process');
+      const gitStatus = spawn('git', ['status', '--porcelain'], { stdio: 'pipe' });
+      
+      let stdout = '';
+      gitStatus.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      gitStatus.on('close', (code) => {
+        const changes = stdout.split('\n')
+          .filter(line => line.trim())
+          .map(line => {
+            const status = line.substring(0, 2);
+            const file = line.substring(3);
+            return { status, file };
+          });
+        
+        res.json({ changes, clean: changes.length === 0 });
+      });
+    } catch (error) {
+      console.error('Error getting git status:', error);
+      res.status(500).json({ message: 'Failed to get git status' });
+    }
+  });
+
+  app.post('/api/cline/git/diff', isAuthenticated, async (req, res) => {
+    try {
+      const { file, staged = false } = req.body;
+      const { spawn } = await import('child_process');
+      
+      const args = ['diff'];
+      if (staged) args.push('--staged');
+      if (file) args.push(file);
+      
+      const gitDiff = spawn('git', args, { stdio: 'pipe' });
+      
+      let stdout = '';
+      gitDiff.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      gitDiff.on('close', (code) => {
+        res.json({ diff: stdout });
+      });
+    } catch (error) {
+      console.error('Error getting git diff:', error);
+      res.status(500).json({ message: 'Failed to get git diff' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
