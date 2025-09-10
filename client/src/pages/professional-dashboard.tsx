@@ -9,6 +9,7 @@ import type { DashboardStats } from "@shared/schema";
 import ProfessionalSidebar from "@/components/layout/professional-sidebar";
 import ProfessionalHeader from "@/components/layout/professional-header";
 import { ClineChat } from "@/components/cline/cline-chat";
+import { AdvancedChat } from "@/components/cline/advanced-chat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -393,7 +394,7 @@ export default function ProfessionalDashboard() {
               sidebar.isTablet ? "w-72" : "w-80"
             )}>
               <div className="h-full p-4">
-                <ClineChat />
+                <AdvancedChat />
               </div>
             </aside>
           )}
@@ -402,7 +403,7 @@ export default function ProfessionalDashboard() {
           {sidebar.isMobile && (
             <div className="p-4 border-t bg-background/50">
               <div className="h-96">
-                <ClineChat />
+                <AdvancedChat />
               </div>
             </div>
           )}
