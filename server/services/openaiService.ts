@@ -46,24 +46,45 @@ class OpenAIService {
   async generateScript(newsTitle: string, newsContent: string, userId?: string): Promise<string> {
     try {
       const prompt = `
-        Write a compelling dark mystery news video script (45-60 seconds) based on this breaking news:
+        Create an captivating dark mystery news video script (50-65 seconds) that transforms this breaking news into a compelling documentary-style narrative:
         
+        NEWS SOURCE:
         Title: ${newsTitle}
         Content: ${newsContent}
         
-        Structure:
-        1. HOOK (15s): Start with a dramatic question or shocking statement
-        2. FACTS (20s): Present the key information in a mysterious, documentary style
-        3. CONCLUSION (10s): End with thought-provoking implications or unanswered questions
+        SCRIPT STRUCTURE:
         
-        Style Guidelines:
-        - Dark, serious, and mysterious tone
-        - Use words like "revealed", "exposed", "hidden truth", "behind closed doors"
-        - Factual but compelling delivery
-        - Include natural pauses for dramatic effect
-        - Write for spoken word, not reading
+        🔥 HOOK (15-18s): Open with psychological impact
+        - Start with a chilling question, paradox, or stark contrast
+        - Use phrases like "What if I told you...", "While the world slept...", "In the shadows of..."
+        - Create immediate cognitive dissonance or surprise
         
-        Return only the script text, no stage directions or formatting.
+        🕵️ INVESTIGATION (25-30s): Unveil the mystery layer by layer
+        - Present facts as discoveries, not announcements
+        - Use investigative language: "sources reveal", "documents show", "witnesses confirm"
+        - Build tension with pacing: short punchy sentences followed by longer revelations
+        - Include precise details that feel insider knowledge
+        
+        💀 IMPLICATIONS (12-15s): Leave them questioning everything
+        - Connect to larger patterns or conspiracies
+        - Pose unsettling questions about what this means
+        - End with a statement that lingers in the mind
+        
+        DARK STORYTELLING TECHNIQUES:
+        ✓ Power Words: "classified", "suppressed", "infiltrated", "orchestrated", "calculated"
+        ✓ Sensory Details: "behind closed doors", "in the dead of night", "whispered conversations"
+        ✓ Authority Undermining: Question official narratives, hint at cover-ups
+        ✓ Human Psychology: Focus on motives, secrets, hidden agendas
+        ✓ Rhythmic Pacing: Vary sentence length for dramatic effect
+        ✓ Present Tense: Make events feel immediate and urgent
+        
+        VOICE & TONE:
+        - Authoritative investigative journalist
+        - Calm but intense delivery
+        - Factual precision with emotional undertones
+        - Natural speaking rhythm with strategic pauses
+        
+        OUTPUT: Pure script text only, optimized for voice synthesis, no directions or formatting.
       `;
 
       const client = userId ? await this.getClient(userId) : globalOpenai;
