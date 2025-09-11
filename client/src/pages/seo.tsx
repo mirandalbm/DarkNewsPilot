@@ -824,6 +824,7 @@ export default function SEOOptimization() {
                 </Button>
               </div>
             </div>
+          </div>
         </div>
 
         {/* Overview Cards */}
