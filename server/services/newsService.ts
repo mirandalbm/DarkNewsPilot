@@ -75,7 +75,7 @@ class NewsService {
       url = `${source.url}?q=${encodeURIComponent(query)}&apiKey=${source.apiKey}&sortBy=popularity&pageSize=20&language=en`;
     } else if (source.name === "NewsData") {
       const query = darkKeywords.join(",");
-      url = `${source.url}?q=${encodeURIComponent(query)}&apikey=${source.apiKey}&language=en&size=20`;
+      url = `${source.url}?qInTitle=${encodeURIComponent(query)}&apikey=${source.apiKey}&language=en&size=20`;
     } else {
       throw new Error(`Unsupported news source: ${source.name}`);
     }
@@ -104,14 +104,25 @@ class NewsService {
       articles = data.results || [];
     }
 
-    return articles.map((article: any) => ({
-      title: article.title,
-      content: article.description || article.content || article.summary,
-      url: article.url || article.link,
-      source: source.name,
-      viralScore: this.calculateViralScore(article),
-      publishedAt: new Date(article.publishedAt || article.pubDate || new Date()),
-    }));
+    return articles.map((article: any) => {
+      const publishedAt = new Date(article.publishedAt || article.pubDate || new Date());
+      const mappedArticle = {
+        title: article.title,
+        description: article.description || article.content || article.summary,
+        source: { name: source.name },
+        publishedAt: publishedAt,
+        url: article.url || article.link,
+      };
+      
+      return {
+        title: article.title,
+        content: article.description || article.content || article.summary,
+        url: article.url || article.link,
+        source: source.name,
+        viralScore: this.calculateViralScore(mappedArticle),
+        publishedAt,
+      };
+    });
   }
 
   private calculateViralScore(article: any): number {

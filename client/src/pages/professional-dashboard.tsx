@@ -77,16 +77,7 @@ export default function ProfessionalDashboard() {
         credentials: 'include',
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to trigger news processing');
-      }
-      
-      toast({
-        title: "Sucesso",
-        description: "Processamento de notícias iniciado",
-      });
-    } catch (error: any) {
-      if (isUnauthorizedError(error)) {
+      if (response.status === 401) {
         toast({
           title: "Não autorizado",
           description: "Você foi desconectado. Fazendo login novamente...",
@@ -98,6 +89,15 @@ export default function ProfessionalDashboard() {
         return;
       }
       
+      if (!response.ok) {
+        throw new Error('Failed to trigger news processing');
+      }
+      
+      toast({
+        title: "Sucesso",
+        description: "Processamento de notícias iniciado",
+      });
+    } catch (error: any) {
       toast({
         title: "Erro",
         description: "Falha ao iniciar processamento de notícias",
