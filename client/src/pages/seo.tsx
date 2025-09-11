@@ -794,27 +794,27 @@ export default function SEOOptimization() {
   const avgScore = Math.round(mockSEOAnalyses.reduce((sum, a) => sum + a.scores.overall, 0) / totalAnalyses);
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-7xl">
-      <div className="space-y-6">
+    <div className="app-container">
+      <div className="responsive-container">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Otimização SEO</h1>
-              <p className="text-muted-foreground">Análise e otimização para melhor performance nos mecanismos de busca</p>
+              <h1 className="text-xl sm:text-2xl font-bold">Otimização SEO</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Análise e otimização para melhor performance nos mecanismos de busca</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
-            <Button data-testid="button-analyze-all">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <Button data-testid="button-analyze-all" className="min-h-[44px]">
               <Search className="h-4 w-4 mr-2" />
               Analisar Todos
             </Button>
             
-            <Button variant="outline" data-testid="button-seo-settings">
+            <Button variant="outline" data-testid="button-seo-settings" className="min-h-[44px]">
               <Settings className="h-4 w-4 mr-2" />
               Configurações
             </Button>
@@ -822,100 +822,100 @@ export default function SEOOptimization() {
         </div>
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Vídeos Analisados</p>
-                  <p className="text-2xl font-bold">{totalAnalyses}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">Vídeos Analisados</p>
+                  <p className="text-xl sm:text-2xl font-bold">{totalAnalyses}</p>
                   <p className="text-xs text-blue-500 flex items-center mt-1">
                     <BarChart3 className="h-3 w-3 mr-1" />
                     Este mês
                   </p>
                 </div>
-                <BarChart3 className="h-8 w-8 text-blue-500" />
+                <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Score Médio SEO</p>
-                  <p className={`text-2xl font-bold ${getScoreColor(avgScore)}`}>{avgScore}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">Score Médio SEO</p>
+                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(avgScore)}`}>{avgScore}</p>
                   <p className="text-xs text-green-500 flex items-center mt-1">
                     <ArrowUp className="h-3 w-3 mr-1" />
                     +5 pontos
                   </p>
                 </div>
-                <Target className="h-8 w-8 text-green-500" />
+                <Target className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Precisam Atenção</p>
-                  <p className="text-2xl font-bold">{needsAttention}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">Precisam Atenção</p>
+                  <p className="text-xl sm:text-2xl font-bold">{needsAttention}</p>
                   <p className="text-xs text-orange-500 flex items-center mt-1">
                     <AlertTriangle className="h-3 w-3 mr-1" />
                     Otimizar
                   </p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-orange-500" />
+                <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Otimizados</p>
-                  <p className="text-2xl font-bold">{optimized}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">Otimizados</p>
+                  <p className="text-xl sm:text-2xl font-bold">{optimized}</p>
                   <p className="text-xs text-green-500 flex items-center mt-1">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Performando bem
                   </p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="analysis">Análise</TabsTrigger>
-            <TabsTrigger value="keywords">Palavras-chave</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="competitors">Concorrentes</TabsTrigger>
-            <TabsTrigger value="ranking">Rankings</TabsTrigger>
-            <TabsTrigger value="reports">Relatórios</TabsTrigger>
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
+            <TabsTrigger value="analysis" className="text-xs sm:text-sm">Análise</TabsTrigger>
+            <TabsTrigger value="keywords" className="text-xs sm:text-sm">Palavras-chave</TabsTrigger>
+            <TabsTrigger value="templates" className="text-xs sm:text-sm">Templates</TabsTrigger>
+            <TabsTrigger value="competitors" className="text-xs sm:text-sm">Concorrentes</TabsTrigger>
+            <TabsTrigger value="ranking" className="text-xs sm:text-sm">Rankings</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs sm:text-sm">Relatórios</TabsTrigger>
           </TabsList>
 
           {/* Análise SEO */}
-          <TabsContent value="analysis" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Análises SEO</h3>
-              <div className="flex items-center space-x-4">
+          <TabsContent value="analysis" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+              <h3 className="text-base sm:text-lg font-semibold">Análises SEO</h3>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Buscar vídeos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-10 w-full sm:w-64 min-h-[44px]"
                     data-testid="input-search-videos"
                   />
                 </div>
                 
                 <Select value={analysisFilter} onValueChange={setAnalysisFilter}>
-                  <SelectTrigger className="w-40" data-testid="select-analysis-filter">
+                  <SelectTrigger className="w-full sm:w-40 min-h-[44px]" data-testid="select-analysis-filter">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -932,21 +932,23 @@ export default function SEOOptimization() {
             <div className="space-y-4">
               {filteredAnalyses.map((analysis) => (
                 <Card key={analysis.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="space-y-4">
                       {/* Header da análise */}
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center space-x-2">
-                            <Video className="h-4 w-4" />
-                            <h3 className="font-semibold">{analysis.title}</h3>
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <Video className="h-4 w-4" />
+                              <h3 className="font-semibold text-sm sm:text-base">{analysis.title}</h3>
+                            </div>
                             <Badge className={getStatusColor(analysis.status)}>
                               {analysis.status === 'optimized' ? 'Otimizado' :
                                analysis.status === 'needs_attention' ? 'Precisa Atenção' :
                                analysis.status === 'analyzing' ? 'Analisando' : 'Completo'}
                             </Badge>
                           </div>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-muted-foreground">
                             <span>Criado: {analysis.createdAt}</span>
                             <span>Última análise: {analysis.lastAnalysis}</span>
                             <span>Views: {analysis.performance.views.toLocaleString('pt-BR')}</span>
@@ -954,8 +956,8 @@ export default function SEOOptimization() {
                           </div>
                         </div>
                         
-                        <div className="text-right">
-                          <div className={`text-2xl font-bold ${getScoreColor(analysis.scores.overall)}`}>
+                        <div className="text-center sm:text-right">
+                          <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(analysis.scores.overall)}`}>
                             {analysis.scores.overall}
                           </div>
                           <p className="text-xs text-muted-foreground">Score Geral</p>
@@ -963,21 +965,21 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Scores detalhados */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4">
                         <div className="text-center">
-                          <div className={`text-lg font-bold ${getScoreColor(analysis.scores.title)}`}>
+                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.title)}`}>
                             {analysis.scores.title}
                           </div>
                           <p className="text-xs text-muted-foreground">Título</p>
                         </div>
                         <div className="text-center">
-                          <div className={`text-lg font-bold ${getScoreColor(analysis.scores.description)}`}>
+                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.description)}`}>
                             {analysis.scores.description}
                           </div>
                           <p className="text-xs text-muted-foreground">Descrição</p>
                         </div>
                         <div className="text-center">
-                          <div className={`text-lg font-bold ${getScoreColor(analysis.scores.tags)}`}>
+                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.tags)}`}>
                             {analysis.scores.tags}
                           </div>
                           <p className="text-xs text-muted-foreground">Tags</p>

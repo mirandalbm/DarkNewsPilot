@@ -171,30 +171,30 @@ export default function HashtagGenerator() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-6xl">
-      <div className="space-y-6">
+    <div className="app-container">
+      <div className="responsive-container">
         {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <Hash className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Gerador de Hashtags</h1>
-            <p className="text-muted-foreground">Maximize o alcance com hashtags estratégicas</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Gerador de Hashtags</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Maximize o alcance com hashtags estratégicas</p>
           </div>
         </div>
 
-        <Tabs defaultValue="generator" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator">Gerador</TabsTrigger>
-            <TabsTrigger value="trending">Em Alta</TabsTrigger>
-            <TabsTrigger value="sets">Sets Prontos</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <Tabs defaultValue="generator" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+            <TabsTrigger value="generator" className="text-xs sm:text-sm">Gerador</TabsTrigger>
+            <TabsTrigger value="trending" className="text-xs sm:text-sm">Em Alta</TabsTrigger>
+            <TabsTrigger value="sets" className="text-xs sm:text-sm">Sets Prontos</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Gerador Principal */}
-          <TabsContent value="generator" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="generator" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Configuração */}
               <Card>
                 <CardHeader>
