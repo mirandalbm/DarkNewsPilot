@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from "@/hooks/useAuth";
+import ProfessionalSidebar from "@/components/layout/professional-sidebar";
+import ProfessionalHeader from "@/components/layout/professional-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,6 +63,7 @@ const thumbnailTemplates: ThumbnailTemplate[] = [
 ];
 
 export default function ThumbnailGenerator() {
+  const { isAuthenticated, isLoading } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -68,6 +72,13 @@ export default function ThumbnailGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedThumbnails, setGeneratedThumbnails] = useState<string[]>([]);
   const { toast } = useToast();
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      window.location.href = '/';
+    }
+  }, [isAuthenticated, isLoading]);
 
   const handleGenerate = async () => {
     if (!title.trim()) {
@@ -143,19 +154,33 @@ export default function ThumbnailGenerator() {
     });
   };
 
-  return (
-    <div className="container mx-auto px-6 py-8 max-w-6xl">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-            <ImageIcon className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Gerador de Thumbnails</h1>
-            <p className="text-muted-foreground">Crie thumbnails profissionais automaticamente</p>
-          </div>
+  if (isLoading) {
+    return (
+      <div className="min-h-[100dvh] bg-gray-900 flex items-center justify-center safe-bottom">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container bg-background">
+      <ProfessionalSidebar />
+      <div className="responsive-container">
+        <ProfessionalHeader />
+        <main className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 w-full safe-bottom">
+          {/* Header */}
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+              <ImageIcon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold" data-testid="page-title">Gerador de Thumbnails</h1>
+              <p className="text-muted-foreground">Crie thumbnails profissionais automaticamente</p>
+            </div>
+          </div>
 
         <Tabs defaultValue="quick" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
@@ -441,6 +466,7 @@ export default function ThumbnailGenerator() {
             </Card>
           </TabsContent>
         </Tabs>
+        </main>
       </div>
     </div>
   );
