@@ -929,11 +929,11 @@ export default function SEOOptimization() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {filteredAnalyses.map((analysis) => (
-                <Card key={analysis.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="space-y-4">
+                <Card key={analysis.id} className="hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
+                  <CardContent className="p-4 sm:p-6 bg-gradient-to-r from-background to-muted/20">
+                    <div className="space-y-6">
                       {/* Header da análise */}
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div className="space-y-2 flex-1">
@@ -961,6 +961,16 @@ export default function SEOOptimization() {
                             {analysis.scores.overall}
                           </div>
                           <p className="text-xs text-muted-foreground">Score Geral</p>
+                        </div>
+                      </div>
+
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Análise Detalhada</span>
                         </div>
                       </div>
 
@@ -998,6 +1008,16 @@ export default function SEOOptimization() {
                         </div>
                       </div>
 
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Recomendações</span>
+                        </div>
+                      </div>
+
                       {/* Recomendações principais */}
                       {analysis.recommendations.length > 0 && (
                         <div className="space-y-2">
@@ -1028,6 +1048,16 @@ export default function SEOOptimization() {
                         </div>
                       )}
 
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Palavras-chave</span>
+                        </div>
+                      </div>
+
                       {/* Top keywords */}
                       {analysis.keywords.length > 0 && (
                         <div className="space-y-2">
@@ -1047,6 +1077,16 @@ export default function SEOOptimization() {
                           </div>
                         </div>
                       )}
+
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Performance</span>
+                        </div>
+                      </div>
 
                       {/* Performance */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-4 bg-muted/50 rounded-lg">
@@ -1182,11 +1222,11 @@ export default function SEOOptimization() {
               </Dialog>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {mockKeywordResearch.map((keyword) => (
-                <Card key={keyword.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
+                <Card key={keyword.id} className="hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
+                  <CardContent className="p-6 bg-gradient-to-r from-background to-blue-50/20 dark:to-blue-950/20">
+                    <div className="space-y-6">
                       {/* Header da keyword */}
                       <div className="flex items-start justify-between">
                         <div className="space-y-2 flex-1">
@@ -1200,6 +1240,16 @@ export default function SEOOptimization() {
                                keyword.searchIntent === 'navigational' ? 'Navegacional' : 'Transacional'}
                             </Badge>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Métricas</span>
                         </div>
                       </div>
 
