@@ -523,7 +523,7 @@ export default function VideoProduction() {
                     <div className="text-center py-8">
                       <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground">
-                        Nenhuma notícia aprovada para produção.
+                        Nenhuma noticia aprovada para producao.
                       </p>
                     </div>
                   )}
