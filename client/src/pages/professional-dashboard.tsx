@@ -549,23 +549,30 @@ export default function ProfessionalDashboard() {
           </Card>
           </main>
 
-          {/* Cline AI Assistant Column - Fixed Right */}
+          {/* Cline AI Assistant Column - Responsive Right Panel */}
           {!sidebar.isMobile && (
             <aside className={cn(
-              "w-80 border-l bg-background/50 transition-all duration-300",
-              sidebar.isTablet ? "w-72" : "w-80"
+              "border-l bg-background/50 transition-all duration-300 flex flex-col",
+              sidebar.isTablet ? "w-64" : "w-80 xl:w-96"
             )}>
-              <div className="h-full p-4">
-                <AdvancedChat compact={true} />
+              <div className="flex-1 overflow-hidden">
+                <div className="h-full p-3 md:p-4">
+                  <AdvancedChat compact={true} />
+                </div>
               </div>
             </aside>
           )}
 
-          {/* Mobile Cline Chat */}
+          {/* Mobile & Tablet Integrated Chat */}
           {sidebar.isMobile && (
-            <div className="p-4 border-t bg-background/50">
-              <div className="h-96">
-                <AdvancedChat compact={true} />
+            <div className="border-t bg-background/50 transition-all duration-300">
+              <div className={cn(
+                "overflow-hidden transition-all duration-300",
+                "h-80 sm:h-96"
+              )}>
+                <div className="h-full p-3">
+                  <AdvancedChat compact={true} />
+                </div>
               </div>
             </div>
           )}
