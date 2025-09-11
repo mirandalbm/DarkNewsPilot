@@ -657,23 +657,23 @@ export default function ProfessionalDashboard() {
           </div>
           </main>
 
-          {/* AI Assistant Panel - Proper Grid Column */}
+          {/* AI Assistant Panel - FIXED: Remove overflow-hidden to allow proper scrolling */}
           {!sidebar.isMobile && (
             <div className={cn(
-              "border-l bg-background/50 overflow-hidden transition-all duration-300 flex-shrink-0",
+              "border-l bg-background/50 transition-all duration-300 flex-shrink-0",
               sidebar.isTablet ? "w-64 max-w-[16rem]" : "w-80 xl:w-96 max-w-[20rem] xl:max-w-[24rem]"
             )}>
-              <div className="h-full p-3 md:p-4 overflow-hidden">
+              <div className="h-full p-3 md:p-4">
                 <AdvancedChat compact={true} />
               </div>
             </div>
           )}
         </div>
 
-        {/* Mobile Chat - Fixed Height Bottom Section */}
+        {/* Mobile Chat - FIXED: Remove overflow-hidden to allow proper scrolling */}
         {sidebar.isMobile && (
           <div className="border-t bg-background/50 transition-all duration-300 flex-shrink-0">
-            <div className="h-80 overflow-hidden">
+            <div className="h-80">
               <div className="h-full p-3">
                 <AdvancedChat compact={true} />
               </div>
