@@ -65,28 +65,28 @@ export default function Analytics() {
       
       <main className="flex-1 overflow-y-auto">
         {/* Header */}
-        <header className="bg-card border-b border-border p-6">
+        <header className="bg-card border-b border-border p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">Analytics Dashboard</h2>
-              <p className="text-muted-foreground">Performance insights and channel statistics</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Analytics Dashboard</h2>
+              <p className="text-muted-foreground text-sm sm:text-base">Performance insights and channel statistics</p>
             </div>
           </div>
         </header>
 
         {/* Analytics Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Key Metrics Summary */}
           <section>
-            <h3 className="text-lg font-semibold text-foreground mb-4">Performance Overview</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Performance Overview</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-                  <Eye className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Total Views</CardTitle>
+                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground" data-testid="text-total-views">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-total-views">
                     {statsLoading ? '...' : (stats?.totalViews || 0).toLocaleString()}
                   </div>
                   <p className="text-xs text-accent">+12% from last week</p>
@@ -94,12 +94,12 @@ export default function Analytics() {
               </Card>
 
               <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Subscribers</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Subscribers</CardTitle>
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground" data-testid="text-total-subscribers">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-total-subscribers">
                     {statsLoading ? '...' : (stats?.totalSubscribers || 0).toLocaleString()}
                   </div>
                   <p className="text-xs text-accent">+8% from last week</p>
@@ -107,12 +107,12 @@ export default function Analytics() {
               </Card>
 
               <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Channels</CardTitle>
-                  <Globe className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Active Channels</CardTitle>
+                  <Globe className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground" data-testid="text-active-channels">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-active-channels">
                     {statsLoading ? '...' : stats?.activeChannels || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">Across 7 languages</p>
@@ -120,12 +120,12 @@ export default function Analytics() {
               </Card>
 
               <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Growth Rate</CardTitle>
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground" data-testid="text-growth-rate">+18.2%</div>
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold text-foreground" data-testid="text-growth-rate">+18.2%</div>
                   <p className="text-xs text-accent">Monthly average</p>
                 </CardContent>
               </Card>
@@ -133,14 +133,14 @@ export default function Analytics() {
           </section>
 
           {/* Charts */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Views Over Time */}
             <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Views Over Time</CardTitle>
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="text-foreground text-sm sm:text-base">Views Over Time</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
                   <LineChart data={mockViewsData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis 
@@ -173,11 +173,11 @@ export default function Analytics() {
 
             {/* Language Performance */}
             <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Performance by Language</CardTitle>
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="text-foreground text-sm sm:text-base">Performance by Language</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
                   <PieChart>
                     <Pie
                       data={mockLanguageData}

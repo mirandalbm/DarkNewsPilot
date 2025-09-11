@@ -274,6 +274,27 @@ class OpenAIService {
     }
   }
 
+  async generateCompletion(prompt: string, userId?: string): Promise<string> {
+    try {
+      const client = userId ? await this.getClient(userId) : globalOpenai;
+      if (!client) {
+        throw new Error('OpenAI not configured');
+      }
+
+      const response = await client.chat.completions.create({
+        model: "gpt-5",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1000,
+      });
+
+      return response.choices[0].message.content || "";
+    } catch (error) {
+      console.error("Error generating completion:", error);
+      throw error;
+    }
+  }
+
   clearCache(userId: string): void {
     this.clients.delete(userId);
   }

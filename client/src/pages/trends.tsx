@@ -235,36 +235,36 @@ export default function TrendsAnalysis() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-7xl">
-      <div className="space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Análise de Tendências</h1>
-              <p className="text-muted-foreground">Monitore tópicos virais em tempo real</p>
+              <h1 className="text-xl sm:text-2xl font-bold">Análise de Tendências</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">Monitore tópicos virais em tempo real</p>
             </div>
           </div>
           
-          <Button onClick={refreshTrends} data-testid="button-refresh-trends">
-            <Activity className="h-4 w-4 mr-2" />
-            Atualizar
+          <Button onClick={refreshTrends} size="sm" className="min-h-[44px]" data-testid="button-refresh-trends">
+            <Activity className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Atualizar</span>
           </Button>
         </div>
 
         {/* Filtros */}
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 sm:p-6">
             <CardTitle className="flex items-center space-x-2">
-              <Filter className="h-5 w-5" />
-              <span>Filtros de Pesquisa</span>
+              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">Filtros de Pesquisa</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <Label>Região</Label>
                 <Select value={selectedRegion} onValueChange={setSelectedRegion}>
@@ -311,18 +311,21 @@ export default function TrendsAnalysis() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                 <Label>Pesquisa Personalizada</Label>
                 <div className="flex space-x-2">
                   <Input
                     placeholder="Ex: múmias egípcias"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1"
                     data-testid="input-search-term"
                   />
                   <Button 
                     onClick={analyzeCustomTopic}
                     disabled={isAnalyzing}
+                    size="sm"
+                    className="min-h-[44px] flex-shrink-0"
                     data-testid="button-analyze-topic"
                   >
                     {isAnalyzing ? (
@@ -371,29 +374,31 @@ export default function TrendsAnalysis() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="trending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="trending">Em Alta</TabsTrigger>
-            <TabsTrigger value="rising">Subindo</TabsTrigger>
-            <TabsTrigger value="predictions">Previsões</TabsTrigger>
-            <TabsTrigger value="competitors">Concorrência</TabsTrigger>
+        <Tabs defaultValue="trending" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="trending" className="text-xs sm:text-sm">Em Alta</TabsTrigger>
+            <TabsTrigger value="rising" className="text-xs sm:text-sm">Subindo</TabsTrigger>
+            <TabsTrigger value="predictions" className="text-xs sm:text-sm">Previsões</TabsTrigger>
+            <TabsTrigger value="competitors" className="text-xs sm:text-sm">Concorrência</TabsTrigger>
           </TabsList>
 
           {/* Tendências em Alta */}
-          <TabsContent value="trending" className="space-y-6">
-            <div className="grid gap-4">
+          <TabsContent value="trending" className="space-y-4 sm:space-y-6">
+            <div className="grid gap-3 sm:gap-4">
               {mockTrends.map((trend, index) => (
-                <Card key={trend.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
+                <Card key={trend.id} className="hover:shadow-md transition-shadow" data-testid={`trend-card-${trend.id}`}>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="space-y-3 sm:space-y-0 sm:flex sm:items-start sm:justify-between">
                       <div className="space-y-2 flex-1">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-semibold text-lg">{trend.keyword}</h3>
-                          <Badge variant="outline">{trend.category}</Badge>
-                          <span className="text-xl">{getSentimentIcon(trend.sentiment)}</span>
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                          <h3 className="font-semibold text-base sm:text-lg">{trend.keyword}</h3>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="text-xs">{trend.category}</Badge>
+                            <span className="text-lg sm:text-xl">{getSentimentIcon(trend.sentiment)}</span>
+                          </div>
                         </div>
                         
-                        <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+                        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
                           <span className="flex items-center space-x-1">
                             <Eye className="h-3 w-3" />
                             <span>{formatNumber(trend.volume)} buscas</span>
@@ -412,7 +417,7 @@ export default function TrendsAnalysis() {
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap gap-2 mt-3">
+                        <div className="flex flex-wrap gap-1 sm:gap-2 mt-2 sm:mt-3">
                           {trend.relatedTopics.map((topic, i) => (
                             <Badge key={i} variant="secondary" className="text-xs">
                               {topic}

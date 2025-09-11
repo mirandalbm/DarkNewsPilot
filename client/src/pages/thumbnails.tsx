@@ -183,15 +183,15 @@ export default function ThumbnailGenerator() {
           </div>
 
         <Tabs defaultValue="quick" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="quick">Geração Rápida</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="advanced">Avançado</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
+            <TabsTrigger value="quick" className="text-xs sm:text-sm">Rápida</TabsTrigger>
+            <TabsTrigger value="templates" className="text-xs sm:text-sm">Templates</TabsTrigger>
+            <TabsTrigger value="advanced" className="text-xs sm:text-sm">Avançado</TabsTrigger>
           </TabsList>
 
           {/* Geração Rápida */}
           <TabsContent value="quick" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -225,7 +225,7 @@ export default function ThumbnailGenerator() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
                       <Label>Estilo do Texto</Label>
                       <Select value={textStyle} onValueChange={setTextStyle}>
@@ -324,7 +324,7 @@ export default function ThumbnailGenerator() {
 
           {/* Templates */}
           <TabsContent value="templates" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {thumbnailTemplates.map((template) => (
                 <Card 
                   key={template.id}
@@ -366,7 +366,7 @@ export default function ThumbnailGenerator() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <h4 className="font-medium flex items-center space-x-2">
                       <Type className="h-4 w-4" />
@@ -412,20 +412,20 @@ export default function ThumbnailGenerator() {
                     <div className="space-y-3">
                       <div>
                         <Label>Cor do Texto</Label>
-                        <div className="flex space-x-2 mt-1">
-                          <div className="w-8 h-8 bg-white border-2 border-border rounded cursor-pointer"></div>
-                          <div className="w-8 h-8 bg-red-500 border-2 border-border rounded cursor-pointer"></div>
-                          <div className="w-8 h-8 bg-yellow-400 border-2 border-border rounded cursor-pointer"></div>
-                          <div className="w-8 h-8 bg-blue-500 border-2 border-border rounded cursor-pointer"></div>
+                        <div className="grid grid-cols-4 gap-2 mt-1">
+                          <div className="aspect-square bg-white border-2 border-border rounded cursor-pointer"></div>
+                          <div className="aspect-square bg-red-500 border-2 border-border rounded cursor-pointer"></div>
+                          <div className="aspect-square bg-yellow-400 border-2 border-border rounded cursor-pointer"></div>
+                          <div className="aspect-square bg-blue-500 border-2 border-border rounded cursor-pointer"></div>
                         </div>
                       </div>
                       <div>
                         <Label>Cor de Fundo</Label>
-                        <div className="flex space-x-2 mt-1">
-                          <div className="w-8 h-8 bg-gradient-to-br from-red-900 to-black border-2 border-border rounded cursor-pointer"></div>
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-800 to-gray-900 border-2 border-border rounded cursor-pointer"></div>
-                          <div className="w-8 h-8 bg-gradient-to-br from-purple-800 to-black border-2 border-border rounded cursor-pointer"></div>
-                          <div className="w-8 h-8 bg-gradient-to-br from-green-800 to-black border-2 border-border rounded cursor-pointer"></div>
+                        <div className="grid grid-cols-4 gap-2 mt-1">
+                          <div className="aspect-square bg-gradient-to-br from-red-900 to-black border-2 border-border rounded cursor-pointer"></div>
+                          <div className="aspect-square bg-gradient-to-br from-blue-800 to-gray-900 border-2 border-border rounded cursor-pointer"></div>
+                          <div className="aspect-square bg-gradient-to-br from-purple-800 to-black border-2 border-border rounded cursor-pointer"></div>
+                          <div className="aspect-square bg-gradient-to-br from-green-800 to-black border-2 border-border rounded cursor-pointer"></div>
                         </div>
                       </div>
                     </div>
@@ -458,7 +458,7 @@ export default function ThumbnailGenerator() {
                   </div>
                 </div>
 
-                <Button className="w-full" data-testid="button-generate-advanced">
+                <Button className="w-full min-h-[44px]" data-testid="button-generate-advanced">
                   <Wand2 className="h-4 w-4 mr-2" />
                   Gerar com Configurações Avançadas
                 </Button>

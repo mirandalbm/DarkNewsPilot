@@ -280,37 +280,42 @@ export default function VideoProduction() {
         <ProfessionalHeader />
         <main className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 w-full safe-bottom">
           {/* Page Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 sm:mb-8">
+            <div className="space-y-4 sm:space-y-0 sm:flex sm:items-center sm:justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-foreground flex items-center">
-                  <Video className="h-8 w-8 mr-3 text-primary" />
-                  Produção de Vídeos IA
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center">
+                  <Video className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-primary" />
+                  <span className="hidden sm:inline">Produção de Vídeos IA</span>
+                  <span className="sm:hidden">Vídeos IA</span>
                 </h1>
-                <p className="text-muted-foreground mt-2">
+                <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
                   Sistema automatizado de criação com HeyGen e ElevenLabs
                 </p>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Button
                   variant="outline"
-                  className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-500/20"
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-500/20 min-h-[44px]"
+                  data-testid="button-analytics"
                 >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Analytics
+                  <BarChart3 className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Analytics</span>
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-primary to-primary/80"
+                  className="bg-gradient-to-r from-primary to-primary/80 min-h-[44px]"
+                  size="sm"
                   data-testid="button-new-production"
                 >
-                  <Zap className="h-4 w-4 mr-2" />
-                  Nova Produção
+                  <Zap className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Nova Produção</span>
+                  <span className="sm:hidden">Novo</span>
                 </Button>
               </div>
             </div>
             
             {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
               <Card className="border-0 shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -375,11 +380,11 @@ export default function VideoProduction() {
 
           {/* Production Content */}
           <Tabs defaultValue="queue" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="queue">Fila de Produção</TabsTrigger>
-              <TabsTrigger value="ready">Aprovação</TabsTrigger>
-              <TabsTrigger value="published">Publicados</TabsTrigger>
-              <TabsTrigger value="studio">Estúdio IA</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+              <TabsTrigger value="queue" className="text-xs sm:text-sm">Fila</TabsTrigger>
+              <TabsTrigger value="ready" className="text-xs sm:text-sm">Aprovação</TabsTrigger>
+              <TabsTrigger value="published" className="text-xs sm:text-sm">Publicados</TabsTrigger>
+              <TabsTrigger value="studio" className="text-xs sm:text-sm">Estúdio</TabsTrigger>
             </TabsList>
             
             <TabsContent value="queue" className="space-y-6">
@@ -395,75 +400,87 @@ export default function VideoProduction() {
                   {approvedNews && (approvedNews as any[]).length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
                       {(approvedNews as any[]).slice(0, 3).map((news: any) => (
-                        <div key={news.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                          <div className="flex-1">
+                        <div key={news.id} className="border border-border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-0">
+                          <div className="space-y-2">
                             <h3 className="font-semibold text-sm">{news.title}</h3>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-muted-foreground">
                               Score Viral: {news.viralScore}/100 • {news.source}
                             </p>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Select
-                              value={selectedAvatar}
-                              onValueChange={setSelectedAvatar}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Avatar" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {avatarTemplates.map((avatar) => (
-                                  <SelectItem key={avatar.id} value={avatar.id}>
-                                    {avatar.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Select
-                              value={selectedLanguage}
-                              onValueChange={setSelectedLanguage}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Idioma" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {languageOptions.map((lang) => (
-                                  <SelectItem key={lang.code} value={lang.code}>
-                                    {lang.flag} {lang.name.split('(')[0]}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Button
-                              size="sm"
-                              onClick={() => generateVideoMutation.mutate({
-                                newsId: news.id,
-                                language: selectedLanguage,
-                                avatar: selectedAvatar
-                              })}
-                              disabled={generateVideoMutation.isPending}
-                              className="bg-gradient-to-r from-blue-500 to-blue-600"
-                            >
-                              {generateVideoMutation.isPending ? (
-                                <RefreshCw className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Play className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                >
-                                  <Languages className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
+                          
+                          {/* Mobile responsive controls */}
+                          <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+                            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:space-x-2">
+                              <Select
+                                value={selectedAvatar}
+                                onValueChange={setSelectedAvatar}
+                              >
+                                <SelectTrigger className="w-full sm:w-32">
+                                  <SelectValue placeholder="Avatar" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {avatarTemplates.map((avatar) => (
+                                    <SelectItem key={avatar.id} value={avatar.id}>
+                                      {avatar.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Select
+                                value={selectedLanguage}
+                                onValueChange={setSelectedLanguage}
+                              >
+                                <SelectTrigger className="w-full sm:w-32">
+                                  <SelectValue placeholder="Idioma" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {languageOptions.map((lang) => (
+                                    <SelectItem key={lang.code} value={lang.code}>
+                                      {lang.flag} {lang.name.split('(')[0]}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                size="sm"
+                                onClick={() => generateVideoMutation.mutate({
+                                  newsId: news.id,
+                                  language: selectedLanguage,
+                                  avatar: selectedAvatar
+                                })}
+                                disabled={generateVideoMutation.isPending}
+                                className="bg-gradient-to-r from-blue-500 to-blue-600 flex-1 sm:flex-none min-h-[44px]"
+                                data-testid={`button-generate-${news.id}`}
+                              >
+                                {generateVideoMutation.isPending ? (
+                                  <RefreshCw className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Play className="h-4 w-4 sm:mr-2" />
+                                    <span className="hidden sm:inline">Gerar</span>
+                                  </>
+                                )}
+                              </Button>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="min-h-[44px]"
+                                    data-testid={`button-multi-lang-${news.id}`}
+                                  >
+                                    <Languages className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
                               <DialogContent className="max-w-md">
                                 <DialogHeader>
                                   <DialogTitle>Produção Multi-idioma</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4">
-                                  <div className="grid grid-cols-2 gap-2">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {languageOptions.map((lang) => (
                                       <div key={lang.code} className="flex items-center space-x-2">
                                         <Checkbox

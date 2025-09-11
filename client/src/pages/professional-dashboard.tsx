@@ -284,10 +284,7 @@ export default function ProfessionalDashboard() {
             </div>
 
           {/* Metrics Cards - Mobile First */}
-          <div className={cn(
-            "grid transition-all duration-300",
-            sidebar.isMobile ? "grid-cols-1 gap-3" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
-          )}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 transition-all duration-300">
             {metrics.map((metric) => (
               <Card key={metric.title} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardContent className={cn(
@@ -332,14 +329,9 @@ export default function ProfessionalDashboard() {
           </div>
 
           {/* Quick Actions & Status - Responsive */}
-          <div className={cn(
-            "grid transition-all duration-300",
-            sidebar.isMobile ? "grid-cols-1 gap-3" : "grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6"
-          )}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 transition-all duration-300">
             {/* Quick Actions */}
-            <Card className={cn(
-              sidebar.isMobile ? "col-span-1" : "lg:col-span-2"
-            )}>
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Zap className="h-5 w-5" />
@@ -351,43 +343,25 @@ export default function ProfessionalDashboard() {
                 sidebar.isMobile ? "p-4" : "p-6"
               )}>
                 {quickActions.map((action) => (
-                  <div key={action.title} className={cn(
-                    "flex bg-muted/50 rounded-lg transition-all duration-300",
-                    sidebar.isMobile ? "flex-col space-y-2 p-3" : "items-center justify-between p-4"
-                  )}>
-                    <div className={cn(
-                      "flex items-center min-w-0 flex-1",
-                      sidebar.isMobile ? "space-x-2 w-full" : "space-x-3"
-                    )}>
-                      <div className={cn(
-                        "bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0",
-                        sidebar.isMobile ? "w-8 h-8" : "w-10 h-10"
-                      )}>
-                        <action.icon className={cn(
-                          "text-primary",
-                          sidebar.isMobile ? "h-4 w-4" : "h-5 w-5"
-                        )} />
+                  <div key={action.title} className="flex flex-col sm:flex-row bg-muted/50 rounded-lg transition-all duration-300 space-y-2 sm:space-y-0 sm:items-center sm:justify-between p-3 sm:p-4">
+                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 w-full">
+                      <div className="bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
+                        <action.icon className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className={cn(
-                          "font-medium text-foreground",
-                          sidebar.isMobile ? "text-sm truncate" : "text-base"
-                        )}>{action.title}</h3>
-                        <p className={cn(
-                          "text-muted-foreground",
-                          sidebar.isMobile ? "text-xs truncate" : "text-sm"
-                        )}>{action.description}</p>
+                        <h3 className="font-medium text-foreground text-sm sm:text-base truncate">{action.title}</h3>
+                        <p className="text-muted-foreground text-xs sm:text-sm truncate">{action.description}</p>
                       </div>
                     </div>
                     <Button 
                       variant={action.variant} 
                       onClick={action.action}
-                      size={sidebar.isMobile ? "sm" : "default"}
-                      className={cn(
-                        sidebar.isMobile && "w-full mt-2"
-                      )}
+                      size="sm"
+                      className="w-full sm:w-auto mt-2 sm:mt-0 min-h-[44px] px-4"
+                      data-testid={`button-${action.title.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      {sidebar.isMobile ? "▶️" : "Executar"}
+                      <span className="sm:hidden">▶️</span>
+                      <span className="hidden sm:inline">Executar</span>
                     </Button>
                   </div>
                 ))}

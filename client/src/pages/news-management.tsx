@@ -278,63 +278,68 @@ export default function NewsManagement() {
             
             {/* Filters */}
             <Card className="border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4 flex-wrap">
+              <CardContent className="p-4 sm:p-6">
+                <div className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <Filter className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium text-foreground">Filtros:</span>
                   </div>
                   
-                  <div className="flex-1 max-w-xs">
-                    <Input
-                      placeholder="Buscar notícias..."
-                      value={searchFilter}
-                      onChange={(e) => setSearchFilter(e.target.value)}
-                      className="border-border"
-                      data-testid="input-search-news"
-                    />
+                  {/* Mobile-first responsive filter layout */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+                    <div className="sm:col-span-2 lg:col-span-2 xl:col-span-2">
+                      <Input
+                        placeholder="Buscar notícias..."
+                        value={searchFilter}
+                        onChange={(e) => setSearchFilter(e.target.value)}
+                        className="border-border w-full"
+                        data-testid="input-search-news"
+                      />
+                    </div>
+                    
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-full" data-testid="select-status-filter">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos Status</SelectItem>
+                        <SelectItem value="discovered">Descobertas</SelectItem>
+                        <SelectItem value="processed">Processadas</SelectItem>
+                        <SelectItem value="approved">Aprovadas</SelectItem>
+                        <SelectItem value="rejected">Rejeitadas</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                      <SelectTrigger className="w-full" data-testid="select-score-filter">
+                        <SelectValue placeholder="Score" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos Scores</SelectItem>
+                        <SelectItem value="high">Alto (85+)</SelectItem>
+                        <SelectItem value="medium">Médio (70-84)</SelectItem>
+                        <SelectItem value="low">Baixo (&lt;70)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                      <SelectTrigger className="w-full" data-testid="select-source-filter">
+                        <SelectValue placeholder="Fonte" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas Fontes</SelectItem>
+                        {(newsSources as any[])?.map((source: any) => (
+                          <SelectItem key={source} value={source}>{source}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <div className="flex items-center justify-center sm:justify-start">
+                      <Badge variant="secondary" className="text-xs sm:text-sm">
+                        {filteredNews.length} resultados
+                      </Badge>
+                    </div>
                   </div>
-                  
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-36" data-testid="select-status-filter">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos Status</SelectItem>
-                      <SelectItem value="discovered">Descobertas</SelectItem>
-                      <SelectItem value="processed">Processadas</SelectItem>
-                      <SelectItem value="approved">Aprovadas</SelectItem>
-                      <SelectItem value="rejected">Rejeitadas</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                    <SelectTrigger className="w-32" data-testid="select-score-filter">
-                      <SelectValue placeholder="Score" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos Scores</SelectItem>
-                      <SelectItem value="high">Alto (85+)</SelectItem>
-                      <SelectItem value="medium">Médio (70-84)</SelectItem>
-                      <SelectItem value="low">Baixo (&lt;70)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                    <SelectTrigger className="w-36" data-testid="select-source-filter">
-                      <SelectValue placeholder="Fonte" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas Fontes</SelectItem>
-                      {(newsSources as any[])?.map((source: any) => (
-                        <SelectItem key={source} value={source}>{source}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Badge variant="secondary" className="ml-4">
-                    {filteredNews.length} resultados
-                  </Badge>
                 </div>
               </CardContent>
             </Card>
@@ -342,11 +347,11 @@ export default function NewsManagement() {
 
           {/* News Content */}
           <Tabs defaultValue="all" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all">Todas Notícias</TabsTrigger>
-              <TabsTrigger value="pending">Pendentes</TabsTrigger>
-              <TabsTrigger value="approved">Aprovadas</TabsTrigger>
-              <TabsTrigger value="high-score">Alto Score</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+              <TabsTrigger value="all" className="text-xs sm:text-sm">Todas</TabsTrigger>
+              <TabsTrigger value="pending" className="text-xs sm:text-sm">Pendentes</TabsTrigger>
+              <TabsTrigger value="approved" className="text-xs sm:text-sm">Aprovadas</TabsTrigger>
+              <TabsTrigger value="high-score" className="text-xs sm:text-sm">Alto Score</TabsTrigger>
             </TabsList>
             
             <TabsContent value="all" className="space-y-4">
