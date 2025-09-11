@@ -28,6 +28,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useTranslation } from 'react-i18next';
 
 interface Breadcrumb {
   name: string;
@@ -172,11 +174,9 @@ export default function ProfessionalHeader() {
         {/* Theme Toggle */}
         <ThemeToggle />
 
-        {/* Language (hidden on mobile) */}
+        {/* Language Selector */}
         {!sidebar.isMobile && (
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <Globe className="h-4 w-4" />
-          </Button>
+          <LanguageSelector />
         )}
 
         {/* Notifications */}

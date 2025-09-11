@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useSidebar } from "@/hooks/useSidebar";
+import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import type { DashboardStats } from "@shared/schema";
 import ProfessionalSidebar from "@/components/layout/professional-sidebar";
@@ -36,13 +37,14 @@ export default function ProfessionalDashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
   const sidebar = useSidebar();
+  const { t } = useTranslation();
 
   // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Não autorizado",
-        description: "Você foi desconectado. Fazendo login novamente...",
+        title: t('errors.unauthorized'),
+        description: t('auth.welcome'),
         variant: "destructive",
       });
       setTimeout(() => {
