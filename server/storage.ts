@@ -88,6 +88,16 @@ export interface IStorage {
   recordMetric(metric: InsertSystemMetric): Promise<void>;
   getMetrics(metricName: string, hours?: number): Promise<SystemMetric[]>;
 
+  // Trending Topics operations
+  createTrendingTopic(topic: InsertTrendingTopic): Promise<TrendingTopic>;
+  updateTrendingTopicScore(id: string, trendScore: number, viralPotential: number): Promise<void>;
+  getTrendingTopics(limit?: number): Promise<TrendingTopic[]>;
+  getActiveTrendingTopics(language?: string): Promise<TrendingTopic[]>;
+
+  // Workflow operations
+  getWorkflowByContent(contentId: string, workflowType: string): Promise<ApprovalWorkflow | undefined>;
+  createApprovalWorkflow(workflow: InsertApprovalWorkflow): Promise<ApprovalWorkflow>;
+
   // API status operations
   updateApiStatus(status: InsertApiStatus): Promise<void>;
   getApiStatuses(): Promise<ApiStatus[]>;
@@ -753,12 +763,24 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // Trending Topics
+  // Trending Topics operations
+  async createTrendingTopic(topic: InsertTrendingTopic): Promise<TrendingTopic> {
+    const [newTopic] = await db.insert(trendingTopics).values(topic).returning();
+    return newTopic;
+  }
+
+  async updateTrendingTopicScore(id: string, trendScore: number, viralPotential: number): Promise<void> {
+    await db
+      .update(trendingTopics)
+      .set({ trendScore, viralPotential })
+      .where(eq(trendingTopics.id, id));
+  }
+
   async getTrendingTopics(limit = 50): Promise<TrendingTopic[]> {
     return await db
       .select()
       .from(trendingTopics)
-      .orderBy(desc(trendingTopics.createdAt))
+      .orderBy(desc(trendingTopics.detectedAt))
       .limit(limit);
   }
 
@@ -793,6 +815,25 @@ export class DatabaseStorage implements IStorage {
     }
     
     return await query.orderBy(desc(schedulingRules.createdAt));
+  }
+
+  // Workflow operations
+  async getWorkflowByContent(contentId: string, workflowType: string): Promise<ApprovalWorkflow | undefined> {
+    const [workflow] = await db
+      .select()
+      .from(approvalWorkflows)
+      .where(and(
+        eq(approvalWorkflows.contentId, contentId),
+        eq(approvalWorkflows.contentType, workflowType)
+      ))
+      .limit(1);
+    
+    return workflow;
+  }
+
+  async createApprovalWorkflow(workflow: InsertApprovalWorkflow): Promise<ApprovalWorkflow> {
+    const [newWorkflow] = await db.insert(approvalWorkflows).values(workflow).returning();
+    return newWorkflow;
   }
 }
 

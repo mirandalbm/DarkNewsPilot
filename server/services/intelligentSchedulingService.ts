@@ -81,7 +81,7 @@ class IntelligentSchedulingService {
             engagement: trend.engagement,
             region: trend.region || 'global',
             language: trend.language || 'en-US',
-            peakTime: trend.peakTime,
+            peakTime: trend.peakTime ? new Date(trend.peakTime) : new Date(Date.now() + 2 * 60 * 60 * 1000), // Convert to Date object or use 2 hours from now
             expiresAt: new Date(Date.now() + this.TREND_DECAY_HOURS * 60 * 60 * 1000),
             metadata: trend.metadata || {}
           });
@@ -369,12 +369,31 @@ class IntelligentSchedulingService {
 
       if (response) {
         try {
-          const parsedTrends = JSON.parse(response);
+          // Clean the response by removing markdown code blocks and extra text
+          let cleanResponse = response.trim();
+          
+          // Find JSON block within markdown
+          const jsonMatch = cleanResponse.match(/```json\s*([\s\S]*?)\s*```/);
+          if (jsonMatch) {
+            cleanResponse = jsonMatch[1];
+          } else if (cleanResponse.startsWith('```')) {
+            // Handle code blocks without json marker
+            cleanResponse = cleanResponse.replace(/^```[a-z]*\s*/, '').replace(/\s*```[\s\S]*$/, '');
+          } else {
+            // Look for JSON array pattern
+            const arrayMatch = cleanResponse.match(/(\[[\s\S]*?\])/);
+            if (arrayMatch) {
+              cleanResponse = arrayMatch[1];
+            }
+          }
+          
+          const parsedTrends = JSON.parse(cleanResponse);
           if (Array.isArray(parsedTrends)) {
             trends.push(...parsedTrends.slice(0, 10)); // Limit to top 10 trends
           }
         } catch (parseError) {
           console.warn("Failed to parse trend analysis response:", parseError);
+          console.warn("Original response:", response.substring(0, 500), "...");
         }
       }
 

@@ -130,7 +130,7 @@ export const processingJobs = pgTable("processing_jobs", {
 export const systemMetrics = pgTable("system_metrics", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   metricName: varchar("metric_name").notNull(),
-  value: decimal("value").notNull(),
+  value: text("value").notNull(), // Changed from decimal to text to handle both numeric and JSON data
   timestamp: timestamp("timestamp").defaultNow(),
 });
 
