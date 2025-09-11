@@ -1613,30 +1613,42 @@ export default function SEOOptimization() {
 
           {/* Concorrentes */}
           <TabsContent value="competitors" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Análise de Concorrentes</h3>
-              <Button data-testid="button-add-competitor">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <h3 className="text-base sm:text-lg font-semibold">Análise de Concorrentes</h3>
+              <Button data-testid="button-add-competitor" size="sm" className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
-                Adicionar Concorrente
+                <span className="text-sm">Adicionar Concorrente</span>
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {mockCompetitorAnalyses.map((competitor) => (
-                <Card key={competitor.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
+                <Card key={competitor.id} className="hover:shadow-md transition-shadow border-l-4 border-l-orange-500">
+                  <CardContent className="p-4 sm:p-6 bg-gradient-to-r from-background to-orange-50/20 dark:to-orange-950/20">
+                    <div className="space-y-6">
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Concorrente</span>
+                        </div>
+                      </div>
+                      
                       {/* Header do concorrente */}
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center space-x-2">
-                            <Users className="h-4 w-4" />
-                            <h3 className="font-semibold">{competitor.channel}</h3>
-                            <Badge variant="outline">
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <Users className="h-4 w-4" />
+                              <h3 className="text-sm sm:text-base font-semibold">{competitor.channel}</h3>
+                            </div>
+                            <Badge variant="outline" className="text-xs w-fit">
                               {(competitor.subscriber_count / 1000000).toFixed(1)}M subs
                             </Badge>
                           </div>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs text-muted-foreground">
                             <span>Views médias: {(competitor.avgViews / 1000).toFixed(0)}k</span>
                             <span>Uploads: {competitor.uploadFrequency}/semana</span>
                             <span>Crescimento: {competitor.performance.growth > 0 ? '+' : ''}{competitor.performance.growth}%</span>
@@ -1644,22 +1656,32 @@ export default function SEOOptimization() {
                         </div>
                       </div>
 
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Performance</span>
+                        </div>
+                      </div>
+                      
                       {/* Métricas de performance */}
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className={`text-lg font-bold ${competitor.performance.growth > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className={`text-base sm:text-lg font-bold ${competitor.performance.growth > 0 ? 'text-green-500' : 'text-red-500'}`}>
                             {competitor.performance.growth > 0 ? '+' : ''}{competitor.performance.growth}%
                           </div>
                           <p className="text-xs text-muted-foreground">Crescimento</p>
                         </div>
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className="text-lg font-bold text-blue-500">
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className="text-base sm:text-lg font-bold text-blue-500">
                             {competitor.performance.engagement}%
                           </div>
                           <p className="text-xs text-muted-foreground">Engajamento</p>
                         </div>
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className="text-lg font-bold text-purple-500">
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className="text-base sm:text-lg font-bold text-purple-500">
                             {competitor.performance.searchVisibility}
                           </div>
                           <p className="text-xs text-muted-foreground">Visibilidade</p>
@@ -1761,23 +1783,23 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" data-testid={`button-analyze-competitor-${competitor.id}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-4 sm:space-y-0">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                          <Button variant="outline" size="sm" data-testid={`button-analyze-competitor-${competitor.id}`} className="min-h-[44px]">
                             <BarChart3 className="h-4 w-4 mr-1" />
                             Analisar Detalhado
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-monitor-competitor-${competitor.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-monitor-competitor-${competitor.id}`} className="min-h-[44px]">
                             <Eye className="h-4 w-4 mr-1" />
                             Monitorar
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-compare-competitor-${competitor.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-compare-competitor-${competitor.id}`} className="min-h-[44px]">
                             <Target className="h-4 w-4 mr-1" />
                             Comparar
                           </Button>
                         </div>
                         
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground text-center sm:text-right">
                           ID: {competitor.id}
                         </div>
                       </div>
@@ -1790,41 +1812,53 @@ export default function SEOOptimization() {
 
           {/* Rankings */}
           <TabsContent value="ranking" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Monitoramento de Rankings</h3>
-              <Button data-testid="button-add-ranking-monitor">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <h3 className="text-base sm:text-lg font-semibold">Monitoramento de Rankings</h3>
+              <Button data-testid="button-add-ranking-monitor" size="sm" className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
-                Adicionar Monitoramento
+                <span className="text-sm">Adicionar Monitoramento</span>
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {mockRankingMonitors.map((monitor) => (
-                <Card key={monitor.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
+                <Card key={monitor.id} className="hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
+                  <CardContent className="p-4 sm:p-6 bg-gradient-to-r from-background to-purple-50/20 dark:to-purple-950/20">
+                    <div className="space-y-6">
+                      {/* Barra separadora */}
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Ranking</span>
+                        </div>
+                      </div>
+                      
                       {/* Header do monitoramento */}
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center space-x-2">
-                            <Search className="h-4 w-4" />
-                            <h3 className="font-semibold">{monitor.keyword}</h3>
-                            <Badge variant="outline">
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <Search className="h-4 w-4" />
+                              <h3 className="text-sm sm:text-base font-semibold">{monitor.keyword}</h3>
+                            </div>
+                            <Badge variant="outline" className="text-xs w-fit">
                               {(monitor.searchVolume / 1000).toFixed(0)}k/mês
                             </Badge>
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {monitor.videoTitle}
                           </div>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs text-muted-foreground">
                             <span>Última verificação: {monitor.lastCheck}</span>
                             <span>Objetivo: #{monitor.targetRank}</span>
                           </div>
                         </div>
                         
-                        <div className="text-right">
-                          <div className="flex items-center space-x-2">
-                            <div className="text-2xl font-bold">#{monitor.currentRank}</div>
+                        <div className="text-center sm:text-right mt-2 sm:mt-0">
+                          <div className="flex items-center justify-center sm:justify-end space-x-2">
+                            <div className="text-xl sm:text-2xl font-bold">#{monitor.currentRank}</div>
                             {monitor.previousRank && (
                               <div className="flex items-center">
                                 {monitor.currentRank < monitor.previousRank ? (
@@ -1912,23 +1946,23 @@ export default function SEOOptimization() {
                       )}
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" data-testid={`button-check-rank-${monitor.id}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-4 sm:space-y-0">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                          <Button variant="outline" size="sm" data-testid={`button-check-rank-${monitor.id}`} className="min-h-[44px]">
                             <RefreshCw className="h-4 w-4 mr-1" />
                             Verificar Agora
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-optimize-rank-${monitor.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-optimize-rank-${monitor.id}`} className="min-h-[44px]">
                             <Zap className="h-4 w-4 mr-1" />
                             Otimizar
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-history-rank-${monitor.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-history-rank-${monitor.id}`} className="min-h-[44px]">
                             <BarChart3 className="h-4 w-4 mr-1" />
                             Ver Histórico
                           </Button>
                         </div>
                         
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground text-center sm:text-right">
                           ID: {monitor.id}
                         </div>
                       </div>
@@ -1941,21 +1975,21 @@ export default function SEOOptimization() {
 
           {/* Relatórios */}
           <TabsContent value="reports" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Relatórios SEO</h3>
-              <Button onClick={handleGenerateReport} data-testid="button-generate-seo-report">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <h3 className="text-base sm:text-lg font-semibold">Relatórios SEO</h3>
+              <Button onClick={handleGenerateReport} data-testid="button-generate-seo-report" size="sm" className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
-                Gerar Relatório
+                <span className="text-sm">Gerar Relatório</span>
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <Card className="border-l-4 border-l-blue-500">
+                <CardHeader className="bg-gradient-to-r from-background to-blue-50/20 dark:to-blue-950/20">
                   <CardTitle>Relatórios Automatizados</CardTitle>
                   <CardDescription>Relatórios gerados automaticamente</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 bg-gradient-to-r from-background to-blue-50/10 dark:to-blue-950/10">
                   <Button variant="outline" className="w-full justify-start" data-testid="button-report-performance">
                     <TrendingUp className="h-4 w-4 mr-2" />
                     Relatório de Performance SEO
@@ -1983,13 +2017,13 @@ export default function SEOOptimization() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="border-l-4 border-l-green-500">
+                <CardHeader className="bg-gradient-to-r from-background to-green-50/20 dark:to-green-950/20">
                   <CardTitle>Métricas Principais</CardTitle>
                   <CardDescription>Indicadores de performance SEO</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4 text-center">
+                <CardContent className="bg-gradient-to-r from-background to-green-50/10 dark:to-green-950/10">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
                     <div className="space-y-2">
                       <div className="text-2xl font-bold text-green-500">+127%</div>
                       <p className="text-xs text-muted-foreground">Tráfego Orgânico</p>
@@ -2011,58 +2045,58 @@ export default function SEOOptimization() {
               </Card>
             </div>
 
-            <Card>
-              <CardHeader>
+            <Card className="border-l-4 border-l-purple-500">
+              <CardHeader className="bg-gradient-to-r from-background to-purple-50/20 dark:to-purple-950/20">
                 <CardTitle>Histórico de Relatórios</CardTitle>
                 <CardDescription>Relatórios gerados recentemente</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-gradient-to-r from-background to-purple-50/10 dark:to-purple-950/10">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                    <div className="flex-1">
                       <div className="font-medium">Relatório SEO Completo - Março 2024</div>
                       <div className="text-sm text-muted-foreground">Gerado em 08/03/2024 às 16:30</div>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-download-seo-march">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                      <Button size="sm" variant="outline" data-testid="button-download-seo-march" className="min-h-[44px]">
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
-                      <Button size="sm" variant="outline" data-testid="button-share-seo-march">
+                      <Button size="sm" variant="outline" data-testid="button-share-seo-march" className="min-h-[44px]">
                         <Share2 className="h-4 w-4 mr-1" />
                         Compartilhar
                       </Button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                    <div className="flex-1">
                       <div className="font-medium">Análise de Keywords - Fevereiro 2024</div>
                       <div className="text-sm text-muted-foreground">Gerado em 29/02/2024 às 14:15</div>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-download-keywords-feb">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                      <Button size="sm" variant="outline" data-testid="button-download-keywords-feb" className="min-h-[44px]">
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
-                      <Button size="sm" variant="outline" data-testid="button-share-keywords-feb">
+                      <Button size="sm" variant="outline" data-testid="button-share-keywords-feb" className="min-h-[44px]">
                         <Share2 className="h-4 w-4 mr-1" />
                         Compartilhar
                       </Button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                    <div className="flex-1">
                       <div className="font-medium">Relatório de Concorrentes - Janeiro 2024</div>
                       <div className="text-sm text-muted-foreground">Gerado em 31/01/2024 às 11:45</div>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-download-competitors-jan">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                      <Button size="sm" variant="outline" data-testid="button-download-competitors-jan" className="min-h-[44px]">
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
-                      <Button size="sm" variant="outline" data-testid="button-share-competitors-jan">
+                      <Button size="sm" variant="outline" data-testid="button-share-competitors-jan" className="min-h-[44px]">
                         <Share2 className="h-4 w-4 mr-1" />
                         Compartilhar
                       </Button>
