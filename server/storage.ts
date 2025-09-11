@@ -7,6 +7,13 @@ import {
   systemMetrics,
   apiStatus,
   apiConfigurations,
+  trendingTopics,
+  schedulingRules,
+  approvalWorkflows,
+  errorLogs,
+  resourceMetrics,
+  performanceAlerts,
+  batchQueues,
   type User,
   type UpsertUser,
   type NewsArticle,
@@ -23,6 +30,20 @@ import {
   type InsertApiStatus,
   type ApiConfiguration,
   type InsertApiConfiguration,
+  type TrendingTopic,
+  type InsertTrendingTopic,
+  type SchedulingRule,
+  type InsertSchedulingRule,
+  type ApprovalWorkflow,
+  type InsertApprovalWorkflow,
+  type ErrorLog,
+  type InsertErrorLog,
+  type ResourceMetric,
+  type InsertResourceMetric,
+  type PerformanceAlert,
+  type InsertPerformanceAlert,
+  type BatchQueue,
+  type InsertBatchQueue,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
@@ -91,6 +112,64 @@ export interface IStorage {
     activeChannels: number;
     successRate: number;
   }>;
+
+  // Advanced automation operations
+  // Trending Topics
+  createTrendingTopic(topic: InsertTrendingTopic): Promise<TrendingTopic>;
+  getTrendingTopics(limit?: number): Promise<TrendingTopic[]>;
+  updateTrendingTopicScore(id: string, trendScore: number, viralPotential: number): Promise<void>;
+  getActiveTrendingTopics(language?: string): Promise<TrendingTopic[]>;
+
+  // Scheduling Rules
+  createSchedulingRule(rule: InsertSchedulingRule): Promise<SchedulingRule>;
+  getSchedulingRules(): Promise<SchedulingRule[]>;
+  getActiveSchedulingRules(strategy?: string): Promise<SchedulingRule[]>;
+  updateSchedulingRule(id: string, updates: Partial<InsertSchedulingRule>): Promise<void>;
+
+  // Approval Workflows
+  createApprovalWorkflow(workflow: InsertApprovalWorkflow): Promise<ApprovalWorkflow>;
+  getApprovalWorkflows(status?: string): Promise<ApprovalWorkflow[]>;
+  updateApprovalWorkflow(id: string, updates: Partial<InsertApprovalWorkflow>): Promise<void>;
+  getWorkflowByContent(contentId: string, contentType: string): Promise<ApprovalWorkflow | null>;
+
+  // Error Tracking
+  createErrorLog(error: InsertErrorLog): Promise<ErrorLog>;
+  getErrorLogs(severity?: string, resolved?: boolean): Promise<ErrorLog[]>;
+  updateErrorRetryCount(id: string, count: number, nextRetryAt?: Date): Promise<void>;
+  markErrorResolved(id: string, notes?: string): Promise<void>;
+  getUnresolvedErrors(): Promise<ErrorLog[]>;
+
+  // Resource Metrics
+  recordResourceMetric(metric: InsertResourceMetric): Promise<void>;
+  getResourceMetrics(resourceType?: string, hours?: number): Promise<ResourceMetric[]>;
+  getCurrentResourceUsage(): Promise<ResourceMetric[]>;
+
+  // Performance Alerts
+  createPerformanceAlert(alert: InsertPerformanceAlert): Promise<PerformanceAlert>;
+  getActiveAlerts(): Promise<PerformanceAlert[]>;
+  acknowledgeAlert(id: string, acknowledgedBy: string): Promise<void>;
+  resolveAlert(id: string): Promise<void>;
+
+  // Batch Processing
+  createBatchQueue(batch: InsertBatchQueue): Promise<BatchQueue>;
+  getBatchQueues(status?: string): Promise<BatchQueue[]>;
+  updateBatchProgress(id: string, completedJobs: number, failedJobs: number): Promise<void>;
+  completeBatch(id: string, results: any): Promise<void>;
+
+  // System Resource Management
+  updateSystemResourceLimits(limits: {
+    maxConcurrentJobs: number;
+    maxQueueSize: number;
+    throttleLevel: number;
+    timestamp: Date;
+  }): Promise<void>;
+
+  // Job status and type filtering
+  getJobsByStatus(status: string): Promise<ProcessingJob[]>;
+  getJobsByType(type: string): Promise<ProcessingJob[]>;
+
+  // Autonomy testing
+  storeAutonomyReport(report: any): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -458,6 +537,220 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(videos.id, id));
+  }
+
+  // Error Tracking
+  async createErrorLog(error: InsertErrorLog): Promise<ErrorLog> {
+    const [newError] = await db.insert(errorLogs).values(error).returning();
+    return newError;
+  }
+
+  async getErrorLogs(severity?: string, resolved?: boolean): Promise<ErrorLog[]> {
+    let query = db.select().from(errorLogs);
+    
+    if (severity || resolved !== undefined) {
+      const conditions = [];
+      if (severity) {
+        conditions.push(eq(errorLogs.severity, severity as any));
+      }
+      if (resolved !== undefined) {
+        conditions.push(eq(errorLogs.resolved, resolved));
+      }
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(errorLogs.createdAt)).limit(100);
+  }
+
+  async updateErrorRetryCount(id: string, count: number, nextRetryAt?: Date): Promise<void> {
+    const updateData: any = { 
+      retryCount: count,
+      updatedAt: new Date()
+    };
+    
+    if (nextRetryAt) {
+      updateData.nextRetryAt = nextRetryAt;
+    }
+    
+    await db
+      .update(errorLogs)
+      .set(updateData)
+      .where(eq(errorLogs.id, id));
+  }
+
+  async markErrorResolved(id: string, notes?: string): Promise<void> {
+    await db
+      .update(errorLogs)
+      .set({ 
+        resolved: true,
+        resolvedAt: new Date(),
+        resolutionNotes: notes || null,
+        updatedAt: new Date()
+      })
+      .where(eq(errorLogs.id, id));
+  }
+
+  async getUnresolvedErrors(): Promise<ErrorLog[]> {
+    return await db
+      .select()
+      .from(errorLogs)
+      .where(eq(errorLogs.resolved, false))
+      .orderBy(desc(errorLogs.createdAt));
+  }
+
+  // Resource Metrics
+  async recordResourceMetric(metric: InsertResourceMetric): Promise<void> {
+    await db.insert(resourceMetrics).values(metric);
+  }
+
+  async getResourceMetrics(resourceType?: string, hours = 24): Promise<ResourceMetric[]> {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+    
+    let query = db.select().from(resourceMetrics);
+    
+    if (resourceType) {
+      query = query.where(and(
+        eq(resourceMetrics.resourceType, resourceType as any),
+        sql`${resourceMetrics.timestamp} >= ${since}`
+      ));
+    } else {
+      query = query.where(sql`${resourceMetrics.timestamp} >= ${since}`);
+    }
+    
+    return await query.orderBy(desc(resourceMetrics.timestamp));
+  }
+
+  async getCurrentResourceUsage(): Promise<ResourceMetric[]> {
+    // Get the latest metric for each resource type
+    return await db
+      .select()
+      .from(resourceMetrics)
+      .where(sql`${resourceMetrics.timestamp} >= ${new Date(Date.now() - 5 * 60 * 1000)}`) // Last 5 minutes
+      .orderBy(desc(resourceMetrics.timestamp));
+  }
+
+  // Performance Alerts
+  async createPerformanceAlert(alert: InsertPerformanceAlert): Promise<PerformanceAlert> {
+    const [newAlert] = await db.insert(performanceAlerts).values(alert).returning();
+    return newAlert;
+  }
+
+  async getActiveAlerts(): Promise<PerformanceAlert[]> {
+    return await db
+      .select()
+      .from(performanceAlerts)
+      .where(and(
+        eq(performanceAlerts.acknowledged, false),
+        eq(performanceAlerts.resolved, false)
+      ))
+      .orderBy(desc(performanceAlerts.createdAt));
+  }
+
+  async acknowledgeAlert(id: string, acknowledgedBy: string): Promise<void> {
+    await db
+      .update(performanceAlerts)
+      .set({ 
+        acknowledged: true,
+        acknowledgedBy,
+        acknowledgedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(performanceAlerts.id, id));
+  }
+
+  async resolveAlert(id: string): Promise<void> {
+    await db
+      .update(performanceAlerts)
+      .set({ 
+        resolved: true,
+        resolvedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(performanceAlerts.id, id));
+  }
+
+  // Batch Processing
+  async createBatchQueue(batch: InsertBatchQueue): Promise<BatchQueue> {
+    const [newBatch] = await db.insert(batchQueues).values(batch).returning();
+    return newBatch;
+  }
+
+  async getBatchQueues(status?: string): Promise<BatchQueue[]> {
+    let query = db.select().from(batchQueues);
+    
+    if (status) {
+      query = query.where(eq(batchQueues.status, status as any));
+    }
+    
+    return await query.orderBy(desc(batchQueues.createdAt));
+  }
+
+  async updateBatchProgress(id: string, completedJobs: number, failedJobs: number): Promise<void> {
+    await db
+      .update(batchQueues)
+      .set({ 
+        completedJobs,
+        failedJobs,
+        updatedAt: new Date()
+      })
+      .where(eq(batchQueues.id, id));
+  }
+
+  async completeBatch(id: string, results: any): Promise<void> {
+    await db
+      .update(batchQueues)
+      .set({ 
+        status: 'completed' as any,
+        results,
+        completedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(batchQueues.id, id));
+  }
+
+  // System Resource Management
+  async updateSystemResourceLimits(limits: {
+    maxConcurrentJobs: number;
+    maxQueueSize: number;
+    throttleLevel: number;
+    timestamp: Date;
+  }): Promise<void> {
+    // Store in system metrics for tracking
+    await this.recordMetric({
+      metricName: 'system_resource_limits',
+      value: JSON.stringify(limits)
+    });
+  }
+
+  // Job status and type filtering
+  async getJobsByStatus(status: string): Promise<ProcessingJob[]> {
+    return await db
+      .select()
+      .from(processingJobs)
+      .where(eq(processingJobs.status, status as any))
+      .orderBy(desc(processingJobs.createdAt));
+  }
+
+  async getJobsByType(type: string): Promise<ProcessingJob[]> {
+    return await db
+      .select()
+      .from(processingJobs)
+      .where(eq(processingJobs.type, type))
+      .orderBy(desc(processingJobs.createdAt));
+  }
+
+  // Autonomy testing
+  async storeAutonomyReport(report: any): Promise<void> {
+    // Store in system metrics for now
+    await this.recordMetric({
+      metricName: 'autonomy_report',
+      value: JSON.stringify({
+        timestamp: report.timestamp,
+        overallScore: report.overallScore,
+        autonomyLevel: report.autonomyLevel,
+        testCount: report.tests.length
+      })
+    });
   }
 }
 

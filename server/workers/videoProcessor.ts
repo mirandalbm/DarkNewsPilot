@@ -4,6 +4,7 @@ import { youtubeService } from "../services/youtubeService";
 import { openaiService } from "../services/openaiService";
 import { elevenlabsService } from "../services/elevenlabsService";
 import { heygenService } from "../services/heygenService";
+import { autoApprovalService } from "../services/autoApprovalService";
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -179,21 +180,61 @@ class VideoProcessor {
         const videoPath = path.join('./temp', `video_${jobId}.mp4`);
         await fs.writeFile(videoPath, videoBuffer);
         
-        // Create video record
+        // Create video record with pending approval status
         const video = await storage.createVideo({
           newsArticleId,
           title: `Dark News: ${script.substring(0, 50)}...`,
           script,
           language: jobData.language || 'en',
           avatarTemplate: 'dark_anchor',
-          status: 'ready',
+          status: 'pending_approval',
           duration: 60, // Estimate - would get from actual video metadata
           thumbnailUrl: videoStatus.thumbnail_url,
           videoUrl: videoStatus.video_url,
           audioPath,
         });
         
-        // Complete the job
+        console.log(`🔍 Running auto-approval for video: ${video.id}`);
+        
+        // Run auto-approval process
+        try {
+          const approvalDecision = await autoApprovalService.processContentForApproval(
+            video.id, 
+            'video'
+          );
+          
+          if (approvalDecision.approved && !approvalDecision.requiresHumanReview) {
+            // Auto-approved - update status and trigger publishing
+            await storage.updateVideoStatus(video.id, 'approved');
+            
+            // Create publish job for auto-approved video
+            await storage.createJob({
+              type: 'publish',
+              status: 'pending',
+              data: { 
+                videoId: video.id,
+                userId: userId,
+                autoApproved: true,
+                approvalScore: approvalDecision.score,
+                approvalReasoning: approvalDecision.reasoning
+              },
+            });
+            
+            console.log(`✅ Video ${video.id} auto-approved and queued for publishing (score: ${approvalDecision.score})`);
+            
+          } else {
+            // Requires manual review
+            await storage.updateVideoStatus(video.id, 'manual_review');
+            console.log(`⚠️ Video ${video.id} requires manual review (score: ${approvalDecision.score})`);
+          }
+          
+        } catch (approvalError) {
+          console.error(`❌ Auto-approval failed for video ${video.id}:`, approvalError);
+          // Fallback to manual review on approval errors
+          await storage.updateVideoStatus(video.id, 'manual_review');
+        }
+        
+        // Complete the video generation job
         await storage.updateJobProgress(jobId, 100);
         await storage.completeJob(jobId, 'completed');
         

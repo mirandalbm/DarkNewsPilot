@@ -13,6 +13,7 @@ import { automationService } from "./services/automationService";
 import { analyticsService } from "./services/analyticsService";
 import { aiProviderService } from "./services/aiProviderService";
 import { BUILTIN_AGENTS } from "./agents";
+import { autonomousSchedulerService } from "./services/autonomousSchedulerService";
 import { z } from "zod";
 import { startNewsProcessor } from "./workers/newsProcessor";
 import { startVideoProcessor } from "./workers/videoProcessor";
@@ -24,6 +25,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Start background workers
   startNewsProcessor();
   startVideoProcessor();
+  
+  // Start 24/7 autonomous scheduler
+  try {
+    await autonomousSchedulerService.start();
+    console.log("🤖 DarkNews Autonomous Scheduler started successfully");
+  } catch (error) {
+    console.error("❌ Failed to start autonomous scheduler:", error);
+  }
+
+  // Start performance alerts system
+  try {
+    const { performanceAlertsService } = await import("./services/performanceAlertsService");
+    await performanceAlertsService.start();
+    console.log("🚨 Performance Alerts Service started successfully");
+  } catch (error) {
+    console.error("❌ Failed to start performance alerts:", error);
+  }
+
+  // Start enhanced news processor
+  try {
+    const { enhancedNewsProcessor } = await import("./workers/enhancedNewsProcessor");
+    enhancedNewsProcessor.start();
+    console.log("🌐 Enhanced News Processor started successfully");
+  } catch (error) {
+    console.error("❌ Failed to start enhanced news processor:", error);
+  }
+
+  // Start dynamic resource manager
+  try {
+    const { dynamicResourceManager } = await import("./services/dynamicResourceManager");
+    await dynamicResourceManager.start();
+    console.log("⚡ Dynamic Resource Manager started successfully");
+  } catch (error) {
+    console.error("❌ Failed to start dynamic resource manager:", error);
+  }
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

@@ -1,5 +1,6 @@
 import { storage } from '../storage';
 import { cryptoService } from './cryptoService';
+import { errorRecoveryService } from './errorRecoveryService';
 
 interface ElevenLabsVoice {
   voice_id: string;
@@ -80,23 +81,38 @@ class ElevenLabsService {
         style: settings.style || 0.5
       };
 
-      const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceSettings.voice_id}`, {
-        method: 'POST',
-        headers: {
-          'xi-api-key': apiKey,
-          'Content-Type': 'application/json',
-          'Accept': 'audio/mpeg'
-        },
-        body: JSON.stringify({
-          text,
-          model_id: voiceSettings.model_id,
-          voice_settings: {
-            stability: voiceSettings.stability,
-            similarity_boost: voiceSettings.similarity_boost,
-            style: voiceSettings.style
+      const response = await errorRecoveryService.executeWithRetry(
+        () => fetch(`${this.baseUrl}/text-to-speech/${voiceSettings.voice_id}`, {
+          method: 'POST',
+          headers: {
+            'xi-api-key': apiKey,
+            'Content-Type': 'application/json',
+            'Accept': 'audio/mpeg'
+          },
+          body: JSON.stringify({
+            text,
+            model_id: voiceSettings.model_id,
+            voice_settings: {
+              stability: voiceSettings.stability,
+              similarity_boost: voiceSettings.similarity_boost,
+              style: voiceSettings.style
+            }
+          })
+        }),
+        {
+          operationId: 'elevenlabs_generate_speech',
+          serviceName: 'ElevenLabs',
+          endpoint: 'text-to-speech',
+          retryConfig: {
+            maxRetries: 3,
+            initialDelayMs: 2000,
+            maxDelayMs: 20000,
+            backoffMultiplier: 2,
+            jitterMs: 300,
+            enableCircuitBreaker: true
           }
-        })
-      });
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`ElevenLabs TTS error: ${response.status}`);

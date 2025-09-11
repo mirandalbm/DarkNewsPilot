@@ -1,5 +1,6 @@
 import { storage } from '../storage';
 import { cryptoService } from './cryptoService';
+import { errorRecoveryService } from './errorRecoveryService';
 
 interface HeyGenAvatar {
   avatar_id: string;

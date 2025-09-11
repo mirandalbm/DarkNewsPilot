@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { storage } from "../storage";
 import { cryptoService } from "./cryptoService";
+import { errorRecoveryService } from "./errorRecoveryService";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 // Global fallback client
@@ -92,12 +93,27 @@ class OpenAIService {
         throw new Error('OpenAI not configured');
       }
 
-      const response = await client.chat.completions.create({
-        model: "gpt-4o",  
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 500,
-        temperature: 0.7,
-      });
+      const response = await errorRecoveryService.executeWithRetry(
+        () => client.chat.completions.create({
+          model: "gpt-4o",  
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 500,
+          temperature: 0.7,
+        }),
+        {
+          operationId: 'openai_generate_script',
+          serviceName: 'OpenAI',
+          endpoint: 'chat.completions.create',
+          retryConfig: {
+            maxRetries: 3,
+            initialDelayMs: 1000,
+            maxDelayMs: 15000,
+            backoffMultiplier: 2,
+            jitterMs: 200,
+            enableCircuitBreaker: true
+          }
+        }
+      );
 
       const script = response.choices[0].message.content;
       if (!script) {
@@ -158,12 +174,27 @@ class OpenAIService {
         throw new Error('OpenAI not configured');
       }
 
-      const response = await client.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 600,
-        temperature: 0.3, // Lower temperature for more consistent translations
-      });
+      const response = await errorRecoveryService.executeWithRetry(
+        () => client.chat.completions.create({
+          model: "gpt-4o",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 600,
+          temperature: 0.3, // Lower temperature for more consistent translations
+        }),
+        {
+          operationId: 'openai_translate_script',
+          serviceName: 'OpenAI',
+          endpoint: 'chat.completions.create',
+          retryConfig: {
+            maxRetries: 3,
+            initialDelayMs: 1000,
+            maxDelayMs: 15000,
+            backoffMultiplier: 2,
+            jitterMs: 200,
+            enableCircuitBreaker: true
+          }
+        }
+      );
 
       const translatedScript = response.choices[0].message.content;
       if (!translatedScript) {
