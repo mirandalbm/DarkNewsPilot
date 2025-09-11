@@ -340,42 +340,11 @@ function SidebarContent({ isCollapsed = false, onNavigate }: SidebarContentProps
         </nav>
       </ScrollArea>
 
-      {/* System Status */}
+      {/* Bottom Section */}
       <div className={cn(
         "border-t border-border transition-all duration-300",
         isCollapsed ? "p-2" : "p-4"
       )}>
-        {!isCollapsed && (
-          <div className="bg-gradient-to-br from-muted/50 to-muted rounded-xl p-4 space-y-3 animate-in slide-in-from-bottom-2 duration-300">
-            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center">
-              <HeartPulse className="h-4 w-4 mr-2 text-green-500" />
-              Status do Sistema
-            </h3>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Vídeos Hoje</span>
-                <Badge variant="secondary" className="text-xs">
-                  {stats?.videosToday || 0}
-                </Badge>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Taxa de Sucesso</span>
-                <Badge variant="outline" className="text-xs text-green-600">
-                  {stats?.successRate || 0}%
-                </Badge>
-              </div>
-              
-              <div className="flex items-center space-x-2 pt-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-muted-foreground">Todos os sistemas funcionando</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!isCollapsed && <Separator className="my-4" />}
 
         {/* User & Logout */}
         <div className="space-y-2">
