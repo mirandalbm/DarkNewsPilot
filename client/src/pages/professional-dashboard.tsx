@@ -670,10 +670,10 @@ export default function ProfessionalDashboard() {
           )}
         </div>
 
-        {/* Mobile Chat - INCREASED HEIGHT: Better text visualization */}
+        {/* Mobile Chat - INCREASED HEIGHT: 30% more + dynamic text box */}
         {sidebar.isMobile && (
           <div className="border-t bg-background/50 transition-all duration-300 flex-shrink-0">
-            <div className="h-[28rem]">
+            <div className="h-[36rem]">
               <div className="h-full p-3">
                 <AdvancedChat compact={true} />
               </div>

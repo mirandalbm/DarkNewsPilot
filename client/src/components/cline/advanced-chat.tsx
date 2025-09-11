@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -515,14 +516,25 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
             <form onSubmit={handleSubmit} className="relative">
               <div className="flex items-center space-x-2">
                 <div className="flex-1 relative">
-                  <Input
+                  <Textarea
                     ref={inputRef}
                     value={input}
                     onChange={handleInputChange}
                     placeholder="Digite sua mensagem... (use # para contexto)"
                     disabled={isLoading}
-                    className="pr-12 text-sm"
-                    data-testid="input-message"
+                    className="pr-12 text-sm resize-none min-h-[2.5rem] max-h-[80vh] overflow-y-auto"
+                    rows={1}
+                    style={{
+                      height: 'auto',
+                      minHeight: '2.5rem',
+                      maxHeight: window.innerWidth <= 768 ? '80vh' : '12rem'
+                    }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = Math.min(target.scrollHeight, window.innerWidth <= 768 ? window.innerHeight * 0.8 : 192) + 'px';
+                    }}
+                    data-testid="textarea-message"
                   />
                   
                   {/* Inline Context Dropdown */}
@@ -1062,7 +1074,7 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
                         providers={providers}
                       />
                       <div className="relative">
-                        <Input
+                        <Textarea
                           ref={inputRef}
                           value={input}
                           onChange={handleInputChange}
@@ -1074,8 +1086,19 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
                           }}
                           placeholder="Digite sua mensagem... Use @ para agentes e # para contexto"
                           disabled={isLoading}
-                          className="min-h-[44px] resize-none"
-                          data-testid="input-message"
+                          className="min-h-[44px] resize-none max-h-[80vh] overflow-y-auto"
+                          rows={1}
+                          style={{
+                            height: 'auto',
+                            minHeight: '44px',
+                            maxHeight: window.innerWidth <= 768 ? '80vh' : '12rem'
+                          }}
+                          onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement;
+                            target.style.height = 'auto';
+                            target.style.height = Math.min(target.scrollHeight, window.innerWidth <= 768 ? window.innerHeight * 0.8 : 192) + 'px';
+                          }}
+                          data-testid="textarea-message"
                         />
                         
                         {/* Inline Context Dropdown */}
