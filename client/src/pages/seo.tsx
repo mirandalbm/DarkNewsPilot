@@ -1144,13 +1144,13 @@ export default function SEOOptimization() {
 
           {/* Keywords */}
           <TabsContent value="keywords" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Pesquisa de Palavras-chave</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <h3 className="text-base sm:text-lg font-semibold">Pesquisa de Palavras-chave</h3>
               <Dialog open={showKeywordDialog} onOpenChange={setShowKeywordDialog}>
                 <DialogTrigger asChild>
-                  <Button data-testid="button-new-keyword-research">
+                  <Button data-testid="button-new-keyword-research" size="sm" className="w-full sm:w-auto">
                     <Plus className="h-4 w-4 mr-2" />
-                    Nova Pesquisa
+                    <span className="text-sm">Nova Pesquisa</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
@@ -1228,13 +1228,15 @@ export default function SEOOptimization() {
                   <CardContent className="p-6 bg-gradient-to-r from-background to-blue-50/20 dark:to-blue-950/20">
                     <div className="space-y-6">
                       {/* Header da keyword */}
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center space-x-2">
-                            <Hash className="h-4 w-4" />
-                            <h3 className="font-semibold">{keyword.keyword}</h3>
-                            {getTrendIcon(keyword.trend)}
-                            <Badge variant="outline">
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <Hash className="h-4 w-4" />
+                              <h3 className="text-sm sm:text-base font-semibold">{keyword.keyword}</h3>
+                              {getTrendIcon(keyword.trend)}
+                            </div>
+                            <Badge variant="outline" className="text-xs w-fit">
                               {keyword.searchIntent === 'informational' ? 'Informacional' :
                                keyword.searchIntent === 'commercial' ? 'Comercial' :
                                keyword.searchIntent === 'navigational' ? 'Navegacional' : 'Transacional'}
@@ -1254,27 +1256,27 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Métricas principais */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className="text-lg font-bold text-blue-500">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className="text-base sm:text-lg font-bold text-blue-500">
                             {(keyword.volume / 1000).toFixed(0)}k
                           </div>
                           <p className="text-xs text-muted-foreground">Volume Mensal</p>
                         </div>
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className={`text-lg font-bold ${keyword.difficulty < 30 ? 'text-green-500' : keyword.difficulty < 60 ? 'text-yellow-500' : 'text-red-500'}`}>
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className={`text-base sm:text-lg font-bold ${keyword.difficulty < 30 ? 'text-green-500' : keyword.difficulty < 60 ? 'text-yellow-500' : 'text-red-500'}`}>
                             {keyword.difficulty}
                           </div>
                           <p className="text-xs text-muted-foreground">Dificuldade</p>
                         </div>
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className="text-lg font-bold text-green-500">
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className="text-base sm:text-lg font-bold text-green-500">
                             R$ {keyword.cpc.toFixed(2)}
                           </div>
                           <p className="text-xs text-muted-foreground">CPC Médio</p>
                         </div>
-                        <div className="text-center p-3 border rounded-lg">
-                          <div className={`text-lg font-bold ${keyword.competition < 0.3 ? 'text-green-500' : keyword.competition < 0.7 ? 'text-yellow-500' : 'text-red-500'}`}>
+                        <div className="text-center p-2 sm:p-3 border rounded-lg">
+                          <div className={`text-base sm:text-lg font-bold ${keyword.competition < 0.3 ? 'text-green-500' : keyword.competition < 0.7 ? 'text-yellow-500' : 'text-red-500'}`}>
                             {Math.round(keyword.competition * 100)}%
                           </div>
                           <p className="text-xs text-muted-foreground">Competição</p>
@@ -1368,23 +1370,23 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" data-testid={`button-use-keyword-${keyword.id}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-4 sm:space-y-0">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                          <Button variant="outline" size="sm" data-testid={`button-use-keyword-${keyword.id}`} className="min-h-[44px]">
                             <Plus className="h-4 w-4 mr-1" />
                             Usar Keyword
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-track-keyword-${keyword.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-track-keyword-${keyword.id}`} className="min-h-[44px]">
                             <Eye className="h-4 w-4 mr-1" />
                             Monitorar
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-export-keyword-${keyword.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-export-keyword-${keyword.id}`} className="min-h-[44px]">
                             <Download className="h-4 w-4 mr-1" />
                             Exportar
                           </Button>
                         </div>
                         
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground text-center sm:text-right">
                           ID: {keyword.id}
                         </div>
                       </div>

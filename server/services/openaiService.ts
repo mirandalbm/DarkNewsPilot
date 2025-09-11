@@ -282,9 +282,8 @@ class OpenAIService {
       }
 
       const response = await client.chat.completions.create({
-        model: "gpt-5",
+        model: "gpt-4",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
         max_completion_tokens: 1000,
       });
 
