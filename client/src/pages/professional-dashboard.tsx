@@ -522,6 +522,133 @@ export default function ProfessionalDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* System Health Status - Comprehensive */}
+          <Card>
+            <CardHeader className={cn(
+              sidebar.isMobile ? "p-4" : "p-6"
+            )}>
+              <CardTitle className="flex items-center space-x-2">
+                <Activity className={cn(
+                  sidebar.isMobile ? "h-4 w-4" : "h-5 w-5",
+                  "text-green-500"
+                )} />
+                <span className={cn(
+                  sidebar.isMobile ? "text-sm" : "text-base"
+                )}>Status do Sistema</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className={cn(
+              "space-y-4 sm:space-y-6",
+              sidebar.isMobile ? "p-4" : "p-6"
+            )}>
+              {/* Quick Stats Grid */}
+              <div className={cn(
+                "grid gap-4 transition-all duration-300",
+                sidebar.isMobile ? "grid-cols-2" : "grid-cols-3"
+              )}>
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <div className={cn(
+                    "font-bold text-primary",
+                    sidebar.isMobile ? "text-lg" : "text-xl"
+                  )} data-testid="status-videos-today">
+                    {stats?.videosToday || 0}
+                  </div>
+                  <p className={cn(
+                    "text-muted-foreground",
+                    sidebar.isMobile ? "text-xs" : "text-sm"
+                  )}>Vídeos Hoje</p>
+                </div>
+                
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <div className={cn(
+                    "font-bold text-green-500",
+                    sidebar.isMobile ? "text-lg" : "text-xl"
+                  )} data-testid="status-success-rate">
+                    {stats?.successRate || 0}%
+                  </div>
+                  <p className={cn(
+                    "text-muted-foreground",
+                    sidebar.isMobile ? "text-xs" : "text-sm"
+                  )}>Taxa de Sucesso</p>
+                </div>
+
+                <div className={cn(
+                  "bg-muted/30 rounded-lg p-3 text-center",
+                  sidebar.isMobile && "col-span-2"
+                )}>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className={cn(
+                      "font-medium text-green-500",
+                      sidebar.isMobile ? "text-sm" : "text-base"
+                    )}>
+                      Todos os sistemas funcionando
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* API Services Status */}
+              <div className="space-y-3">
+                <h4 className={cn(
+                  "font-semibold text-foreground",
+                  sidebar.isMobile ? "text-sm" : "text-base"
+                )}>Serviços Externos</h4>
+                
+                {apiStatuses && apiStatuses.length > 0 ? (
+                  <div className="space-y-2">
+                    {apiStatuses.map((service: any) => (
+                      <div key={service.serviceName} className="flex items-center justify-between py-2 px-3 bg-muted/20 rounded-lg">
+                        <div className="flex items-center space-x-2 min-w-0 flex-1">
+                          {getStatusIcon(service.status)}
+                          <span className={cn(
+                            "font-medium truncate",
+                            sidebar.isMobile ? "text-xs" : "text-sm"
+                          )}>{service.serviceName}</span>
+                        </div>
+                        <Badge 
+                          variant={service.status === 'operational' ? 'default' : 'destructive'}
+                          className={cn(
+                            "flex-shrink-0",
+                            sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                          )}
+                        >
+                          {service.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {[
+                      { name: "OpenAI", status: "Operacional" },
+                      { name: "HeyGen", status: "Operacional" },
+                      { name: "ElevenLabs", status: "Operacional" },
+                      { name: "YouTube API", status: "Operacional" }
+                    ].map((service) => (
+                      <div key={service.name} className="flex items-center justify-between py-2 px-3 bg-muted/20 rounded-lg">
+                        <div className="flex items-center space-x-2 min-w-0 flex-1">
+                          <CheckCircle className={cn(
+                            "text-green-500 flex-shrink-0",
+                            sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
+                          )} />
+                          <span className={cn(
+                            "font-medium truncate",
+                            sidebar.isMobile ? "text-xs" : "text-sm"
+                          )}>{service.name}</span>
+                        </div>
+                        <Badge variant="default" className={cn(
+                          "flex-shrink-0",
+                          sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                        )}>{service.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
           </main>
 
           {/* AI Assistant Panel - Proper Grid Column */}

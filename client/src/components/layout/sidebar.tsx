@@ -9,8 +9,7 @@ import {
   Upload, 
   TrendingUp, 
   Settings,
-  LogOut,
-  HeartPulse
+  LogOut
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -68,34 +67,8 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* System Status */}
+      {/* Bottom Section */}
       <div className="p-4 border-t border-border">
-        <div className="bg-muted rounded-lg p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center">
-            <HeartPulse className="h-4 w-4 mr-2" />
-            System Status
-          </h3>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Videos Today</span>
-            <span className="text-sm font-bold text-accent" data-testid="status-videos-today">
-              {stats?.videosToday || 0}
-            </span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Success Rate</span>
-            <span className="text-sm font-bold text-accent" data-testid="status-success-rate">
-              {stats?.successRate || 0}%
-            </span>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-            <span className="text-xs text-muted-foreground">All Systems Operational</span>
-          </div>
-        </div>
-
         {/* Logout Button */}
         <Button
           variant="ghost"
