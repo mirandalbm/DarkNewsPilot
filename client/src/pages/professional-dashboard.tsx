@@ -241,14 +241,14 @@ export default function ProfessionalDashboard() {
         
         {/* Integrated Layout Container - Responsive */}
         <div className={cn(
-          "flex transition-all duration-300",
+          "flex transition-all duration-300 w-full overflow-hidden",
           sidebar.isMobile ? "flex-col min-h-[calc(100dvh-64px)]" : "grid grid-cols-[1fr_auto] h-[calc(100dvh-64px)]"
         )}>
           {/* Main Content Area - Responsive */}
           <main className={cn(
-            "overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300 safe-bottom",
-            sidebar.isMobile ? "flex-1 px-3 py-4" : sidebar.isTablet ? "p-4" : "p-6",
-            "min-h-0" // Permite flex shrink
+            "overflow-y-auto overflow-x-hidden space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300 safe-bottom",
+            sidebar.isMobile ? "flex-1 px-3 py-4 max-w-full" : sidebar.isTablet ? "p-4 max-w-full" : "p-6 max-w-full",
+            "min-h-0 min-w-0" // Permite flex shrink
           )}>
             {/* Welcome Section */}
             <div className={cn(
@@ -554,10 +554,10 @@ export default function ProfessionalDashboard() {
           {/* AI Assistant Panel - Proper Grid Column */}
           {!sidebar.isMobile && (
             <div className={cn(
-              "border-l bg-background/50 overflow-hidden transition-all duration-300",
-              sidebar.isTablet ? "w-64" : "w-80 xl:w-96"
+              "border-l bg-background/50 overflow-hidden transition-all duration-300 flex-shrink-0",
+              sidebar.isTablet ? "w-64 max-w-[16rem]" : "w-80 xl:w-96 max-w-[20rem] xl:max-w-[24rem]"
             )}>
-              <div className="h-full p-3 md:p-4">
+              <div className="h-full p-3 md:p-4 overflow-hidden">
                 <AdvancedChat compact={true} />
               </div>
             </div>
