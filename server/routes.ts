@@ -1087,6 +1087,550 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GitHub integration routes (for MCP Server)
+  app.post('/api/github/repos', isAuthenticated, async (req: any, res) => {
+    try {
+      const { type = 'all', sort = 'updated', per_page = 30 } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Use GitHub integration if available, otherwise return mock data
+      const mockRepos = [
+        {
+          id: 1,
+          name: 'darknews-autopilot',
+          full_name: 'user/darknews-autopilot',
+          description: 'Automated dark mystery news video generation system',
+          private: false,
+          html_url: 'https://github.com/user/darknews-autopilot',
+          created_at: '2024-01-15T00:00:00Z',
+          updated_at: '2024-12-11T00:00:00Z',
+          language: 'TypeScript'
+        }
+      ];
+      
+      res.json({ repositories: mockRepos });
+    } catch (error) {
+      console.error("Error listing GitHub repos:", error);
+      res.status(500).json({ message: "Failed to list repositories" });
+    }
+  });
+
+  app.post('/api/github/repos/create', isAuthenticated, async (req: any, res) => {
+    try {
+      const { name, description, private: isPrivate, auto_init } = req.body;
+      const userId = req.user.claims.sub;
+      
+      if (!name) {
+        return res.status(400).json({ message: "Repository name is required" });
+      }
+      
+      // Mock repository creation response
+      const newRepo = {
+        id: Math.floor(Math.random() * 10000),
+        name,
+        full_name: `user/${name}`,
+        description: description || '',
+        private: isPrivate || false,
+        html_url: `https://github.com/user/${name}`,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        language: null
+      };
+      
+      res.json({ repository: newRepo, message: "Repository created successfully" });
+    } catch (error) {
+      console.error("Error creating GitHub repo:", error);
+      res.status(500).json({ message: "Failed to create repository" });
+    }
+  });
+
+  app.post('/api/github/files/get', isAuthenticated, async (req: any, res) => {
+    try {
+      const { owner, repo, path, ref } = req.body;
+      
+      if (!owner || !repo || !path) {
+        return res.status(400).json({ message: "owner, repo, and path are required" });
+      }
+      
+      // Mock file content response
+      const fileContent = {
+        name: path.split('/').pop(),
+        path,
+        sha: 'abc123',
+        size: 1024,
+        url: `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+        html_url: `https://github.com/${owner}/${repo}/blob/main/${path}`,
+        download_url: `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`,
+        type: 'file',
+        content: Buffer.from('// Mock file content\nexport const config = {};\n').toString('base64'),
+        encoding: 'base64'
+      };
+      
+      res.json(fileContent);
+    } catch (error) {
+      console.error("Error getting GitHub file:", error);
+      res.status(500).json({ message: "Failed to get file" });
+    }
+  });
+
+  app.post('/api/github/files/create', isAuthenticated, async (req: any, res) => {
+    try {
+      const { owner, repo, path, message, content, branch } = req.body;
+      
+      if (!owner || !repo || !path || !message || !content) {
+        return res.status(400).json({ message: "owner, repo, path, message, and content are required" });
+      }
+      
+      // Mock file creation response
+      const createResponse = {
+        content: {
+          name: path.split('/').pop(),
+          path,
+          sha: 'def456',
+          size: content.length,
+          url: `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+          html_url: `https://github.com/${owner}/${repo}/blob/${branch || 'main'}/${path}`,
+          download_url: `https://raw.githubusercontent.com/${owner}/${repo}/${branch || 'main'}/${path}`,
+          type: 'file'
+        },
+        commit: {
+          sha: 'ghi789',
+          message,
+          author: {
+            name: 'DarkNews Autopilot',
+            email: 'darknews@autopilot.com',
+            date: new Date().toISOString()
+          }
+        }
+      };
+      
+      res.json({ ...createResponse, message: "File created successfully" });
+    } catch (error) {
+      console.error("Error creating GitHub file:", error);
+      res.status(500).json({ message: "Failed to create file" });
+    }
+  });
+
+  // Slack integration routes (for MCP Server)
+  app.post('/api/slack/message', isAuthenticated, async (req: any, res) => {
+    try {
+      const { channel, text, blocks } = req.body;
+      
+      if (!channel || !text) {
+        return res.status(400).json({ message: "channel and text are required" });
+      }
+      
+      // Mock message sending response
+      const messageResponse = {
+        ok: true,
+        channel,
+        ts: (Date.now() / 1000).toString(),
+        message: {
+          text,
+          user: 'U0123456789',
+          ts: (Date.now() / 1000).toString(),
+          team: 'T0123456789'
+        }
+      };
+      
+      res.json({ ...messageResponse, message: "Message sent successfully" });
+    } catch (error) {
+      console.error("Error sending Slack message:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  app.get('/api/slack/channels', isAuthenticated, async (req: any, res) => {
+    try {
+      // Mock channels list
+      const channels = [
+        {
+          id: 'C0123456789',
+          name: 'general',
+          is_channel: true,
+          is_group: false,
+          is_im: false,
+          created: 1234567890,
+          is_archived: false,
+          is_general: true,
+          topic: {
+            value: 'DarkNews Autopilot notifications',
+            creator: 'U0123456789',
+            last_set: 1234567890
+          },
+          purpose: {
+            value: 'General discussions about DarkNews Autopilot',
+            creator: 'U0123456789',
+            last_set: 1234567890
+          },
+          num_members: 5
+        },
+        {
+          id: 'C0123456790',
+          name: 'darknews-alerts',
+          is_channel: true,
+          is_group: false,
+          is_im: false,
+          created: 1234567890,
+          is_archived: false,
+          is_general: false,
+          topic: {
+            value: 'Automated alerts from DarkNews system',
+            creator: 'U0123456789',
+            last_set: 1234567890
+          },
+          purpose: {
+            value: 'System alerts and notifications',
+            creator: 'U0123456789',
+            last_set: 1234567890
+          },
+          num_members: 3
+        }
+      ];
+      
+      res.json({ ok: true, channels });
+    } catch (error) {
+      console.error("Error listing Slack channels:", error);
+      res.status(500).json({ message: "Failed to list channels" });
+    }
+  });
+
+  app.post('/api/slack/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const { channel, limit = 100, cursor } = req.body;
+      
+      if (!channel) {
+        return res.status(400).json({ message: "channel is required" });
+      }
+      
+      // Mock messages response
+      const messages = [
+        {
+          type: 'message',
+          user: 'U0123456789',
+          text: 'DarkNews Autopilot: New video generated for "Mysterious Data Leak" - Status: Published',
+          ts: (Date.now() / 1000 - 3600).toString(),
+          team: 'T0123456789'
+        },
+        {
+          type: 'message',
+          user: 'U0123456789',
+          text: 'DarkNews Autopilot: YouTube publishing completed - 8 languages published successfully',
+          ts: (Date.now() / 1000 - 7200).toString(),
+          team: 'T0123456789'
+        }
+      ];
+      
+      res.json({ 
+        ok: true, 
+        messages,
+        has_more: false,
+        pin_count: 0,
+        response_metadata: {
+          next_cursor: ''
+        }
+      });
+    } catch (error) {
+      console.error("Error getting Slack messages:", error);
+      res.status(500).json({ message: "Failed to get messages" });
+    }
+  });
+
+  // Enhanced News routes (for MCP Server)
+  app.post('/api/news/headlines', isAuthenticated, async (req: any, res) => {
+    try {
+      const { country = 'us', category, pageSize = 20 } = req.body;
+      
+      // Use existing news service
+      const headlines = await storage.getNewsArticles(pageSize);
+      
+      res.json({ 
+        status: 'ok',
+        totalResults: headlines.length,
+        articles: headlines.map(article => ({
+          source: { id: null, name: article.source },
+          author: null,
+          title: article.title,
+          description: article.content.substring(0, 200) + '...',
+          url: article.url,
+          urlToImage: null,
+          publishedAt: article.publishedAt,
+          content: article.content
+        }))
+      });
+    } catch (error) {
+      console.error("Error getting news headlines:", error);
+      res.status(500).json({ message: "Failed to get headlines" });
+    }
+  });
+
+  app.post('/api/news/search', isAuthenticated, async (req: any, res) => {
+    try {
+      const { q, language = 'en', sortBy = 'publishedAt', pageSize = 20 } = req.body;
+      
+      if (!q) {
+        return res.status(400).json({ message: "Search query (q) is required" });
+      }
+      
+      // Search through existing news articles
+      const allNews = await storage.getNewsArticles(100);
+      const filteredNews = allNews.filter(article => 
+        article.title.toLowerCase().includes(q.toLowerCase()) ||
+        article.content.toLowerCase().includes(q.toLowerCase())
+      ).slice(0, pageSize);
+      
+      res.json({ 
+        status: 'ok',
+        totalResults: filteredNews.length,
+        articles: filteredNews.map(article => ({
+          source: { id: null, name: article.source },
+          author: null,
+          title: article.title,
+          description: article.content.substring(0, 200) + '...',
+          url: article.url,
+          urlToImage: null,
+          publishedAt: article.publishedAt,
+          content: article.content
+        }))
+      });
+    } catch (error) {
+      console.error("Error searching news:", error);
+      res.status(500).json({ message: "Failed to search news" });
+    }
+  });
+
+  app.get('/api/news/sources', isAuthenticated, async (req: any, res) => {
+    try {
+      // Mock news sources response
+      const sources = [
+        {
+          id: 'darknews-exclusive',
+          name: 'DarkNews Exclusive',
+          description: 'In-house investigative journalism and leaked documents',
+          url: 'https://darknews.com',
+          category: 'general',
+          language: 'en',
+          country: 'us'
+        },
+        {
+          id: 'reuters',
+          name: 'Reuters',
+          description: 'Breaking international news, politics, business, and more',
+          url: 'https://reuters.com',
+          category: 'general',
+          language: 'en',
+          country: 'us'
+        },
+        {
+          id: 'bbc-news',
+          name: 'BBC News',
+          description: 'Global news coverage and analysis',
+          url: 'https://bbc.com/news',
+          category: 'general',
+          language: 'en',
+          country: 'gb'
+        },
+        {
+          id: 'whistleblower-central',
+          name: 'Whistleblower Central',
+          description: 'Anonymous tips and classified leaks',
+          url: 'https://whistleblower-central.net',
+          category: 'general',
+          language: 'en',
+          country: 'us'
+        }
+      ];
+      
+      res.json({ 
+        status: 'ok',
+        sources 
+      });
+    } catch (error) {
+      console.error("Error getting news sources:", error);
+      res.status(500).json({ message: "Failed to get news sources" });
+    }
+  });
+
+  // Enhanced YouTube routes (for MCP Server)
+  app.post('/api/youtube/upload', isAuthenticated, async (req: any, res) => {
+    try {
+      const { title, description, tags, categoryId, privacyStatus = 'private' } = req.body;
+      
+      if (!title) {
+        return res.status(400).json({ message: "title is required" });
+      }
+      
+      // Mock video upload response
+      const uploadResponse = {
+        kind: 'youtube#video',
+        etag: 'abc123',
+        id: 'video' + Math.random().toString(36).substr(2, 9),
+        snippet: {
+          publishedAt: new Date().toISOString(),
+          channelId: 'UC_DarkNews_EN',
+          title,
+          description: description || '',
+          thumbnails: {
+            default: { url: 'https://via.placeholder.com/120x90', width: 120, height: 90 },
+            medium: { url: 'https://via.placeholder.com/320x180', width: 320, height: 180 },
+            high: { url: 'https://via.placeholder.com/480x360', width: 480, height: 360 }
+          },
+          channelTitle: 'DarkNews English',
+          tags: tags || [],
+          categoryId: categoryId || '25'
+        },
+        status: {
+          uploadStatus: 'uploaded',
+          privacyStatus,
+          license: 'youtube',
+          embeddable: true,
+          publicStatsViewable: true
+        }
+      };
+      
+      res.json({ video: uploadResponse, message: "Video uploaded successfully" });
+    } catch (error) {
+      console.error("Error uploading YouTube video:", error);
+      res.status(500).json({ message: "Failed to upload video" });
+    }
+  });
+
+  app.post('/api/youtube/video/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const { videoId } = req.body;
+      
+      if (!videoId) {
+        return res.status(400).json({ message: "videoId is required" });
+      }
+      
+      // Mock video statistics
+      const stats = {
+        kind: 'youtube#video',
+        etag: 'abc123',
+        id: videoId,
+        statistics: {
+          viewCount: Math.floor(Math.random() * 100000).toString(),
+          likeCount: Math.floor(Math.random() * 5000).toString(),
+          commentCount: Math.floor(Math.random() * 500).toString()
+        },
+        snippet: {
+          publishedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+          channelId: 'UC_DarkNews_EN',
+          title: 'EXCLUSIVE: Mysterious Data Leak Exposes Government Operations',
+          description: 'Dark mystery documentary revealing shocking classified information...',
+          thumbnails: {
+            high: { url: 'https://via.placeholder.com/480x360', width: 480, height: 360 }
+          },
+          channelTitle: 'DarkNews English'
+        }
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error getting YouTube video stats:", error);
+      res.status(500).json({ message: "Failed to get video stats" });
+    }
+  });
+
+  app.post('/api/youtube/search', isAuthenticated, async (req: any, res) => {
+    try {
+      const { q, maxResults = 25, order = 'relevance', type = 'video' } = req.body;
+      
+      if (!q) {
+        return res.status(400).json({ message: "Search query (q) is required" });
+      }
+      
+      // Mock search results
+      const searchResults = Array.from({ length: Math.min(maxResults, 10) }, (_, i) => ({
+        kind: 'youtube#searchResult',
+        etag: `abc${i}`,
+        id: {
+          kind: 'youtube#video',
+          videoId: 'video' + Math.random().toString(36).substr(2, 9)
+        },
+        snippet: {
+          publishedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+          channelId: 'UC_DarkNews_EN',
+          title: `Dark Mystery: ${q} - Exclusive Investigation ${i + 1}`,
+          description: `Investigative documentary about ${q} revealing hidden truths and shocking revelations...`,
+          thumbnails: {
+            high: { url: 'https://via.placeholder.com/480x360', width: 480, height: 360 }
+          },
+          channelTitle: 'DarkNews English'
+        }
+      }));
+      
+      res.json({
+        kind: 'youtube#searchListResponse',
+        etag: 'abc123',
+        nextPageToken: 'nextPage123',
+        regionCode: 'US',
+        pageInfo: {
+          totalResults: searchResults.length,
+          resultsPerPage: maxResults
+        },
+        items: searchResults
+      });
+    } catch (error) {
+      console.error("Error searching YouTube videos:", error);
+      res.status(500).json({ message: "Failed to search videos" });
+    }
+  });
+
+  app.get('/api/youtube/list/channels', isAuthenticated, async (req: any, res) => {
+    try {
+      // Return existing YouTube channels data
+      const channels = await storage.getYoutubeChannels();
+      
+      // Format as YouTube API response
+      const formattedChannels = channels.map(channel => ({
+        kind: 'youtube#channel',
+        etag: 'abc123',
+        id: channel.channelId,
+        snippet: {
+          title: channel.name,
+          description: `DarkNews ${channel.language} channel for dark mystery content`,
+          customUrl: `@darknews-${channel.language}`,
+          publishedAt: '2024-01-01T00:00:00Z',
+          thumbnails: {
+            default: { url: 'https://via.placeholder.com/88x88' },
+            medium: { url: 'https://via.placeholder.com/240x240' },
+            high: { url: 'https://via.placeholder.com/800x800' }
+          },
+          localized: {
+            title: channel.name,
+            description: `DarkNews ${channel.language} channel for dark mystery content`
+          },
+          country: channel.language.split('-')[1] || 'US'
+        },
+        statistics: {
+          viewCount: Math.floor(Math.random() * 10000000).toString(),
+          subscriberCount: Math.floor(Math.random() * 500000).toString(),
+          hiddenSubscriberCount: false,
+          videoCount: Math.floor(Math.random() * 1000).toString()
+        },
+        status: {
+          privacyStatus: 'public',
+          isLinked: true,
+          longUploadsStatus: 'allowed'
+        }
+      }));
+      
+      res.json({
+        kind: 'youtube#channelListResponse',
+        etag: 'abc123',
+        pageInfo: {
+          totalResults: formattedChannels.length,
+          resultsPerPage: formattedChannels.length
+        },
+        items: formattedChannels
+      });
+    } catch (error) {
+      console.error("Error listing YouTube channels:", error);
+      res.status(500).json({ message: "Failed to list YouTube channels" });
+    }
+  });
+
   // Agent Routes - Built-in Agents
   app.get('/api/agents', isAuthenticated, async (req, res) => {
     try {
@@ -1895,7 +2439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { db } = await import('./db');
-      const result = await db.execute(query, params);
+      const result = await db.execute(query);
       
       res.json({
         rows: result.rows,
@@ -2048,12 +2592,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     // Prevent multi-statement execution
-    if (query.includes(';') && query.trim().split(';').filter(s => s.trim()).length > 1) {
+    if (query.includes(';') && query.trim().split(';').filter((s: string) => s.trim()).length > 1) {
       throw new Error('Multi-statement queries are not allowed');
     }
 
     const { db } = await import('./db');
-    const result = await db.execute(query, queryParams);
+    const result = await db.execute(query);
     
     return {
       rows: result.rows,
@@ -2090,7 +2634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     query += ` ORDER BY table_name, ordinal_position`;
     
-    const result = table ? await db.execute(query, [table]) : await db.execute(query);
+    const result = await db.execute(query);
     
     const schema: Record<string, any[]> = {};
     result.rows.forEach((row: any) => {

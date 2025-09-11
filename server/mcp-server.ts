@@ -671,10 +671,9 @@ export class DarkNewsMCPServer {
 
   // YouTube Tool Handlers
   private async handleYouTubeListChannels(args: any) {
-    const response = await fetch(`${process.env.REPLIT_URL || 'http://localhost:5000'}/api/youtube/channels`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(args)
+    const response = await fetch(`${process.env.REPLIT_URL || 'http://localhost:5000'}/api/youtube/list/channels`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
     });
     
     const data = await response.json();
