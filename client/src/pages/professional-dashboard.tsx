@@ -283,6 +283,72 @@ export default function ProfessionalDashboard() {
               </div>
             </div>
 
+          {/* Status do Sistema - Moved from Sidebar */}
+          <Card className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200/50 dark:border-green-800/50">
+            <CardHeader className="pb-3">
+              <CardTitle className={cn(
+                "font-semibold text-foreground flex items-center",
+                sidebar.isMobile ? "text-base" : "text-lg"
+              )}>
+                <Activity className={cn(
+                  "mr-3 text-green-500",
+                  sidebar.isMobile ? "h-4 w-4" : "h-5 w-5"
+                )} />
+                Status do Sistema
+              </CardTitle>
+            </CardHeader>
+            <CardContent className={cn(
+              "space-y-4",
+              sidebar.isMobile ? "p-4 pt-0" : "p-6 pt-0"
+            )}>
+              <div className={cn(
+                "grid gap-4",
+                sidebar.isMobile ? "grid-cols-2" : "grid-cols-3"
+              )}>
+                <div className="bg-white/60 dark:bg-muted/30 rounded-lg p-3 text-center">
+                  <div className={cn(
+                    "font-bold text-primary",
+                    sidebar.isMobile ? "text-lg" : "text-xl"
+                  )} data-testid="system-status-videos-today">
+                    {stats?.videosToday || 0}
+                  </div>
+                  <p className={cn(
+                    "text-muted-foreground",
+                    sidebar.isMobile ? "text-xs" : "text-sm"
+                  )}>Vídeos Hoje</p>
+                </div>
+                
+                <div className="bg-white/60 dark:bg-muted/30 rounded-lg p-3 text-center">
+                  <div className={cn(
+                    "font-bold text-green-600",
+                    sidebar.isMobile ? "text-lg" : "text-xl"
+                  )} data-testid="system-status-success-rate">
+                    {stats?.successRate || 0}%
+                  </div>
+                  <p className={cn(
+                    "text-muted-foreground",
+                    sidebar.isMobile ? "text-xs" : "text-sm"
+                  )}>Taxa de Sucesso</p>
+                </div>
+
+                <div className={cn(
+                  "bg-white/60 dark:bg-muted/30 rounded-lg p-3 text-center",
+                  sidebar.isMobile && "col-span-2"
+                )}>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className={cn(
+                      "font-medium text-green-600",
+                      sidebar.isMobile ? "text-sm" : "text-base"
+                    )}>
+                      Todos os sistemas funcionando
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Metrics Cards - Mobile First */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 transition-all duration-300">
             {metrics.map((metric) => (
