@@ -797,28 +797,33 @@ export default function SEOOptimization() {
     <div className="app-container">
       <div className="responsive-container">
         {/* Header */}
-        <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
-          <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center shrink-0">
-              <TrendingUp className="h-5 w-5 text-white" />
+        <div className="w-full">
+          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+            <div className="w-full md:w-auto">
+              <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-y-0 md:space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center shrink-0">
+                  <TrendingUp className="h-5 w-5 text-white" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl md:text-2xl font-bold break-words">Otimização SEO</h1>
+                  <p className="text-muted-foreground text-sm md:text-base break-words">Análise e otimização para melhor performance nos mecanismos de busca</p>
+                </div>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl font-bold">Otimização SEO</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">Análise e otimização para melhor performance nos mecanismos de busca</p>
-            </div>
-          </div>
           
-          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
-            <Button data-testid="button-analyze-all" className="min-h-[44px] w-full sm:w-auto">
-              <Search className="h-4 w-4 mr-2" />
-              Analisar Todos
-            </Button>
-            
-            <Button variant="outline" data-testid="button-seo-settings" className="min-h-[44px] w-full sm:w-auto">
-              <Settings className="h-4 w-4 mr-2" />
-              Configurações
-            </Button>
-          </div>
+            <div className="w-full md:w-auto mt-4 md:mt-0">
+              <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
+                <Button data-testid="button-analyze-all" className="min-h-[44px] w-full md:w-auto">
+                  <Search className="h-4 w-4 mr-2" />
+                  Analisar Todos
+                </Button>
+                
+                <Button variant="outline" data-testid="button-seo-settings" className="min-h-[44px] w-full md:w-auto">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configurações
+                </Button>
+              </div>
+            </div>
         </div>
 
         {/* Overview Cards */}
