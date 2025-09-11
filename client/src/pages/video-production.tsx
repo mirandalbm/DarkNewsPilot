@@ -274,11 +274,11 @@ export default function VideoProduction() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] bg-background">
+    <div className="app-container bg-background">
       <ProfessionalSidebar />
-      <div className="flex-1">
+      <div className="responsive-container">
         <ProfessionalHeader />
-        <main className="p-6 page-container">
+        <main className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 w-full safe-bottom">
           {/* Page Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">

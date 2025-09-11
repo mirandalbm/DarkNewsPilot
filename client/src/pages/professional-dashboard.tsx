@@ -235,20 +235,19 @@ export default function ProfessionalDashboard() {
       
       <div className={cn(
         "responsive-container transition-all duration-300",
-        sidebar.isMobile && "w-full"
+        sidebar.isMobile && "w-full pl-0" // Remove padding conflito com menu
       )}>
         <ProfessionalHeader />
         
-        {/* Integrated Layout Container - Responsive */}
+        {/* Integrated Layout Container - Responsive - Corrigido */}
         <div className={cn(
-          "flex transition-all duration-300 w-full overflow-hidden",
-          sidebar.isMobile ? "flex-col min-h-[calc(100dvh-64px)]" : "grid grid-cols-[1fr_auto] h-[calc(100dvh-64px)]"
+          "flex transition-all duration-300 w-full",
+          sidebar.isMobile ? "flex-col min-h-[calc(100dvh-64px)]" : "h-[calc(100dvh-64px)]"
         )}>
-          {/* Main Content Area - Responsive */}
+          {/* Main Content Area - Responsive - Layout corrigido */}
           <main className={cn(
-            "overflow-y-auto overflow-x-hidden space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300 safe-bottom",
-            sidebar.isMobile ? "flex-1 px-3 py-4 max-w-full" : sidebar.isTablet ? "p-4 max-w-full" : "p-6 max-w-full",
-            "min-h-0 min-w-0" // Permite flex shrink
+            "flex-1 overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300 safe-bottom",
+            sidebar.isMobile ? "px-4 py-4 w-full" : sidebar.isTablet ? "p-4 w-full" : "p-6 w-full"
           )}>
             {/* Welcome Section */}
             <div className={cn(
