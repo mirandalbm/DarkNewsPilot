@@ -244,8 +244,8 @@ export default function ProfessionalDashboard() {
         )}>
           {/* Main Content Area */}
           <main className={cn(
-            "flex-1 overflow-y-auto space-y-6 transition-all duration-300",
-            sidebar.isMobile ? "p-4" : sidebar.isTablet ? "p-5" : "p-6",
+            "flex-1 overflow-y-auto space-y-4 sm:space-y-6 transition-all duration-300",
+            sidebar.isMobile ? "p-3" : sidebar.isTablet ? "p-4" : "p-6",
             !sidebar.isMobile && "pr-0" // Remove right padding when Cline is visible
           )}>
             {/* Welcome Section */}
@@ -284,26 +284,45 @@ export default function ProfessionalDashboard() {
 
           {/* Metrics Cards */}
           <div className={cn(
-            "auto-grid transition-all duration-300",
-            sidebar.isMobile ? "gap-4" : "gap-6"
+            "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 transition-all duration-300",
+            sidebar.isMobile ? "gap-3" : "gap-4 md:gap-6"
           )}>
             {metrics.map((metric) => (
               <Card key={metric.title} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-6">
+                <CardContent className={cn(
+                  "transition-all duration-300",
+                  sidebar.isMobile ? "p-3" : "p-4 md:p-6"
+                )}>
                   <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">
+                    <div className="space-y-1 sm:space-y-2 min-w-0 flex-1 pr-2">
+                      <p className={cn(
+                        "font-medium text-muted-foreground truncate",
+                        sidebar.isMobile ? "text-xs" : "text-sm"
+                      )}>
                         {metric.title}
                       </p>
-                      <p className="text-3xl font-bold text-foreground">
+                      <p className={cn(
+                        "font-bold text-foreground",
+                        sidebar.isMobile ? "text-lg" : "text-2xl md:text-3xl"
+                      )}>
                         {typeof metric.value === 'number' ? metric.value.toLocaleString() : metric.value}
                       </p>
-                      <p className="text-sm text-green-600 font-medium">
+                      <p className={cn(
+                        "text-green-600 font-medium truncate",
+                        sidebar.isMobile ? "text-xs" : "text-sm"
+                      )}>
                         {metric.change}
                       </p>
                     </div>
-                    <div className={`w-12 h-12 bg-gradient-to-r ${metric.gradient} rounded-xl flex items-center justify-center`}>
-                      <metric.icon className="h-6 w-6 text-white" />
+                    <div className={cn(
+                      "bg-gradient-to-r rounded-xl flex items-center justify-center flex-shrink-0",
+                      sidebar.isMobile ? "w-8 h-8" : "w-10 h-10 md:w-12 md:h-12",
+                      metric.gradient
+                    )}>
+                      <metric.icon className={cn(
+                        "text-white",
+                        sidebar.isMobile ? "h-4 w-4" : "h-5 w-5 md:h-6 md:w-6"
+                      )} />
                     </div>
                   </div>
                 </CardContent>
@@ -312,29 +331,62 @@ export default function ProfessionalDashboard() {
           </div>
 
           {/* Quick Actions & Status */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className={cn(
+            "grid transition-all duration-300",
+            sidebar.isMobile ? "grid-cols-1 gap-4" : "grid-cols-1 lg:grid-cols-3 gap-6"
+          )}>
             {/* Quick Actions */}
-            <Card className="lg:col-span-2">
+            <Card className={cn(
+              sidebar.isMobile ? "col-span-1" : "lg:col-span-2"
+            )}>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Zap className="h-5 w-5" />
                   <span>Ações Rápidas</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className={cn(
+                "space-y-3 sm:space-y-4",
+                sidebar.isMobile ? "p-4" : "p-6"
+              )}>
                 {quickActions.map((action) => (
-                  <div key={action.title} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <action.icon className="h-5 w-5 text-primary" />
+                  <div key={action.title} className={cn(
+                    "flex items-center justify-between bg-muted/50 rounded-lg transition-all duration-300",
+                    sidebar.isMobile ? "flex-col space-y-2 p-3" : "p-4"
+                  )}>
+                    <div className={cn(
+                      "flex items-center min-w-0 flex-1",
+                      sidebar.isMobile ? "space-x-2 w-full" : "space-x-3"
+                    )}>
+                      <div className={cn(
+                        "bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0",
+                        sidebar.isMobile ? "w-8 h-8" : "w-10 h-10"
+                      )}>
+                        <action.icon className={cn(
+                          "text-primary",
+                          sidebar.isMobile ? "h-4 w-4" : "h-5 w-5"
+                        )} />
                       </div>
-                      <div>
-                        <h3 className="font-medium text-foreground">{action.title}</h3>
-                        <p className="text-sm text-muted-foreground">{action.description}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className={cn(
+                          "font-medium text-foreground",
+                          sidebar.isMobile ? "text-sm truncate" : "text-base"
+                        )}>{action.title}</h3>
+                        <p className={cn(
+                          "text-muted-foreground",
+                          sidebar.isMobile ? "text-xs truncate" : "text-sm"
+                        )}>{action.description}</p>
                       </div>
                     </div>
-                    <Button variant={action.variant} onClick={action.action}>
-                      Executar
+                    <Button 
+                      variant={action.variant} 
+                      onClick={action.action}
+                      size={sidebar.isMobile ? "sm" : "default"}
+                      className={cn(
+                        sidebar.isMobile && "w-full mt-2"
+                      )}
+                    >
+                      {sidebar.isMobile ? "▶️" : "Executar"}
                     </Button>
                   </div>
                 ))}
@@ -343,23 +395,38 @@ export default function ProfessionalDashboard() {
 
             {/* System Status */}
             <Card>
-              <CardHeader>
+              <CardHeader className={cn(
+                sidebar.isMobile ? "p-4" : "p-6"
+              )}>
                 <CardTitle className="flex items-center space-x-2">
-                  <Activity className="h-5 w-5" />
-                  <span>Status dos Sistemas</span>
+                  <Activity className={cn(
+                    sidebar.isMobile ? "h-4 w-4" : "h-5 w-5"
+                  )} />
+                  <span className={cn(
+                    sidebar.isMobile ? "text-sm" : "text-base"
+                  )}>Status dos Sistemas</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className={cn(
+                "space-y-3 sm:space-y-4",
+                sidebar.isMobile ? "p-4" : "p-6"
+              )}>
                 {apiStatuses && apiStatuses.length > 0 ? (
                   apiStatuses.map((service: any) => (
                     <div key={service.serviceName} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
                         {getStatusIcon(service.status)}
-                        <span className="text-sm font-medium">{service.serviceName}</span>
+                        <span className={cn(
+                          "font-medium truncate",
+                          sidebar.isMobile ? "text-xs" : "text-sm"
+                        )}>{service.serviceName}</span>
                       </div>
                       <Badge 
                         variant={service.status === 'operational' ? 'default' : 'destructive'}
-                        className="text-xs"
+                        className={cn(
+                          "flex-shrink-0",
+                          sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                        )}
                       >
                         {service.status}
                       </Badge>
@@ -368,25 +435,52 @@ export default function ProfessionalDashboard() {
                 ) : (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-medium">OpenAI</span>
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
+                        <CheckCircle className={cn(
+                          "text-green-500 flex-shrink-0",
+                          sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
+                        )} />
+                        <span className={cn(
+                          "font-medium truncate",
+                          sidebar.isMobile ? "text-xs" : "text-sm"
+                        )}>OpenAI</span>
                       </div>
-                      <Badge variant="default" className="text-xs">Operacional</Badge>
+                      <Badge variant="default" className={cn(
+                        "flex-shrink-0",
+                        sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                      )}>Operacional</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-medium">HeyGen</span>
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
+                        <CheckCircle className={cn(
+                          "text-green-500 flex-shrink-0",
+                          sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
+                        )} />
+                        <span className={cn(
+                          "font-medium truncate",
+                          sidebar.isMobile ? "text-xs" : "text-sm"
+                        )}>HeyGen</span>
                       </div>
-                      <Badge variant="default" className="text-xs">Operacional</Badge>
+                      <Badge variant="default" className={cn(
+                        "flex-shrink-0",
+                        sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                      )}>Operacional</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-medium">ElevenLabs</span>
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
+                        <CheckCircle className={cn(
+                          "text-green-500 flex-shrink-0",
+                          sidebar.isMobile ? "h-3 w-3" : "h-4 w-4"
+                        )} />
+                        <span className={cn(
+                          "font-medium truncate",
+                          sidebar.isMobile ? "text-xs" : "text-sm"
+                        )}>ElevenLabs</span>
                       </div>
-                      <Badge variant="default" className="text-xs">Operacional</Badge>
+                      <Badge variant="default" className={cn(
+                        "flex-shrink-0",
+                        sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                      )}>Operacional</Badge>
                     </div>
                   </div>
                 )}
@@ -396,27 +490,58 @@ export default function ProfessionalDashboard() {
 
           {/* Production Pipeline */}
           <Card>
-            <CardHeader>
+            <CardHeader className={cn(
+              sidebar.isMobile ? "p-4" : "p-6"
+            )}>
               <CardTitle className="flex items-center space-x-2">
-                <Globe className="h-5 w-5" />
-                <span>Pipeline de Produção Global</span>
+                <Globe className={cn(
+                  sidebar.isMobile ? "h-4 w-4" : "h-5 w-5"
+                )} />
+                <span className={cn(
+                  sidebar.isMobile ? "text-sm" : "text-base"
+                )}>Pipeline de Produção Global</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <CardContent className={cn(
+              sidebar.isMobile ? "p-4" : "p-6"
+            )}>
+              <div className={cn(
+                "grid transition-all duration-300",
+                sidebar.isMobile ? "grid-cols-1 gap-4" : "grid-cols-2 md:grid-cols-4 gap-6"
+              )}>
                 {[
                   { lang: "🇺🇸 Inglês", videos: 24, progress: 85 },
                   { lang: "🇧🇷 Português", videos: 18, progress: 72 },
                   { lang: "🇪🇸 Espanhol", videos: 15, progress: 68 },
                   { lang: "🇩🇪 Alemão", videos: 12, progress: 55 }
                 ].map((channel) => (
-                  <div key={channel.lang} className="space-y-3">
+                  <div key={channel.lang} className={cn(
+                    "space-y-2 sm:space-y-3 transition-all duration-300",
+                    sidebar.isMobile && "bg-muted/30 p-3 rounded-lg"
+                  )}>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{channel.lang}</span>
-                      <Badge variant="outline">{channel.videos} vídeos</Badge>
+                      <span className={cn(
+                        "font-medium",
+                        sidebar.isMobile ? "text-xs truncate" : "text-sm"
+                      )}>{channel.lang}</span>
+                      <Badge 
+                        variant="outline"
+                        className={cn(
+                          "flex-shrink-0",
+                          sidebar.isMobile ? "text-xs px-1.5 py-0.5" : "text-xs"
+                        )}
+                      >{channel.videos} vídeos</Badge>
                     </div>
-                    <Progress value={channel.progress} className="h-2" />
-                    <p className="text-xs text-muted-foreground">{channel.progress}% completo</p>
+                    <Progress 
+                      value={channel.progress} 
+                      className={cn(
+                        sidebar.isMobile ? "h-1.5" : "h-2"
+                      )} 
+                    />
+                    <p className={cn(
+                      "text-muted-foreground",
+                      sidebar.isMobile ? "text-xs" : "text-xs"
+                    )}>{channel.progress}% completo</p>
                   </div>
                 ))}
               </div>
