@@ -133,7 +133,7 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
   const [rightPanelVisible, setRightPanelVisible] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -297,7 +297,7 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
   ];
 
   // Handle input changes and detect # for inline context selection
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
     const cursorPos = e.target.selectionStart || 0;
     
