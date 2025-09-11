@@ -12,9 +12,13 @@ class NewsService {
     {
       name: "NewsAPI",
       url: "https://newsapi.org/v2/everything",
-      apiKey: process.env.NEWS_API_KEY,
+      apiKey: process.env.NEWSAPI_KEY,
     },
-    // Add more news sources as needed
+    {
+      name: "NewsData",
+      url: "https://newsdata.io/api/1/latest",
+      apiKey: process.env.NEWSDATA_API_KEY,
+    },
   ];
 
   async fetchNews(): Promise<InsertNewsArticle[]> {
@@ -63,8 +67,18 @@ class NewsService {
       "investigation", "confidential", "exclusive", "alert", "warning"
     ];
 
-    const query = darkKeywords.join(" OR ");
-    const url = `${source.url}?q=${encodeURIComponent(query)}&apiKey=${source.apiKey}&sortBy=popularity&pageSize=20`;
+    let url: string;
+    const startTime = Date.now();
+
+    if (source.name === "NewsAPI") {
+      const query = darkKeywords.join(" OR ");
+      url = `${source.url}?q=${encodeURIComponent(query)}&apiKey=${source.apiKey}&sortBy=popularity&pageSize=20&language=en`;
+    } else if (source.name === "NewsData") {
+      const query = darkKeywords.join(",");
+      url = `${source.url}?q=${encodeURIComponent(query)}&apikey=${source.apiKey}&language=en&size=20`;
+    } else {
+      throw new Error(`Unsupported news source: ${source.name}`);
+    }
 
     const response = await fetch(url);
     
@@ -78,18 +92,26 @@ class NewsService {
     await storage.updateApiStatus({
       serviceName: source.name,
       status: 'operational',
-      responseTime: Date.now() - performance.now(),
+      responseTime: Date.now() - startTime,
       lastChecked: new Date(),
     });
 
-    return data.articles?.map((article: any) => ({
+    // Handle different API response formats
+    let articles: any[] = [];
+    if (source.name === "NewsAPI") {
+      articles = data.articles || [];
+    } else if (source.name === "NewsData") {
+      articles = data.results || [];
+    }
+
+    return articles.map((article: any) => ({
       title: article.title,
-      content: article.description || article.content,
-      url: article.url,
+      content: article.description || article.content || article.summary,
+      url: article.url || article.link,
       source: source.name,
       viralScore: this.calculateViralScore(article),
-      publishedAt: new Date(article.publishedAt),
-    })) || [];
+      publishedAt: new Date(article.publishedAt || article.pubDate || new Date()),
+    }));
   }
 
   private calculateViralScore(article: any): number {
