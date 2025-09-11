@@ -1578,9 +1578,9 @@ export default function SEOOptimization() {
                       {/* Melhores horários */}
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium">Melhores Horários:</h4>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-wrap gap-2">
                           {template.bestPostingTimes.slice(0, 3).map((time, index) => (
-                            <div key={index} className="text-center p-2 border rounded">
+                            <div key={index} className="text-center p-2 border rounded min-w-[80px]">
                               <div className="text-xs font-medium">{time.dayOfWeek}</div>
                               <div className="text-xs">{time.hour}h</div>
                               <div className="text-xs text-green-500">{time.performance}%</div>
@@ -1590,19 +1590,19 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="flex space-x-2">
-                          <Button variant="default" size="sm" data-testid={`button-use-template-${template.id}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-4 sm:space-y-0">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                          <Button variant="default" size="sm" data-testid={`button-use-template-${template.id}`} className="min-h-[44px]">
                             <Zap className="h-4 w-4 mr-1" />
                             Usar Template
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-edit-template-${template.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-edit-template-${template.id}`} className="min-h-[44px]">
                             <Edit className="h-4 w-4 mr-1" />
                             Editar
                           </Button>
                         </div>
                         
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground text-center sm:text-right">
                           ID: {template.id}
                         </div>
                       </div>
