@@ -965,7 +965,7 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Scores detalhados */}
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
                         <div className="text-center">
                           <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.title)}`}>
                             {analysis.scores.title}
@@ -985,13 +985,13 @@ export default function SEOOptimization() {
                           <p className="text-xs text-muted-foreground">Tags</p>
                         </div>
                         <div className="text-center">
-                          <div className={`text-lg font-bold ${getScoreColor(analysis.scores.thumbnail)}`}>
+                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.thumbnail)}`}>
                             {analysis.scores.thumbnail}
                           </div>
                           <p className="text-xs text-muted-foreground">Thumbnail</p>
                         </div>
                         <div className="text-center">
-                          <div className={`text-lg font-bold ${getScoreColor(analysis.scores.engagement)}`}>
+                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.engagement)}`}>
                             {analysis.scores.engagement}
                           </div>
                           <p className="text-xs text-muted-foreground">Engajamento</p>
@@ -1049,7 +1049,7 @@ export default function SEOOptimization() {
                       )}
 
                       {/* Performance */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-3 bg-muted/50 rounded-lg">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-3 bg-muted/50 rounded-lg">
                         <div className="text-center">
                           <div className="text-sm font-bold">{analysis.performance.views.toLocaleString('pt-BR')}</div>
                           <div className="text-xs text-muted-foreground">Views</div>
@@ -1069,28 +1069,29 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Footer */}
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="flex space-x-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-4 sm:space-y-0">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                           <Button 
                             variant="default" 
                             size="sm"
                             onClick={() => handleOptimizeVideo(analysis.id)}
                             data-testid={`button-optimize-${analysis.id}`}
+                            className="min-h-[44px]"
                           >
                             <Zap className="h-4 w-4 mr-1" />
                             Otimizar
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-details-${analysis.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-details-${analysis.id}`} className="min-h-[44px]">
                             <Info className="h-4 w-4 mr-1" />
                             Ver Detalhes
                           </Button>
-                          <Button variant="outline" size="sm" data-testid={`button-keywords-${analysis.id}`}>
+                          <Button variant="outline" size="sm" data-testid={`button-keywords-${analysis.id}`} className="min-h-[44px]">
                             <Hash className="h-4 w-4 mr-1" />
                             Keywords
                           </Button>
                         </div>
                         
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground text-center sm:text-right">
                           ID: {analysis.id}
                         </div>
                       </div>
