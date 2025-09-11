@@ -2108,6 +2108,7 @@ export default function SEOOptimization() {
                         Compartilhar
                       </Button>
                     </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
