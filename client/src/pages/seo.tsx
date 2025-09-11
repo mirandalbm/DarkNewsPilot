@@ -1397,13 +1397,13 @@ export default function SEOOptimization() {
 
           {/* Templates */}
           <TabsContent value="templates" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Templates SEO</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <h3 className="text-base sm:text-lg font-semibold">Templates SEO</h3>
               <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
                 <DialogTrigger asChild>
-                  <Button data-testid="button-new-template">
+                  <Button data-testid="button-new-template" size="sm" className="w-full sm:w-auto">
                     <Plus className="h-4 w-4 mr-2" />
-                    Novo Template
+                    <span className="text-sm">Novo Template</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl">
@@ -1485,18 +1485,20 @@ export default function SEOOptimization() {
               </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {mockSEOTemplates.map((template) => (
-                <Card key={template.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
+                <Card key={template.id} className="hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+                  <CardContent className="p-4 sm:p-6 bg-gradient-to-r from-background to-green-50/20 dark:to-green-950/20">
                     <div className="space-y-4">
                       {/* Header do template */}
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center space-x-2">
-                            <PenTool className="h-4 w-4" />
-                            <h3 className="font-semibold">{template.name}</h3>
-                            <Badge variant="outline">{template.category}</Badge>
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <PenTool className="h-4 w-4" />
+                              <h3 className="text-sm sm:text-base font-semibold">{template.name}</h3>
+                            </div>
+                            <Badge variant="outline" className="text-xs w-fit">{template.category}</Badge>
                           </div>
                           <div className="text-xs text-muted-foreground">
                             Usado {template.usage} vezes | Público: {template.targetAudience.ageRange}
@@ -1505,7 +1507,7 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Performance média */}
-                      <div className="grid grid-cols-3 gap-4 p-3 bg-muted/50 rounded-lg">
+                      <div className="grid grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/50 rounded-lg">
                         <div className="text-center">
                           <div className="text-sm font-bold">
                             {(template.averagePerformance.views / 1000).toFixed(0)}k
