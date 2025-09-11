@@ -895,13 +895,25 @@ export default function SEOOptimization() {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
-            <TabsTrigger value="analysis" className="text-xs sm:text-sm">Análise</TabsTrigger>
-            <TabsTrigger value="keywords" className="text-xs sm:text-sm">Palavras-chave</TabsTrigger>
-            <TabsTrigger value="templates" className="text-xs sm:text-sm">Templates</TabsTrigger>
-            <TabsTrigger value="competitors" className="text-xs sm:text-sm">Concorrentes</TabsTrigger>
-            <TabsTrigger value="ranking" className="text-xs sm:text-sm">Rankings</TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs sm:text-sm">Relatórios</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 h-auto p-1">
+            <TabsTrigger value="analysis" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+              Análise
+            </TabsTrigger>
+            <TabsTrigger value="keywords" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+              Palavras-chave
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="competitors" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+              Concorrentes
+            </TabsTrigger>
+            <TabsTrigger value="ranking" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+              Rankings
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+              Relatórios
+            </TabsTrigger>
           </TabsList>
 
           {/* Análise SEO */}
