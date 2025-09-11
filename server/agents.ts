@@ -577,12 +577,8 @@ Please try again in a moment or contact support if the issue persists.`;
       const { newsService } = await import('./services/newsService');
       const { openaiService } = await import('./services/openaiService');
       
-      // 1. Fetch latest dark/mystery news
-      const newsResult = await newsService.fetchNews({
-        keywords: params.keywords || 'mystery,crime,investigation,dark',
-        language: params.language || 'en',
-        pageSize: 5
-      });
+      // 1. Fetch latest dark/mystery news  
+      const newsResult = await newsService.fetchNews();
 
       if (!newsResult.success || !newsResult.articles?.length) {
         return { success: false, error: 'No suitable news found for dark content' };
@@ -592,12 +588,10 @@ Please try again in a moment or contact support if the issue persists.`;
       const selectedArticle = newsResult.articles[0];
 
       // 3. Generate dark mystery script
-      const scriptResult = await openaiService.generateScript(selectedArticle, {
-        style: 'dark_documentary',
-        tone: 'mysterious_dramatic',
-        duration: params.duration || 60,
-        language: params.language || 'en'
-      });
+      const scriptResult = await openaiService.generateScript(
+        selectedArticle.title || 'Breaking News', 
+        selectedArticle.content || selectedArticle.description || 'News content'
+      );
 
       return {
         success: true,

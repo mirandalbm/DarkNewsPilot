@@ -49,10 +49,30 @@ import Canais from "@/pages/configuracoes/canais";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading DarkNews...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+      {!isAuthenticated ? (
+        <>
+          <Route path="/" component={Landing} />
+          <Route>
+            {() => {
+              // Redirect unauthenticated users to landing page
+              window.location.href = '/';
+              return null;
+            }}
+          </Route>
+        </>
       ) : (
         <>
           <Route path="/" component={ProfessionalDashboard} />
