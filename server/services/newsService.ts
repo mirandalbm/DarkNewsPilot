@@ -178,11 +178,13 @@ class NewsService {
   }
 
   async triggerNewsFetch(sources?: string[], keywords?: string): Promise<void> {
-    await storage.createJob({
+    console.log("📡 Creating news fetch job...");
+    const job = await storage.createJob({
       type: 'news_fetch',
       status: 'pending',
-      data: { sources, keywords },
+      data: { sources, keywords, manual: true },
     });
+    console.log(`✅ News fetch job created: ${job.id}`);
   }
 }
 

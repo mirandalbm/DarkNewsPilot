@@ -93,7 +93,7 @@ class OpenAIService {
       }
 
       const response = await client.chat.completions.create({
-        model: "gpt-5",
+        model: "gpt-4o",  
         messages: [{ role: "user", content: prompt }],
         max_tokens: 500,
         temperature: 0.7,
@@ -118,6 +118,61 @@ class OpenAIService {
         status: "down",
         lastChecked: new Date(),
       });
+      throw error;
+    }
+  }
+
+  async translateScript(script: string, targetLanguage: string, userId?: string): Promise<string> {
+    try {
+      const languageMap: Record<string, string> = {
+        'en-US': 'English',
+        'pt-BR': 'Portuguese (Brazil)',
+        'es-ES': 'Spanish (Spain)', 
+        'es-MX': 'Spanish (Mexico)',
+        'de-DE': 'German',
+        'fr-FR': 'French',
+        'hi-IN': 'Hindi',
+        'ja-JP': 'Japanese'
+      };
+
+      const targetLang = languageMap[targetLanguage] || 'English';
+
+      const prompt = `
+        Translate this dark mystery news video script to ${targetLang}, maintaining the dramatic and investigative tone:
+        
+        Original Script: ${script}
+        
+        TRANSLATION REQUIREMENTS:
+        ✓ Preserve the mysterious, dark documentary style
+        ✓ Keep dramatic timing and pacing 
+        ✓ Maintain investigative language and power words
+        ✓ Adapt cultural references appropriately
+        ✓ Keep the same emotional impact and suspense
+        ✓ Ensure natural flow for voice synthesis
+        
+        Return only the translated script, no explanations or formatting.
+      `;
+
+      const client = userId ? await this.getClient(userId) : globalOpenai;
+      if (!client) {
+        throw new Error('OpenAI not configured');
+      }
+
+      const response = await client.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 600,
+        temperature: 0.3, // Lower temperature for more consistent translations
+      });
+
+      const translatedScript = response.choices[0].message.content;
+      if (!translatedScript) {
+        throw new Error("No translation generated");
+      }
+
+      return translatedScript;
+    } catch (error) {
+      console.error("Error translating script:", error);
       throw error;
     }
   }
@@ -166,34 +221,6 @@ class OpenAIService {
     }
   }
 
-  async translateScript(script: string, targetLanguage: string, userId?: string): Promise<string> {
-    try {
-      const prompt = `
-        Translate this dark mystery news script to ${targetLanguage}.
-        Maintain the dramatic, mysterious tone and natural speaking rhythm.
-        
-        Original script: ${script}
-        
-        Return only the translated script.
-      `;
-
-      const client = userId ? await this.getClient(userId) : globalOpenai;
-      if (!client) {
-        throw new Error('OpenAI not configured');
-      }
-
-      const response = await client.chat.completions.create({
-        model: "gpt-5",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-      });
-
-      return response.choices[0].message.content || script;
-    } catch (error) {
-      console.error("Error translating script:", error);
-      throw error;
-    }
-  }
 
   async testConnection(userId: string): Promise<boolean> {
     try {

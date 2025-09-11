@@ -23,12 +23,17 @@ interface HeyGenVideoRequest {
     type: 'text' | 'audio';
     voice_id?: string;
     input_text?: string;
-    input_audio?: string;
+    input_audio?: string; // Base64 encoded audio from ElevenLabs
   };
   background?: {
     type: 'color' | 'image';
     value: string;
   };
+  dimension?: {
+    width: number;
+    height: number;
+  };
+  aspect_ratio?: string;
 }
 
 interface HeyGenVideoResponse {
@@ -41,6 +46,33 @@ interface HeyGenVideoResponse {
 
 class HeyGenService {
   private baseUrl = 'https://api.heygen.com/v2';
+
+  // Unified language mapping for consistent voice selection
+  private getUnifiedLanguageCode(language: string): string {
+    const languageMap: Record<string, string> = {
+      'en-US': 'en',
+      'pt-BR': 'pt', 
+      'es-ES': 'es',
+      'es-MX': 'es',
+      'de-DE': 'de',
+      'fr-FR': 'fr',
+      'hi-IN': 'hi',
+      'ja-JP': 'ja'
+    };
+    return languageMap[language] || 'en';
+  }
+
+  // Unified avatar templates for different styles
+  private getAvatarTemplate(style: string = 'dark_anchor'): string {
+    const avatarTemplates: Record<string, string> = {
+      'dark_anchor': 'Susan_public_pro2_20230608',
+      'mystery_narrator': 'Tyler_public_20240711', 
+      'tech_analyst': 'Josh_public_20240711',
+      'investigative': 'Wayne-20220722',
+      'documentary': 'Kristin-inblouse-20220304'
+    };
+    return avatarTemplates[style] || avatarTemplates['dark_anchor'];
+  }
 
   async getApiKey(userId: string): Promise<string | null> {
     try {
@@ -102,8 +134,16 @@ class HeyGenService {
     } = {}
   ): Promise<string> {
     try {
-      // Default dark news presenter avatar
-      const defaultAvatarId = options.avatarId || 'Daisy-inskirt-20220818';
+      // Dark mystery avatar templates for different styles
+      const darkAvatarTemplates = {
+        'dark_anchor': 'Daisy-inskirt-20220818',      // Professional news anchor
+        'investigative': 'Tyler-incasual-20220721',    // Casual investigative reporter  
+        'documentary': 'Kristin-inblouse-20220304',   // Documentary host
+        'serious_male': 'Wayne-20220722',             // Serious male presenter
+        'mystery_female': 'Angela-inblackskirt-20220608', // Mystery theme female
+      };
+      
+      const defaultAvatarId = options.avatarId || this.getAvatarTemplate('dark_anchor');
       
       const videoRequest: HeyGenVideoRequest = {
         script: {
@@ -120,6 +160,11 @@ class HeyGenService {
           voice_id: options.voiceId || 'bae2d1d5c8a34ba0bf92486fdb9b7f31', // Professional female voice
           input_text: scriptText,
         },
+        dimension: {
+          width: 1920,
+          height: 1080
+        },
+        aspect_ratio: '16:9',
         background: {
           type: 'color',
           value: options.background || '#1a1a1a', // Dark background for mystery theme
@@ -198,6 +243,80 @@ class HeyGenService {
     }
   }
 
+  // NEW: Integrated ElevenLabs + HeyGen pipeline
+  async createVideoWithAudio(
+    userId: string,
+    scriptText: string,
+    audioBuffer: Buffer,
+    options: {
+      avatarStyle?: string;
+      background?: string;
+      language?: string;
+    } = {}
+  ): Promise<string> {
+    try {
+      // Convert audio buffer to base64
+      const audioBase64 = audioBuffer.toString('base64');
+      
+      const videoRequest: HeyGenVideoRequest = {
+        script: {
+          type: 'text',
+          input_text: scriptText,
+        },
+        avatar: {
+          type: 'avatar',
+          avatar_id: this.getAvatarTemplate(options.avatarStyle || 'dark_anchor'),
+          avatar_style: 'normal'
+        },
+        voice: {
+          type: 'audio', // Use audio from ElevenLabs instead of text
+          input_audio: audioBase64,
+        },
+        background: {
+          type: 'color',
+          value: options.background || '#1a1a1a', // Dark theme
+        },
+        dimension: {
+          width: 1920,
+          height: 1080
+        },
+        aspect_ratio: '16:9'
+      };
+
+      const response = await this.makeRequest(userId, '/video/generate', {
+        method: 'POST',
+        body: JSON.stringify(videoRequest),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`HeyGen audio video error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      
+      // Update API status on success
+      await storage.updateApiStatus({
+        serviceName: "HeyGen",
+        status: "operational",
+        lastChecked: new Date(),
+      });
+
+      return data.data.video_id;
+    } catch (error) {
+      console.error('Error creating HeyGen video with audio:', error);
+      
+      // Update API status on error
+      await storage.updateApiStatus({
+        serviceName: "HeyGen",
+        status: "down",
+        lastChecked: new Date(),
+      });
+      
+      throw error;
+    }
+  }
+
   async createVideoWithCustomAvatar(
     userId: string,
     scriptText: string,
@@ -222,6 +341,11 @@ class HeyGenService {
           voice_id: options.voiceId || 'bae2d1d5c8a34ba0bf92486fdb9b7f31',
           input_text: scriptText,
         },
+        dimension: {
+          width: 1920,
+          height: 1080
+        },
+        aspect_ratio: '16:9',
         background: {
           type: 'color',
           value: '#1a1a1a', // Dark theme

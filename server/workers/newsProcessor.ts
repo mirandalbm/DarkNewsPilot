@@ -108,6 +108,24 @@ class NewsProcessor {
       console.error("Error in daily news fetch:", error);
     }
   }
+
+  // Force immediate news fetch for testing
+  async forceNewsFetch(): Promise<void> {
+    try {
+      console.log("🔥 FORCING IMMEDIATE NEWS FETCH FOR TESTING...");
+      
+      const job = await storage.createJob({
+        type: 'news_fetch',
+        status: 'pending',
+        data: { manual: true, testing: true },
+      });
+      
+      await this.processNewsFetchJob(job.id);
+      console.log("✅ FORCED NEWS FETCH COMPLETED");
+    } catch (error) {
+      console.error("❌ Error in forced news fetch:", error);
+    }
+  }
 }
 
 const newsProcessor = new NewsProcessor();
@@ -118,4 +136,8 @@ export function startNewsProcessor(): void {
 
 export function stopNewsProcessor(): void {
   newsProcessor.stop();
+}
+
+export function forceNewsProcessorTest(): void {
+  newsProcessor.forceNewsFetch();
 }

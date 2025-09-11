@@ -65,12 +65,13 @@ class VideoService {
         status: 'generating',
       });
 
-      // Start video generation job
+      // Start video generation job (standardized type)
       await storage.createJob({
-        type: 'video_render',
+        type: 'video_generation',
         status: 'pending',
         data: {
           videoId: video.id,
+          newsArticleId,
           script,
           language,
           avatarTemplate: 'dark_anchor' as any,
@@ -203,7 +204,7 @@ class VideoService {
     }
   }
 
-  async generateMultiLanguageVersions(videoId: string): Promise<void> {
+  async generateMultiLanguageVersions(videoId: string, userId?: string): Promise<void> {
     try {
       const videos = await storage.getVideos(1000);
       const originalVideo = videos.find(v => v.id === videoId);
@@ -216,14 +217,17 @@ class VideoService {
       
       for (const language of languages) {
         if (language !== originalVideo.language) {
-          // Translate script
+          console.log(`🌐 Generating ${language} version for video ${videoId}...`);
+          
+          // Translate script using OpenAI
           const translatedScript = await openaiService.translateScript(
             originalVideo.script, 
-            language
+            language,
+            userId
           );
 
           // Create new video version
-          await storage.createVideo({
+          const newVideo = await storage.createVideo({
             newsArticleId: originalVideo.newsArticleId,
             title: originalVideo.title,
             script: translatedScript,
@@ -231,6 +235,21 @@ class VideoService {
             avatarTemplate: originalVideo.avatarTemplate,
             status: 'pending',
           });
+
+          // Create job for new language version
+          await storage.createJob({
+            type: 'video_generation',
+            status: 'pending',
+            data: {
+              newsArticleId: originalVideo.newsArticleId,
+              userId: userId,
+              language: language,
+              videoId: newVideo.id,
+              isTranslation: true
+            },
+          });
+          
+          console.log(`✅ ${language} version queued: ${newVideo.id}`);
         }
       }
     } catch (error) {

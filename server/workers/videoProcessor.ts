@@ -43,7 +43,7 @@ class VideoProcessor {
       // Process video generation jobs
       const jobs = await storage.getActiveJobs();
       const pendingJobs = jobs.filter(job => 
-        (job.type === 'video_generation' || job.type === 'video_render' || job.type === 'publish') && 
+        (job.type === 'video_generation' || job.type === 'publish') && 
         job.status === 'pending'
       );
       
@@ -55,8 +55,6 @@ class VideoProcessor {
       for (const job of pendingJobs) {
         if (job.type === 'video_generation') {
           await this.processVideoGenerationJob(job.id);
-        } else if (job.type === 'video_render') {
-          await this.processVideoRenderJob(job.id);
         } else if (job.type === 'publish') {
           await this.processPublishJob(job.id);
         }
@@ -124,13 +122,15 @@ class VideoProcessor {
       
       await storage.updateJobProgress(jobId, 60);
       
-      // Step 3: Create video with HeyGen
-      console.log(`Creating video for job ${jobId}`);
-      const videoId = await heygenService.createVideo(
+      // Step 3: Create video with HeyGen using ElevenLabs audio (INTEGRATED PIPELINE)
+      console.log(`Creating video with integrated ElevenLabs audio for job ${jobId}`);
+      const videoId = await heygenService.createVideoWithAudio(
         userId,
         scriptData,
+        audioBuffer,
         {
           language: language,
+          avatarStyle: 'dark_anchor',
           background: '#1a1a1a' // Dark theme for mystery content
         }
       );
@@ -185,10 +185,11 @@ class VideoProcessor {
           title: `Dark News: ${script.substring(0, 50)}...`,
           script,
           language: jobData.language || 'en',
+          avatarTemplate: 'dark_anchor',
           status: 'ready',
           duration: 60, // Estimate - would get from actual video metadata
           thumbnailUrl: videoStatus.thumbnail_url,
-          videoPath: videoUrl,
+          videoUrl: videoStatus.video_url,
           audioPath,
         });
         
@@ -218,69 +219,6 @@ class VideoProcessor {
     }
   }
 
-  private async processVideoRenderJob(jobId: string): Promise<void> {
-    try {
-      console.log(`Processing video render job: ${jobId}`);
-      
-      const jobs = await storage.getActiveJobs();
-      const job = jobs.find(j => j.id === jobId);
-      
-      if (!job || !job.data) {
-        throw new Error("Job data not found");
-      }
-
-      const { videoId, script, language, avatarTemplate } = job.data as any;
-      
-      await storage.updateJobProgress(jobId, 10);
-      
-      // Start video rendering with HeyGen
-      const heygenVideoId = await videoService.renderWithHeyGen(
-        script, 
-        language, 
-        avatarTemplate
-      );
-      
-      await storage.updateJobProgress(jobId, 30);
-      
-      // Poll for video completion
-      let attempts = 0;
-      const maxAttempts = 60; // 30 minutes max
-      
-      while (attempts < maxAttempts) {
-        const status = await videoService.checkVideoStatus(heygenVideoId);
-        
-        if (status.status === 'complete') {
-          // Update video record
-          await storage.updateVideoStatus(videoId, 'ready');
-          
-          // Store video URL (would need proper implementation)
-          // await storage.updateVideoUrl(videoId, status.downloadUrl);
-          
-          await storage.updateJobProgress(jobId, 100);
-          await storage.completeJob(jobId, 'completed');
-          
-          console.log(`Video render job completed: ${jobId}`);
-          return;
-        } else if (status.status === 'failed') {
-          throw new Error("Video rendering failed");
-        }
-        
-        // Update progress based on typical rendering time
-        const progress = Math.min(90, 30 + (attempts * 2));
-        await storage.updateJobProgress(jobId, progress);
-        
-        attempts++;
-        await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds
-      }
-      
-      throw new Error("Video rendering timeout");
-      
-    } catch (error) {
-      console.error(`Error processing video render job ${jobId}:`, error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      await storage.completeJob(jobId, 'failed', errorMessage);
-    }
-  }
 
   private async processPublishJob(jobId: string): Promise<void> {
     try {

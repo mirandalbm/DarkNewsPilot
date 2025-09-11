@@ -83,10 +83,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/news/fetch', isAuthenticated, async (req, res) => {
     try {
       const { sources, keywords } = req.body;
+      console.log("🔥 NEWS FETCH TRIGGERED BY USER");
       await newsService.triggerNewsFetch(sources, keywords);
       res.json({ message: "News fetch triggered successfully" });
     } catch (error) {
-      console.error("Error triggering news fetch:", error);
+      console.error("❌ Error triggering news fetch:", error);
       res.status(500).json({ message: "Failed to trigger news fetch" });
     }
   });
@@ -100,6 +101,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating news status:", error);
       res.status(500).json({ message: "Failed to update news status" });
+    }
+  });
+
+  // 🧪 TEST: Complete video pipeline test
+  app.post('/api/test/video-pipeline', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      console.log("🧪 TESTING COMPLETE VIDEO PIPELINE...");
+      
+      // Create test news article
+      const testArticle = await storage.createNewsArticle({
+        title: "EXCLUSIVE: Mysterious Data Leak Exposes Government Classified Operations",
+        content: "Sources reveal that a massive data breach has exposed thousands of classified documents detailing covert government operations spanning multiple countries. The leaked files contain evidence of surveillance programs and secret agreements that officials have denied for years. Investigators are now questioning the scope of these hidden activities.",
+        url: "https://test.darknews.com/leak-001",
+        source: "DarkNews Test",
+        viralScore: 95,
+        publishedAt: new Date(),
+      });
+      
+      console.log(`✅ Test article created: ${testArticle.id}`);
+      
+      // Trigger video generation
+      const videoId = await videoService.generateVideo(testArticle.id, 'en-US');
+      console.log(`🎬 Video generation started: ${videoId}`);
+      
+      res.json({ 
+        message: "Video pipeline test initiated",
+        articleId: testArticle.id,
+        videoId: videoId,
+        status: "generating"
+      });
+      
+    } catch (error) {
+      console.error("❌ Video pipeline test failed:", error);
+      res.status(500).json({ 
+        message: "Video pipeline test failed",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // 🌐 Generate multilingual versions of a video
+  app.post('/api/videos/:id/multilingual', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+      
+      console.log(`🌐 Generating multilingual versions for video: ${id}`);
+      await videoService.generateMultiLanguageVersions(id, userId);
+      
+      res.json({ 
+        message: "Multilingual video generation initiated",
+        videoId: id,
+        languages: ['pt-BR', 'es-ES', 'es-MX', 'de-DE', 'fr-FR', 'hi-IN', 'ja-JP']
+      });
+    } catch (error) {
+      console.error("Error generating multilingual versions:", error);
+      res.status(500).json({ 
+        message: "Failed to generate multilingual versions",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 

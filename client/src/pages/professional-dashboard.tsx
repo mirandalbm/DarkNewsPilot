@@ -153,6 +153,43 @@ export default function ProfessionalDashboard() {
     }
   ];
 
+  const handleTestVideoPipeline = async () => {
+    try {
+      const response = await fetch('/api/test/video-pipeline', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (response.status === 401) {
+        toast({
+          title: "Não autorizado",
+          description: "Você foi desconectado. Fazendo login novamente...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error('Failed to test video pipeline');
+      }
+      
+      const result = await response.json();
+      toast({
+        title: "🎬 Pipeline de Vídeo Iniciado",
+        description: `Testando criação de vídeo com IA: ${result.videoId}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: "Falha ao testar pipeline de vídeo",
+        variant: "destructive",
+      });
+    }
+  };
+
   const quickActions = [
     {
       title: "Processar Notícias",
@@ -162,10 +199,10 @@ export default function ProfessionalDashboard() {
       variant: "default" as const
     },
     {
-      title: "Pausar Jobs",
-      description: "Pausar todos os trabalhos em andamento",
-      icon: Pause,
-      action: () => {},
+      title: "🧪 Testar Pipeline",
+      description: "Testar geração completa de vídeo com IA",
+      icon: Zap,
+      action: handleTestVideoPipeline,
       variant: "secondary" as const
     },
     {
