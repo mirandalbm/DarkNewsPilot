@@ -56,6 +56,8 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={ProfessionalDashboard} />
+          <Route path="/professional" component={ProfessionalDashboard} />
+          <Route path="/dashboard" component={ProfessionalDashboard} />
           <Route path="/news" component={NewsManagement} />
           <Route path="/production" component={VideoProduction} />
           <Route path="/analytics" component={Analytics} />
