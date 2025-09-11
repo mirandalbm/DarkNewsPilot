@@ -657,11 +657,11 @@ export default function ProfessionalDashboard() {
           </div>
           </main>
 
-          {/* AI Assistant Panel - FIXED: Remove overflow-hidden to allow proper scrolling */}
+          {/* AI Assistant Panel - INCREASED WIDTH: Better text visualization */}
           {!sidebar.isMobile && (
             <div className={cn(
               "border-l bg-background/50 transition-all duration-300 flex-shrink-0",
-              sidebar.isTablet ? "w-64 max-w-[16rem]" : "w-80 xl:w-96 max-w-[20rem] xl:max-w-[24rem]"
+              sidebar.isTablet ? "w-80 max-w-[20rem]" : "w-96 xl:w-[28rem] max-w-[24rem] xl:max-w-[28rem]"
             )}>
               <div className="h-full p-3 md:p-4">
                 <AdvancedChat compact={true} />
@@ -670,10 +670,10 @@ export default function ProfessionalDashboard() {
           )}
         </div>
 
-        {/* Mobile Chat - FIXED: Remove overflow-hidden to allow proper scrolling */}
+        {/* Mobile Chat - INCREASED HEIGHT: Better text visualization */}
         {sidebar.isMobile && (
           <div className="border-t bg-background/50 transition-all duration-300 flex-shrink-0">
-            <div className="h-80">
+            <div className="h-[28rem]">
               <div className="h-full p-3">
                 <AdvancedChat compact={true} />
               </div>
