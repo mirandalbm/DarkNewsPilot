@@ -795,6 +795,9 @@ export default function VoiceCloningSystem() {
       case 'de-DE': return '🇩🇪';
       case 'it-IT': return '🇮🇹';
       case 'ja-JP': return '🇯🇵';
+      case 'hi-IN': return '🇮🇳';
+      case 'zh-CN': return '🇨🇳';
+      case 'ko-KR': return '🇰🇷';
       default: return '🌐';
     }
   };

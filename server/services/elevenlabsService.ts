@@ -163,7 +163,9 @@ class ElevenLabsService {
         'de-DE': 'TxGEqnHWrfWFTfGW9XjX', // Clyde - German with strong investigative tone
         'fr-FR': 'XrExE9yKIg1WjnnlVkGX', // Liam - French with documentary narrator style
         'hi-IN': 'pqHfZKP75CvOlQylNhV4', // Bill - Hindi with authoritative presence
-        'ja-JP': 'Xb7hH8MSUJpSbSDYk0k2'  // Charlie - Japanese with calm but intense delivery
+        'ja-JP': 'Xb7hH8MSUJpSbSDYk0k2', // Charlie - Japanese with calm but intense delivery
+        'zh-CN': 'N2lVS1w4EtoT3dr4eOWO', // Callum - Chinese with dramatic mystery tone
+        'ko-KR': 'IKne3meq5aSn9XLyUdCD'  // Drew - Korean with investigative presence
       };
 
       // Enhanced voice settings optimized for dark mystery content by language
@@ -175,7 +177,9 @@ class ElevenLabsService {
         'de-DE': { stability: 0.88, similarity_boost: 0.75, style: 0.60, model: 'eleven_multilingual_v2' },
         'fr-FR': { stability: 0.85, similarity_boost: 0.80, style: 0.65, model: 'eleven_multilingual_v2' },
         'hi-IN': { stability: 0.83, similarity_boost: 0.85, style: 0.70, model: 'eleven_multilingual_v2' },
-        'ja-JP': { stability: 0.87, similarity_boost: 0.78, style: 0.62, model: 'eleven_multilingual_v2' }
+        'ja-JP': { stability: 0.87, similarity_boost: 0.78, style: 0.62, model: 'eleven_multilingual_v2' },
+        'zh-CN': { stability: 0.86, similarity_boost: 0.82, style: 0.68, model: 'eleven_multilingual_v2' },
+        'ko-KR': { stability: 0.84, similarity_boost: 0.80, style: 0.66, model: 'eleven_multilingual_v2' }
       };
       
       const langSettings = darkNewsSettings[language] || darkNewsSettings['en-US'];
@@ -210,7 +214,9 @@ class ElevenLabsService {
       'de-DE': { voiceId: 'TxGEqnHWrfWFTfGW9XjX', voiceName: 'Clyde - German DarkNews' },
       'fr-FR': { voiceId: 'XrExE9yKIg1WjnnlVkGX', voiceName: 'Liam - French DarkNews' },
       'hi-IN': { voiceId: 'pqHfZKP75CvOlQylNhV4', voiceName: 'Bill - Hindi DarkNews' },
-      'ja-JP': { voiceId: 'Xb7hH8MSUJpSbSDYk0k2', voiceName: 'Charlie - Japanese DarkNews' }
+      'ja-JP': { voiceId: 'Xb7hH8MSUJpSbSDYk0k2', voiceName: 'Charlie - Japanese DarkNews' },
+      'zh-CN': { voiceId: 'N2lVS1w4EtoT3dr4eOWO', voiceName: 'Callum - Chinese DarkNews' },
+      'ko-KR': { voiceId: 'IKne3meq5aSn9XLyUdCD', voiceName: 'Drew - Korean DarkNews' }
     };
     
     return voiceConfigs[language] || voiceConfigs['en-US'];
