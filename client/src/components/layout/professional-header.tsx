@@ -28,8 +28,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { LanguageSelector } from "@/components/LanguageSelector";
-import { useTranslation } from 'react-i18next';
+import { LanguageDropdown } from "@/components/LanguageDropdown";
 
 interface Breadcrumb {
   name: string;
@@ -174,10 +173,6 @@ export default function ProfessionalHeader() {
         {/* Theme Toggle */}
         <ThemeToggle />
 
-        {/* Language Selector */}
-        {!sidebar.isMobile && (
-          <LanguageSelector />
-        )}
 
         {/* Notifications */}
         <DropdownMenu>
@@ -276,6 +271,7 @@ export default function ProfessionalHeader() {
               <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
+            <LanguageDropdown />
             <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
               <span>Configurações</span>
