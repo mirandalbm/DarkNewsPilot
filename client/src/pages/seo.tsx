@@ -798,11 +798,11 @@ export default function SEOOptimization() {
       <div className="responsive-container">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center shrink-0">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <h1 className="text-xl sm:text-2xl font-bold">Otimização SEO</h1>
               <p className="text-muted-foreground text-sm sm:text-base">Análise e otimização para melhor performance nos mecanismos de busca</p>
             </div>
