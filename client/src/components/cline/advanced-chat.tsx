@@ -977,8 +977,8 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
               </ScrollArea>
             </div>
             
-            {/* Input Area - Fixed at bottom */}
-            <div className="flex-shrink-0">
+            {/* Input Area - FIXED: Removed fixed positioning to allow scrolling */}
+            <div>
               {/* Action Icons Above Prompt */}
               {messages.length > 0 && (
                 <div className="px-4 py-2 border-t">
