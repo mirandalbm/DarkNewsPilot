@@ -129,7 +129,7 @@ class ElevenLabsService {
   async generateSpeechMultilingual(
     userId: string,
     text: string,
-    language: string = 'en',
+    language: string = 'en-US',
     settings: ElevenLabsSettings = {}
   ): Promise<Buffer> {
     try {
@@ -138,23 +138,38 @@ class ElevenLabsService {
         throw new Error('ElevenLabs not configured for user');
       }
 
-      // Language-specific voice mapping for multilingual support
+      // Language-specific voice mapping for DarkNews multilingual support
       const languageVoices: Record<string, string> = {
-        'en': 'pNInz6obpgDQGcFmaJgB', // Adam (English)
-        'es': 'IKne3meq5aSn9XLyUdCD', // Matias (Spanish)
-        'fr': 'XrExE9yKIg1WjnnlVkGX', // Liam (French)
-        'de': 'TxGEqnHWrfWFTfGW9XjX', // Clyde (German)
-        'pt': 'yoZ06aMxZJJ28mfd3POQ', // Sam (Portuguese)
-        'hi': 'pqHfZKP75CvOlQylNhV4', // Bill (Hindi)
-        'ja': 'IKne3meq5aSn9XLyUdCD'  // Fallback for Japanese
+        'en-US': 'pNInz6obpgDQGcFmaJgB', // Adam - Deep, authoritative voice for English
+        'pt-BR': 'yoZ06aMxZJJ28mfd3POQ', // Sam - Brazilian Portuguese with dramatic tone
+        'es-ES': 'IKne3meq5aSn9XLyUdCD', // Matias - Spanish (Spain) with mystery undertone
+        'es-MX': 'VR6AewLTigWG4xSOukaG', // Antoni - Mexican Spanish variant
+        'de-DE': 'TxGEqnHWrfWFTfGW9XjX', // Clyde - German with strong investigative tone
+        'fr-FR': 'XrExE9yKIg1WjnnlVkGX', // Liam - French with documentary narrator style
+        'hi-IN': 'pqHfZKP75CvOlQylNhV4', // Bill - Hindi with authoritative presence
+        'ja-JP': 'Xb7hH8MSUJpSbSDYk0k2'  // Charlie - Japanese with calm but intense delivery
       };
 
+      // Enhanced voice settings optimized for dark mystery content by language
+      const darkNewsSettings: Record<string, { stability: number; similarity_boost: number; style: number; model: string }> = {
+        'en-US': { stability: 0.85, similarity_boost: 0.80, style: 0.65, model: 'eleven_monolingual_v1' },
+        'pt-BR': { stability: 0.80, similarity_boost: 0.85, style: 0.70, model: 'eleven_multilingual_v2' },
+        'es-ES': { stability: 0.82, similarity_boost: 0.78, style: 0.68, model: 'eleven_multilingual_v2' },
+        'es-MX': { stability: 0.80, similarity_boost: 0.82, style: 0.72, model: 'eleven_multilingual_v2' },
+        'de-DE': { stability: 0.88, similarity_boost: 0.75, style: 0.60, model: 'eleven_multilingual_v2' },
+        'fr-FR': { stability: 0.85, similarity_boost: 0.80, style: 0.65, model: 'eleven_multilingual_v2' },
+        'hi-IN': { stability: 0.83, similarity_boost: 0.85, style: 0.70, model: 'eleven_multilingual_v2' },
+        'ja-JP': { stability: 0.87, similarity_boost: 0.78, style: 0.62, model: 'eleven_multilingual_v2' }
+      };
+      
+      const langSettings = darkNewsSettings[language] || darkNewsSettings['en-US'];
+      
       const voiceSettings = {
-        voice_id: settings.voice_id || languageVoices[language] || languageVoices['en'],
-        model_id: settings.model_id || 'eleven_multilingual_v2',
-        stability: settings.stability || 0.75,
-        similarity_boost: settings.similarity_boost || 0.75,
-        style: settings.style || 0.5
+        voice_id: settings.voice_id || languageVoices[language] || languageVoices['en-US'],
+        model_id: settings.model_id || langSettings.model,
+        stability: settings.stability || langSettings.stability,
+        similarity_boost: settings.similarity_boost || langSettings.similarity_boost,
+        style: settings.style || langSettings.style
       };
 
       return await this.generateSpeech(userId, text, voiceSettings);
@@ -162,6 +177,27 @@ class ElevenLabsService {
       console.error('Error generating multilingual speech:', error);
       throw error;
     }
+  }
+
+  // Optimized method to generate speech with language-specific settings
+  async generateSpeechForDarkNews(userId: string, text: string, language: string): Promise<Buffer> {
+    return await this.generateSpeechMultilingual(userId, text, language, {});
+  }
+
+  // Get language-specific voice configuration
+  getLanguageVoiceConfig(language: string): { voiceId: string; voiceName: string } {
+    const voiceConfigs: Record<string, { voiceId: string; voiceName: string }> = {
+      'en-US': { voiceId: 'pNInz6obpgDQGcFmaJgB', voiceName: 'Adam - English DarkNews Narrator' },
+      'pt-BR': { voiceId: 'yoZ06aMxZJJ28mfd3POQ', voiceName: 'Sam - Brazilian Portuguese DarkNews' },
+      'es-ES': { voiceId: 'IKne3meq5aSn9XLyUdCD', voiceName: 'Matias - Spanish DarkNews' },
+      'es-MX': { voiceId: 'VR6AewLTigWG4xSOukaG', voiceName: 'Antoni - Mexican Spanish DarkNews' },
+      'de-DE': { voiceId: 'TxGEqnHWrfWFTfGW9XjX', voiceName: 'Clyde - German DarkNews' },
+      'fr-FR': { voiceId: 'XrExE9yKIg1WjnnlVkGX', voiceName: 'Liam - French DarkNews' },
+      'hi-IN': { voiceId: 'pqHfZKP75CvOlQylNhV4', voiceName: 'Bill - Hindi DarkNews' },
+      'ja-JP': { voiceId: 'Xb7hH8MSUJpSbSDYk0k2', voiceName: 'Charlie - Japanese DarkNews' }
+    };
+    
+    return voiceConfigs[language] || voiceConfigs['en-US'];
   }
 
   async testConnection(userId: string): Promise<boolean> {

@@ -123,8 +123,8 @@ class YouTubeService {
         throw new Error("Video not found or not ready");
       }
 
-      // Get YouTube client
-      const youtubeClient = await this.getClient(userId);
+      // Get language-specific YouTube client for proper channel targeting
+      const youtubeClient = await this.getChannelClient(video.language || 'en-US', userId);
       if (!youtubeClient) {
         throw new Error('YouTube API not configured for user');
       }
@@ -183,6 +183,12 @@ class YouTubeService {
       });
 
       const youtubeVideoId = response.data.id;
+      
+      // Validate YouTube ID before updating database
+      if (!youtubeVideoId || typeof youtubeVideoId !== 'string') {
+        await storage.updateVideoStatus(videoId, 'failed');
+        throw new Error('YouTube upload failed: Invalid video ID returned');
+      }
       
       // Update video record
       await storage.updateVideoYoutubeId(videoId, youtubeVideoId);
@@ -290,6 +296,16 @@ class YouTubeService {
     }
   }
 
+  // Get all supported languages for DarkNews channels
+  getSupportedLanguages(): string[] {
+    return Object.keys(this.channelConfigs);
+  }
+
+  // Get channel info for a specific language
+  getChannelInfo(language: string): { channelId: string; name: string; configKey: string } | null {
+    return this.channelConfigs[language] || null;
+  }
+
   // Enhanced DarkNews YouTube automation methods
   async publishVideoToMultipleChannels(videoId: string, userId: string): Promise<Record<string, string>> {
     const results: Record<string, string> = {};
@@ -306,7 +322,7 @@ class YouTubeService {
 
       // Get all language versions of this video (including the original)
       const allVideoVersions = videos.filter(v => 
-        v.newsId === video.newsId && v.status === 'completed'
+        v.newsArticleId === video.newsArticleId && v.status === 'ready'
       );
 
       console.log(`📺 Found ${allVideoVersions.length} video versions to publish:`);
@@ -436,6 +452,12 @@ class YouTubeService {
 
       const youtubeVideoId = response.data.id;
       
+      // Validate YouTube ID before updating database
+      if (!youtubeVideoId || typeof youtubeVideoId !== 'string') {
+        await storage.updateVideoStatus(videoId, 'failed');
+        throw new Error('YouTube upload failed: Invalid video ID returned');
+      }
+      
       // Update video record with YouTube ID
       await storage.updateVideoYoutubeId(videoId, youtubeVideoId);
       await storage.updateVideoStatus(videoId, 'published');
@@ -454,7 +476,7 @@ class YouTubeService {
       'en-US': ['LEAKED:', 'EXPOSED:', 'BREAKING:', 'CLASSIFIED:', 'DARK TRUTH:'],
       'pt-BR': ['VAZOU:', 'EXPOSTO:', 'ÚLTIMA HORA:', 'CLASSIFICADO:', 'VERDADE SOMBRIA:'],
       'es-ES': ['FILTRADO:', 'EXPUESTO:', 'ÚLTIMA HORA:', 'CLASIFICADO:', 'VERDAD OSCURA:'],
-      'es-MX': ['FILTRADO:', 'EXPUESTO:', 'BREAKING:', 'CLASIFICADO:', 'VERDAD OSCURA:'],
+      'es-MX': ['FILTRADO:', 'EXPUESTO:', 'ÚLTIMA HORA:', 'CLASIFICADO:', 'VERDAD OSCURA:'],
       'de-DE': ['GELEAKT:', 'ENTHÜLLT:', 'EILMELDUNG:', 'GEHEIM:', 'DUNKLE WAHRHEIT:'],
       'fr-FR': ['FUITE:', 'EXPOSÉ:', 'DERNIÈRE HEURE:', 'CLASSIFIÉ:', 'VÉRITÉ SOMBRE:'],
       'hi-IN': ['लीक:', 'खुलासा:', 'ब्रेकिंग:', 'गुप्त:', 'काला सच:'],
@@ -472,8 +494,11 @@ class YouTubeService {
       'en-US': '\n\n🔍 Subscribe for more dark investigations\n⚡ Ring the bell for breaking conspiracies\n💀 Like if this shocked you\n\n#DarkNews #Conspiracy #Leaked #Breaking #Investigation',
       'pt-BR': '\n\n🔍 Inscreva-se para mais investigações sombrias\n⚡ Ative o sino para conspirações urgentes\n💀 Curta se isso te chocou\n\n#NoticiasSombrias #Conspiracao #Vazamentos #UltimaHora #Investigacao',
       'es-ES': '\n\n🔍 Suscríbete para más investigaciones oscuras\n⚡ Activa la campana para conspiraciones urgentes\n💀 Dale like si te impactó\n\n#NoticiasOscuras #Conspiracion #Filtrados #UltimaHora #Investigacion',
+      'es-MX': '\n\n🔍 Suscríbete para más investigaciones oscuras\n⚡ Activa la campana para conspiraciones urgentes\n💀 Dale like si te impactó\n\n#NoticiasOscuras #Conspiracion #Filtrados #UltimaHora #Investigacion',
       'de-DE': '\n\n🔍 Abonniere für mehr dunkle Ermittlungen\n⚡ Glocke an für brisante Verschwörungen\n💀 Like wenn dich das schockiert hat\n\n#DunkleNachrichten #Verschwoerung #Geleakt #Eilmeldung #Ermittlung',
-      'fr-FR': '\n\n🔍 Abonnez-vous pour plus d\'enquêtes sombres\n⚡ Activez la cloche pour les conspirations urgentes\n💀 Likez si cela vous a choqué\n\n#ActualitesSombres #Conspiration #Fuites #DerniereHeure #Enquete'
+      'fr-FR': '\n\n🔍 Abonnez-vous pour plus d\'enquêtes sombres\n⚡ Activez la cloche pour les conspirations urgentes\n💀 Likez si cela vous a choqué\n\n#ActualitesSombres #Conspiration #Fuites #DerniereHeure #Enquete',
+      'hi-IN': '\n\n🔍 अधिक डार्क जांच के लिए सब्सक्राइब करें\n⚡ तत्काल षड्यंत्रों के लिए बेल दबाएं\n💀 लाइक करें अगर यह आपको हैरान करता है\n\n#DarkNewsHindi #Conspiracy #Leaked #Breaking #Investigation',
+      'ja-JP': '\n\n🔍 ダーク調査でチャンネル登録\n⚡ 緊急陰謀のためにベルをクリック\n💀 衝撃を受けたらいいねを\n\n#ダークニュース #陰謀 #リーク #速報 #調査'
     };
 
     const ending = seoEndings[language] || seoEndings['en-US'];
@@ -485,8 +510,11 @@ class YouTubeService {
       'en-US': ['dark news', 'conspiracy', 'leaked', 'classified', 'investigation', 'breaking news', 'exposed', 'cover up'],
       'pt-BR': ['noticias sombrias', 'conspiracao', 'vazamentos', 'classificado', 'investigacao', 'ultima hora', 'exposto', 'encobrimento'],
       'es-ES': ['noticias oscuras', 'conspiracion', 'filtrado', 'clasificado', 'investigacion', 'ultima hora', 'expuesto', 'encubrimiento'],
+      'es-MX': ['noticias oscuras', 'conspiracion', 'filtrado', 'clasificado', 'investigacion', 'ultima hora', 'expuesto', 'encubrimiento'],
       'de-DE': ['dunkle nachrichten', 'verschwoerung', 'geleakt', 'geheim', 'ermittlung', 'eilmeldung', 'enthuellt', 'vertuschung'],
-      'fr-FR': ['actualites sombres', 'conspiration', 'fuite', 'classifie', 'enquete', 'derniere heure', 'expose', 'dissimulation']
+      'fr-FR': ['actualites sombres', 'conspiration', 'fuite', 'classifie', 'enquete', 'derniere heure', 'expose', 'dissimulation'],
+      'hi-IN': ['dark news hindi', 'conspiracy', 'leaked', 'classified', 'investigation', 'breaking', 'exposed', 'cover up'],
+      'ja-JP': ['ダークニュース', '陰謀', 'リーク', '機密', '調査', '速報', '暴露', '隠蔽']
     };
 
     const languageTags = darkTags[language] || darkTags['en-US'];
@@ -560,7 +588,7 @@ class YouTubeService {
       // Get all video versions for this news article
       const videos = await storage.getVideos(1000);
       const newsVideos = videos.filter(v => 
-        v.newsId === newsId && v.status === 'published' && v.youtubeVideoId
+        v.newsArticleId === newsId && v.status === 'published' && v.youtubeVideoId
       );
 
       if (newsVideos.length === 0) {
@@ -604,7 +632,7 @@ class YouTubeService {
           // Update video status in our database
           await storage.updateVideoStatus(video.id, 'scheduled');
           
-          results[video.language] = video.youtubeVideoId;
+          results[video.language] = video.youtubeVideoId || 'NO_YOUTUBE_ID';
           console.log(`✅ ${video.language}: ${video.youtubeVideoId} scheduled`);
           
         } catch (error) {
