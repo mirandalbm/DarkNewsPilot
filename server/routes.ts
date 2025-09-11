@@ -165,6 +165,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // 📺 YouTube automation endpoints
+  app.post('/api/youtube/publish/:videoId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { videoId } = req.params;
+      const userId = req.user.claims.sub;
+      
+      console.log(`📺 Publishing video ${videoId} to YouTube channels...`);
+      const results = await youtubeService.publishVideoToMultipleChannels(videoId, userId);
+      
+      res.json({ 
+        message: "YouTube publishing initiated",
+        videoId,
+        results 
+      });
+    } catch (error) {
+      console.error("Error publishing to YouTube:", error);
+      res.status(500).json({ 
+        message: "Failed to publish to YouTube",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  app.post('/api/youtube/schedule/:videoId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { videoId } = req.params;
+      const { publishTime } = req.body;
+      const userId = req.user.claims.sub;
+      
+      if (!publishTime) {
+        return res.status(400).json({ message: "publishTime is required" });
+      }
+
+      console.log(`⏰ Scheduling video ${videoId} for ${publishTime}`);
+      await youtubeService.scheduleVideo(videoId, new Date(publishTime), userId);
+      
+      res.json({ 
+        message: "Video scheduled successfully",
+        videoId,
+        publishTime 
+      });
+    } catch (error) {
+      console.error("Error scheduling YouTube video:", error);
+      res.status(500).json({ 
+        message: "Failed to schedule video",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  app.post('/api/youtube/schedule-multi/:newsId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { newsId } = req.params;
+      const { publishTime } = req.body;
+      const userId = req.user.claims.sub;
+      
+      if (!publishTime) {
+        return res.status(400).json({ message: "publishTime is required" });
+      }
+
+      console.log(`⏰ Scheduling multi-channel videos for news ${newsId} at ${publishTime}`);
+      const results = await youtubeService.scheduleMultiChannelVideos(newsId, new Date(publishTime), userId);
+      
+      res.json({ 
+        message: "Multi-channel video scheduling initiated",
+        newsId,
+        publishTime,
+        results 
+      });
+    } catch (error) {
+      console.error("Error scheduling multi-channel videos:", error);
+      res.status(500).json({ 
+        message: "Failed to schedule multi-channel videos",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  app.get('/api/youtube/channels', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Return DarkNews channel mapping
+      const darkNewsChannels = [
+        { id: 'UC_DarkNews_EN', name: 'DarkNews English', language: 'en-US', subscribers: '125K' },
+        { id: 'UC_DarkNews_BR', name: 'DarkNews Brasil', language: 'pt-BR', subscribers: '89K' },
+        { id: 'UC_DarkNews_ES', name: 'DarkNews España', language: 'es-ES', subscribers: '67K' },
+        { id: 'UC_DarkNews_MX', name: 'DarkNews México', language: 'es-MX', subscribers: '54K' },
+        { id: 'UC_DarkNews_DE', name: 'DarkNews Deutsch', language: 'de-DE', subscribers: '43K' },
+        { id: 'UC_DarkNews_FR', name: 'DarkNews France', language: 'fr-FR', subscribers: '38K' },
+        { id: 'UC_DarkNews_IN', name: 'DarkNews India', language: 'hi-IN', subscribers: '92K' },
+        { id: 'UC_DarkNews_JP', name: 'DarkNews Japan', language: 'ja-JP', subscribers: '71K' }
+      ];
+      
+      res.json({ channels: darkNewsChannels });
+    } catch (error) {
+      console.error("Error fetching YouTube channels:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch channels",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   // News statistics endpoint
   app.get('/api/news/stats', isAuthenticated, async (req, res) => {
     try {
