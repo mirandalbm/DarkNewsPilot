@@ -907,7 +907,7 @@ export default function SEOOptimization() {
           {/* Análise SEO */}
           <TabsContent value="analysis" className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <h3 className="text-base sm:text-lg font-semibold">Análises SEO</h3>
+              <h3 className="text-base sm:text-lg font-semibold">Análise</h3>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                 <div className="relative flex-1 sm:flex-none">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
