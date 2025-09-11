@@ -262,16 +262,25 @@ export default function Canais() {
       </div>
 
       <Tabs defaultValue="channels" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="channels" className="flex items-center space-x-2">
+        <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1">
+          <TabsTrigger 
+            value="channels" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <Youtube className="h-4 w-4" />
             <span>Meus Canais</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="settings" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <Settings className="h-4 w-4" />
             <span>Configurações</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="analytics" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <BarChart3 className="h-4 w-4" />
             <span>Analytics</span>
           </TabsTrigger>

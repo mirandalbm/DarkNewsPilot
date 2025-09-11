@@ -58,28 +58,46 @@ export function SettingsPanel({ onClose, clineState, onStateChange, compact = fa
 
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-            <TabsList className="grid w-full grid-cols-6 bg-muted/50">
-              <TabsTrigger value="general" className="flex items-center space-x-1">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 bg-muted/50 gap-1 h-auto p-1">
+              <TabsTrigger 
+                value="general" 
+                className="flex items-center space-x-1 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+              >
                 <Settings className="h-3 w-3" />
                 <span>Geral</span>
               </TabsTrigger>
-              <TabsTrigger value="agents" className="flex items-center space-x-1">
+              <TabsTrigger 
+                value="agents" 
+                className="flex items-center space-x-1 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+              >
                 <Bot className="h-3 w-3" />
                 <span>Agentes</span>
               </TabsTrigger>
-              <TabsTrigger value="voice" className="flex items-center space-x-1">
+              <TabsTrigger 
+                value="voice" 
+                className="flex items-center space-x-1 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+              >
                 <Mic className="h-3 w-3" />
                 <span>Voz</span>
               </TabsTrigger>
-              <TabsTrigger value="automation" className="flex items-center space-x-1">
+              <TabsTrigger 
+                value="automation" 
+                className="flex items-center space-x-1 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+              >
                 <Zap className="h-3 w-3" />
                 <span>Automação</span>
               </TabsTrigger>
-              <TabsTrigger value="integrations" className="flex items-center space-x-1">
+              <TabsTrigger 
+                value="integrations" 
+                className="flex items-center space-x-1 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+              >
                 <Database className="h-3 w-3" />
                 <span>Integrações</span>
               </TabsTrigger>
-              <TabsTrigger value="appearance" className="flex items-center space-x-1">
+              <TabsTrigger 
+                value="appearance" 
+                className="flex items-center space-x-1 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+              >
                 <Palette className="h-3 w-3" />
                 <span>Aparência</span>
               </TabsTrigger>

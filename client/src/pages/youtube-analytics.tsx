@@ -278,12 +278,37 @@ export default function YouTubeAnalytics() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="videos">Vídeos</TabsTrigger>
-            <TabsTrigger value="audience">Audiência</TabsTrigger>
-            <TabsTrigger value="revenue">Receita</TabsTrigger>
-            <TabsTrigger value="optimization">Otimização</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1">
+            <TabsTrigger 
+              value="overview" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="videos" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Vídeos
+            </TabsTrigger>
+            <TabsTrigger 
+              value="audience" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Audiência
+            </TabsTrigger>
+            <TabsTrigger 
+              value="revenue" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Receita
+            </TabsTrigger>
+            <TabsTrigger 
+              value="optimization" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Otimização
+            </TabsTrigger>
           </TabsList>
 
           {/* Visão Geral */}

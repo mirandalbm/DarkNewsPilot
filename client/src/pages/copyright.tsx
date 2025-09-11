@@ -715,12 +715,37 @@ export default function Copyright() {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="claims">Claims</TabsTrigger>
-            <TabsTrigger value="fingerprints">Fingerprints</TabsTrigger>
-            <TabsTrigger value="licenses">Licenças</TabsTrigger>
-            <TabsTrigger value="dmca">DMCA</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1">
+            <TabsTrigger 
+              value="claims" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Claims
+            </TabsTrigger>
+            <TabsTrigger 
+              value="fingerprints" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Fingerprints
+            </TabsTrigger>
+            <TabsTrigger 
+              value="licenses" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Licenças
+            </TabsTrigger>
+            <TabsTrigger 
+              value="dmca" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              DMCA
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           {/* Claims */}

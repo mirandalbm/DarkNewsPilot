@@ -294,10 +294,25 @@ export default function Assinaturas() {
       </div>
 
       <Tabs defaultValue="current" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="current">Plano Atual</TabsTrigger>
-          <TabsTrigger value="plans">Planos Disponíveis</TabsTrigger>
-          <TabsTrigger value="history">Histórico</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1">
+          <TabsTrigger 
+            value="current" 
+            className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
+            Plano Atual
+          </TabsTrigger>
+          <TabsTrigger 
+            value="plans" 
+            className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
+            Planos Disponíveis
+          </TabsTrigger>
+          <TabsTrigger 
+            value="history" 
+            className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
+            Histórico
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="current" className="space-y-6">

@@ -198,20 +198,32 @@ export default function Painel() {
       </div>
 
       <Tabs defaultValue="aparencia" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="aparencia" className="flex items-center space-x-2">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto p-1">
+          <TabsTrigger 
+            value="aparencia" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <Palette className="h-4 w-4" />
             <span>Aparência</span>
           </TabsTrigger>
-          <TabsTrigger value="dashboard" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="dashboard" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <Layout className="h-4 w-4" />
             <span>Dashboard</span>
           </TabsTrigger>
-          <TabsTrigger value="notificacoes" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="notificacoes" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <Bell className="h-4 w-4" />
             <span>Notificações</span>
           </TabsTrigger>
-          <TabsTrigger value="seguranca" className="flex items-center space-x-2">
+          <TabsTrigger 
+            value="seguranca" 
+            className="flex items-center space-x-2 !text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+          >
             <Shield className="h-4 w-4" />
             <span>Segurança</span>
           </TabsTrigger>

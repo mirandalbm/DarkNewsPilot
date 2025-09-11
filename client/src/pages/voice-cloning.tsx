@@ -1183,13 +1183,43 @@ export default function VoiceCloningSystem() {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="generator">Gerador</TabsTrigger>
-            <TabsTrigger value="library">Biblioteca</TabsTrigger>
-            <TabsTrigger value="training">Treinamento</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="security">Segurança</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1">
+            <TabsTrigger 
+              value="overview" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="generator" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Gerador
+            </TabsTrigger>
+            <TabsTrigger 
+              value="library" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Biblioteca
+            </TabsTrigger>
+            <TabsTrigger 
+              value="training" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Treinamento
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger 
+              value="security" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] whitespace-nowrap data-[state=active]:!text-sm"
+            >
+              Segurança
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview */}
