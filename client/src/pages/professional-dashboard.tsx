@@ -246,8 +246,8 @@ export default function ProfessionalDashboard() {
         )}>
           {/* Main Content Area - Responsive - Layout corrigido */}
           <main className={cn(
-            "flex-1 overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300 safe-bottom",
-            sidebar.isMobile ? "px-4 py-4 w-full" : sidebar.isTablet ? "p-4 w-full" : "p-6 w-full"
+            "flex-1 overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300",
+            sidebar.isMobile ? "px-4 py-4 pb-20 w-full" : sidebar.isTablet ? "p-4 w-full" : "p-6 w-full"
           )}>
             {/* Welcome Section */}
             <div className={cn(
