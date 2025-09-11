@@ -524,23 +524,28 @@ export default function ProfessionalDashboard() {
           </Card>
 
           {/* System Health Status - Comprehensive */}
-          <Card>
-            <CardHeader className={cn(
+          <div className={cn(
+            "bg-card text-card-foreground rounded-lg border shadow-sm relative",
+            sidebar.isMobile ? "mx-0" : "mx-0"
+          )}>
+            <div className={cn(
+              "flex flex-col space-y-1.5 p-6",
               sidebar.isMobile ? "p-4" : "p-6"
             )}>
-              <CardTitle className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
                 <Activity className={cn(
                   sidebar.isMobile ? "h-4 w-4" : "h-5 w-5",
                   "text-green-500"
                 )} />
-                <span className={cn(
+                <h3 className={cn(
+                  "text-2xl font-semibold leading-none tracking-tight",
                   sidebar.isMobile ? "text-sm" : "text-base"
-                )}>Status do Sistema</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(
+                )}>Status do Sistema</h3>
+              </div>
+            </div>
+            <div className={cn(
               "space-y-4 sm:space-y-6",
-              sidebar.isMobile ? "p-4" : "p-6"
+              sidebar.isMobile ? "p-4 pt-0" : "p-6 pt-0"
             )}>
               {/* Quick Stats Grid */}
               <div className={cn(
@@ -647,8 +652,8 @@ export default function ProfessionalDashboard() {
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           </main>
 
           {/* AI Assistant Panel - Proper Grid Column */}
