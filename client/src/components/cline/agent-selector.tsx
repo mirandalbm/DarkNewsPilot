@@ -57,6 +57,14 @@ const builtInAgents: Agent[] = [
     icon: Bot,
     category: 'builtin',
     capabilities: ["autonomous", "advanced", "full-stack"]
+  },
+  {
+    id: "darknews-autopilot",
+    name: "DarkNews Autopilot Pro",
+    description: "Advanced AI specialist for automated dark mystery news content creation and multi-language video production",
+    icon: Sparkles,
+    category: 'builtin',
+    capabilities: ["content-creation", "video-production", "multi-language", "youtube-automation", "ai-integration"]
   }
 ];
 
