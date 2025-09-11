@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MOBILE_BREAKPOINT, TABLET_BREAKPOINT } from '@/constants/breakpoints';
 
 export interface SidebarState {
   isOpen: boolean;
@@ -17,13 +18,13 @@ export function useSidebar() {
     isDesktop: true
   });
 
-  // Detectar tamanho da tela
+  // Detectar tamanho da tela usando breakpoints consistentes
   useEffect(() => {
     const checkScreenSize = () => {
       const width = window.innerWidth;
-      const isMobile = width < 768;
-      const isTablet = width >= 768 && width < 1024;
-      const isDesktop = width >= 1024;
+      const isMobile = width < MOBILE_BREAKPOINT;
+      const isTablet = width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT;
+      const isDesktop = width >= TABLET_BREAKPOINT;
 
       setState(prev => ({
         ...prev,

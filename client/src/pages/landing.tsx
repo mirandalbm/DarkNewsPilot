@@ -4,7 +4,7 @@ import { Moon, Zap, Globe, BarChart } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-[100dvh] bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-6">

@@ -110,7 +110,7 @@ export default function ProfessionalDashboard() {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="min-h-[100dvh] flex items-center justify-center safe-bottom">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
@@ -239,15 +239,16 @@ export default function ProfessionalDashboard() {
       )}>
         <ProfessionalHeader />
         
-        {/* Integrated Layout Container - NO OVERLAYS */}
+        {/* Integrated Layout Container - Responsive */}
         <div className={cn(
-          "h-[calc(100vh-64px)] transition-all duration-300",
-          sidebar.isMobile ? "flex flex-col" : "grid grid-cols-[1fr_auto]"
+          "flex transition-all duration-300",
+          sidebar.isMobile ? "flex-col min-h-[calc(100dvh-64px)]" : "grid grid-cols-[1fr_auto] h-[calc(100dvh-64px)]"
         )}>
-          {/* Main Content Area - Proper Grid Item */}
+          {/* Main Content Area - Responsive */}
           <main className={cn(
-            "overflow-y-auto space-y-4 sm:space-y-6 transition-all duration-300",
-            sidebar.isMobile ? "flex-1 p-3" : sidebar.isTablet ? "p-4" : "p-6"
+            "overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6 transition-all duration-300 safe-bottom",
+            sidebar.isMobile ? "flex-1 px-3 py-4" : sidebar.isTablet ? "p-4" : "p-6",
+            "min-h-0" // Permite flex shrink
           )}>
             {/* Welcome Section */}
             <div className={cn(
@@ -283,21 +284,21 @@ export default function ProfessionalDashboard() {
               </div>
             </div>
 
-          {/* Metrics Cards */}
+          {/* Metrics Cards - Mobile First */}
           <div className={cn(
-            "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 transition-all duration-300",
-            sidebar.isMobile ? "gap-3" : "gap-4 md:gap-6"
+            "grid transition-all duration-300",
+            sidebar.isMobile ? "grid-cols-1 gap-3" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
           )}>
             {metrics.map((metric) => (
               <Card key={metric.title} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardContent className={cn(
-                  "transition-all duration-300",
+                  "transition-all duration-300 card-responsive",
                   sidebar.isMobile ? "p-3" : "p-4 md:p-6"
                 )}>
                   <div className="flex items-center justify-between">
                     <div className="space-y-1 sm:space-y-2 min-w-0 flex-1 pr-2">
                       <p className={cn(
-                        "font-medium text-muted-foreground truncate",
+                        "font-medium text-muted-foreground break-words",
                         sidebar.isMobile ? "text-xs" : "text-sm"
                       )}>
                         {metric.title}
@@ -331,10 +332,10 @@ export default function ProfessionalDashboard() {
             ))}
           </div>
 
-          {/* Quick Actions & Status */}
+          {/* Quick Actions & Status - Responsive */}
           <div className={cn(
             "grid transition-all duration-300",
-            sidebar.isMobile ? "grid-cols-1 gap-4" : "grid-cols-1 lg:grid-cols-3 gap-6"
+            sidebar.isMobile ? "grid-cols-1 gap-3" : "grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6"
           )}>
             {/* Quick Actions */}
             <Card className={cn(
@@ -352,8 +353,8 @@ export default function ProfessionalDashboard() {
               )}>
                 {quickActions.map((action) => (
                   <div key={action.title} className={cn(
-                    "flex items-center justify-between bg-muted/50 rounded-lg transition-all duration-300",
-                    sidebar.isMobile ? "flex-col space-y-2 p-3" : "p-4"
+                    "flex bg-muted/50 rounded-lg transition-all duration-300",
+                    sidebar.isMobile ? "flex-col space-y-2 p-3" : "items-center justify-between p-4"
                   )}>
                     <div className={cn(
                       "flex items-center min-w-0 flex-1",
@@ -563,13 +564,10 @@ export default function ProfessionalDashboard() {
           )}
         </div>
 
-        {/* Mobile Chat - Integrated Bottom Section */}
+        {/* Mobile Chat - Fixed Height Bottom Section */}
         {sidebar.isMobile && (
-          <div className="border-t bg-background/50 transition-all duration-300">
-            <div className={cn(
-              "overflow-hidden transition-all duration-300",
-              "h-80 sm:h-96"
-            )}>
+          <div className="border-t bg-background/50 transition-all duration-300 flex-shrink-0">
+            <div className="h-80 overflow-hidden">
               <div className="h-full p-3">
                 <AdvancedChat compact={true} />
               </div>
