@@ -106,10 +106,21 @@ class NewsService {
 
     return articles.map((article: any) => {
       const publishedAt = new Date(article.publishedAt || article.pubDate || new Date());
+      
+      // Preserve original publisher for reputation boost
+      let originalSource;
+      if (source.name === "NewsAPI") {
+        originalSource = article.source?.name || source.name;
+      } else if (source.name === "NewsData") {
+        originalSource = article.source_id || article.creator || source.name;
+      } else {
+        originalSource = source.name;
+      }
+      
       const mappedArticle = {
         title: article.title,
         description: article.description || article.content || article.summary,
-        source: { name: source.name },
+        source: { name: originalSource },
         publishedAt: publishedAt,
         url: article.url || article.link,
       };
@@ -118,7 +129,7 @@ class NewsService {
         title: article.title,
         content: article.description || article.content || article.summary,
         url: article.url || article.link,
-        source: source.name,
+        source: source.name, // Service name for tracking
         viralScore: this.calculateViralScore(mappedArticle),
         publishedAt,
       };
