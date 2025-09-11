@@ -144,6 +144,8 @@
     max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Container em telas maiores */
@@ -169,14 +171,22 @@
       gap: 0.75rem;
     }
     
-    /* Prevenir overflow horizontal em mobile */
-    * {
+    /* Correção específica para containers grandes */
+    .max-w-7xl, .max-w-6xl, .max-w-5xl {
       max-width: 100%;
-      box-sizing: border-box;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
     
-    .card-responsive {
-      max-width: 100% !important;
+    /* Container responsive padrão */
+    .container {
+      max-width: 100%;
+    }
+    
+    /* Prevenir overflow em pages específicas */
+    .page-container {
+      overflow-x: hidden;
+      max-width: 100%;
     }
   }
 
