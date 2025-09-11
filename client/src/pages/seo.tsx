@@ -797,8 +797,8 @@ export default function SEOOptimization() {
     <div className="app-container">
       <div className="responsive-container">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+          <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center shrink-0">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
@@ -808,13 +808,13 @@ export default function SEOOptimization() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-            <Button data-testid="button-analyze-all" className="min-h-[44px]">
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
+            <Button data-testid="button-analyze-all" className="min-h-[44px] w-full sm:w-auto">
               <Search className="h-4 w-4 mr-2" />
               Analisar Todos
             </Button>
             
-            <Button variant="outline" data-testid="button-seo-settings" className="min-h-[44px]">
+            <Button variant="outline" data-testid="button-seo-settings" className="min-h-[44px] w-full sm:w-auto">
               <Settings className="h-4 w-4 mr-2" />
               Configurações
             </Button>
