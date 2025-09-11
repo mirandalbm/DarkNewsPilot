@@ -956,8 +956,8 @@ export default function SEOOptimization() {
                           </div>
                         </div>
                         
-                        <div className="text-center sm:text-right">
-                          <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(analysis.scores.overall)}`}>
+                        <div className="text-center sm:text-right mt-2 sm:mt-0">
+                          <div className={`text-2xl sm:text-3xl font-bold ${getScoreColor(analysis.scores.overall)}`}>
                             {analysis.scores.overall}
                           </div>
                           <p className="text-xs text-muted-foreground">Score Geral</p>
@@ -965,33 +965,33 @@ export default function SEOOptimization() {
                       </div>
 
                       {/* Scores detalhados */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
-                        <div className="text-center">
-                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.title)}`}>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 justify-items-center">
+                        <div className="text-center w-full">
+                          <div className={`text-base sm:text-lg font-bold ${getScoreColor(analysis.scores.title)}`}>
                             {analysis.scores.title}
                           </div>
                           <p className="text-xs text-muted-foreground">Título</p>
                         </div>
-                        <div className="text-center">
-                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.description)}`}>
+                        <div className="text-center w-full">
+                          <div className={`text-base sm:text-lg font-bold ${getScoreColor(analysis.scores.description)}`}>
                             {analysis.scores.description}
                           </div>
                           <p className="text-xs text-muted-foreground">Descrição</p>
                         </div>
-                        <div className="text-center">
-                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.tags)}`}>
+                        <div className="text-center w-full">
+                          <div className={`text-base sm:text-lg font-bold ${getScoreColor(analysis.scores.tags)}`}>
                             {analysis.scores.tags}
                           </div>
                           <p className="text-xs text-muted-foreground">Tags</p>
                         </div>
-                        <div className="text-center">
-                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.thumbnail)}`}>
+                        <div className="text-center w-full">
+                          <div className={`text-base sm:text-lg font-bold ${getScoreColor(analysis.scores.thumbnail)}`}>
                             {analysis.scores.thumbnail}
                           </div>
                           <p className="text-xs text-muted-foreground">Thumbnail</p>
                         </div>
-                        <div className="text-center">
-                          <div className={`text-sm sm:text-lg font-bold ${getScoreColor(analysis.scores.engagement)}`}>
+                        <div className="text-center w-full">
+                          <div className={`text-base sm:text-lg font-bold ${getScoreColor(analysis.scores.engagement)}`}>
                             {analysis.scores.engagement}
                           </div>
                           <p className="text-xs text-muted-foreground">Engajamento</p>
@@ -1049,21 +1049,21 @@ export default function SEOOptimization() {
                       )}
 
                       {/* Performance */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-3 bg-muted/50 rounded-lg">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-4 bg-muted/50 rounded-lg">
                         <div className="text-center">
-                          <div className="text-sm font-bold">{analysis.performance.views.toLocaleString('pt-BR')}</div>
+                          <div className="text-base sm:text-lg font-bold">{analysis.performance.views.toLocaleString('pt-BR')}</div>
                           <div className="text-xs text-muted-foreground">Views</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-sm font-bold">{analysis.performance.clickThroughRate}%</div>
+                          <div className="text-base sm:text-lg font-bold">{analysis.performance.clickThroughRate}%</div>
                           <div className="text-xs text-muted-foreground">CTR</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-sm font-bold">{analysis.performance.averageViewDuration}min</div>
+                          <div className="text-base sm:text-lg font-bold">{analysis.performance.averageViewDuration}min</div>
                           <div className="text-xs text-muted-foreground">Duração Média</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-sm font-bold">{analysis.performance.searchTraffic}%</div>
+                          <div className="text-base sm:text-lg font-bold">{analysis.performance.searchTraffic}%</div>
                           <div className="text-xs text-muted-foreground">Tráfego Busca</div>
                         </div>
                       </div>
