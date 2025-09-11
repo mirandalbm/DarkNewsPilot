@@ -896,22 +896,40 @@ export default function SEOOptimization() {
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 h-auto p-1">
-            <TabsTrigger value="analysis" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+            <TabsTrigger 
+              value="analysis" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] font-medium whitespace-nowrap data-[state=active]:!text-sm data-[state=active]:!sm:text-sm"
+            >
               Análise
             </TabsTrigger>
-            <TabsTrigger value="keywords" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+            <TabsTrigger 
+              value="keywords" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] font-medium whitespace-nowrap data-[state=active]:!text-sm data-[state=active]:!sm:text-sm"
+            >
               Palavras-chave
             </TabsTrigger>
-            <TabsTrigger value="templates" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+            <TabsTrigger 
+              value="templates" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] font-medium whitespace-nowrap data-[state=active]:!text-sm data-[state=active]:!sm:text-sm"
+            >
               Templates
             </TabsTrigger>
-            <TabsTrigger value="competitors" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+            <TabsTrigger 
+              value="competitors" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] font-medium whitespace-nowrap data-[state=active]:!text-sm data-[state=active]:!sm:text-sm"
+            >
               Concorrentes
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+            <TabsTrigger 
+              value="ranking" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] font-medium whitespace-nowrap data-[state=active]:!text-sm data-[state=active]:!sm:text-sm"
+            >
               Rankings
             </TabsTrigger>
-            <TabsTrigger value="reports" className="text-sm sm:text-base px-3 py-3 h-auto min-h-[48px] font-medium">
+            <TabsTrigger 
+              value="reports" 
+              className="!text-sm !sm:text-sm !px-2 !py-2.5 h-auto min-h-[44px] font-medium whitespace-nowrap data-[state=active]:!text-sm data-[state=active]:!sm:text-sm"
+            >
               Relatórios
             </TabsTrigger>
           </TabsList>
