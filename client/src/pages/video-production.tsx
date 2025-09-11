@@ -397,136 +397,11 @@ export default function VideoProduction() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {approvedNews && (approvedNews as any[]).length > 0 ? (
-                    <div className="grid grid-cols-1 gap-4">
-                      {(approvedNews as any[]).slice(0, 3).map((news: any) => (
-                        <div key={news.id} className="border border-border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-0">
-                          <div className="space-y-2">
-                            <h3 className="font-semibold text-sm">{news.title}</h3>
-                            <p className="text-xs text-muted-foreground">
-                              Score Viral: {news.viralScore}/100 • {news.source}
-                            </p>
-                          </div>
-                          
-                          {/* Mobile responsive controls */}
-                          <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-                            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:space-x-2">
-                              <Select
-                                value={selectedAvatar}
-                                onValueChange={setSelectedAvatar}
-                              >
-                                <SelectTrigger className="w-full sm:w-32">
-                                  <SelectValue placeholder="Avatar" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {avatarTemplates.map((avatar) => (
-                                    <SelectItem key={avatar.id} value={avatar.id}>
-                                      {avatar.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <Select
-                                value={selectedLanguage}
-                                onValueChange={setSelectedLanguage}
-                              >
-                                <SelectTrigger className="w-full sm:w-32">
-                                  <SelectValue placeholder="Idioma" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {languageOptions.map((lang) => (
-                                    <SelectItem key={lang.code} value={lang.code}>
-                                      {lang.flag} {lang.name.split('(')[0]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                size="sm"
-                                onClick={() => generateVideoMutation.mutate({
-                                  newsId: news.id,
-                                  language: selectedLanguage,
-                                  avatar: selectedAvatar
-                                })}
-                                disabled={generateVideoMutation.isPending}
-                                className="bg-gradient-to-r from-blue-500 to-blue-600 flex-1 sm:flex-none min-h-[44px]"
-                                data-testid={`button-generate-${news.id}`}
-                              >
-                                {generateVideoMutation.isPending ? (
-                                  <RefreshCw className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <Play className="h-4 w-4 sm:mr-2" />
-                                    <span className="hidden sm:inline">Gerar</span>
-                                  </>
-                                )}
-                              </Button>
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="min-h-[44px]"
-                                    data-testid={`button-multi-lang-${news.id}`}
-                                  >
-                                    <Languages className="h-4 w-4" />
-                                  </Button>
-                                </DialogTrigger>
-                              <DialogContent className="max-w-md">
-                                <DialogHeader>
-                                  <DialogTitle>Produção Multi-idioma</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    {languageOptions.map((lang) => (
-                                      <div key={lang.code} className="flex items-center space-x-2">
-                                        <Checkbox
-                                          id={lang.code}
-                                          checked={batchLanguages.includes(lang.code)}
-                                          onCheckedChange={(checked) => 
-                                            handleBatchLanguageChange(lang.code, checked as boolean)
-                                          }
-                                        />
-                                        <label htmlFor={lang.code} className="text-sm">
-                                          {lang.flag} {lang.name.split('(')[0]}
-                                        </label>
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <Button
-                                    className="w-full"
-                                    onClick={() => {
-                                      if (batchLanguages.length > 0) {
-                                        batchGenerateMutation.mutate({
-                                          newsId: news.id,
-                                          languages: batchLanguages,
-                                          avatar: selectedAvatar
-                                        });
-                                      }
-                                    }}
-                                    disabled={batchLanguages.length === 0 || batchGenerateMutation.isPending}
-                                  >
-                                    <Zap className="h-4 w-4 mr-2" />
-                                    Produzir {batchLanguages.length} Vídeos
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Nenhuma noticia aprovada para producao.
-                      </p>
-                    </div>
-                  )}
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      Temporarily disabled for debugging.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -582,7 +457,7 @@ export default function VideoProduction() {
                           </Button>
                         </div>
                       )) || (
-                        <div className="text-center py-8">
+                        <div className={'text-center py-8'}>
                           <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <p className="text-muted-foreground">
                             Nenhum vídeo em produção no momento.

@@ -97,7 +97,7 @@ class OpenAIService {
         () => client.chat.completions.create({
           model: "gpt-4o",  
           messages: [{ role: "user", content: prompt }],
-          max_tokens: 500,
+          max_completion_tokens: 500,
           temperature: 0.7,
         }),
         {
@@ -178,7 +178,7 @@ class OpenAIService {
         () => client.chat.completions.create({
           model: "gpt-4o",
           messages: [{ role: "user", content: prompt }],
-          max_tokens: 600,
+          max_completion_tokens: 600,
           temperature: 0.3, // Lower temperature for more consistent translations
         }),
         {
@@ -264,7 +264,7 @@ class OpenAIService {
       const response = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [{ role: 'user', content: 'Hello' }],
-        max_tokens: 5,
+        max_completion_tokens: 5,
       });
 
       return !!response.choices[0]?.message?.content;
@@ -285,7 +285,7 @@ class OpenAIService {
         model: "gpt-5",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_completion_tokens: 1000,
       });
 
       return response.choices[0].message.content || "";

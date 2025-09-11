@@ -559,7 +559,7 @@ export class DatabaseStorage implements IStorage {
       query = query.where(and(...conditions));
     }
     
-    return await query.orderBy(desc(errorLogs.createdAt)).limit(100);
+    return await query.orderBy(desc(errorLogs.occuredAt)).limit(100);
   }
 
   async updateErrorRetryCount(id: string, count: number, nextRetryAt?: Date): Promise<void> {
@@ -751,6 +751,48 @@ export class DatabaseStorage implements IStorage {
         testCount: report.tests.length
       })
     });
+  }
+
+  // Trending Topics
+  async getTrendingTopics(limit = 50): Promise<TrendingTopic[]> {
+    return await db
+      .select()
+      .from(trendingTopics)
+      .orderBy(desc(trendingTopics.createdAt))
+      .limit(limit);
+  }
+
+  // Active Trending Topics
+  async getActiveTrendingTopics(language?: string): Promise<TrendingTopic[]> {
+    const now = new Date();
+    let query = db.select().from(trendingTopics);
+    
+    if (language) {
+      query = query.where(and(
+        sql`${trendingTopics.expiresAt} > ${now}`,
+        eq(trendingTopics.language, language)
+      ));
+    } else {
+      query = query.where(sql`${trendingTopics.expiresAt} > ${now}`);
+    }
+    
+    return await query.orderBy(desc(trendingTopics.trendScore)).limit(20);
+  }
+
+  // Scheduling Rules
+  async getActiveSchedulingRules(strategy?: string): Promise<SchedulingRule[]> {
+    let query = db.select().from(schedulingRules);
+    
+    if (strategy) {
+      query = query.where(and(
+        eq(schedulingRules.isActive, true),
+        eq(schedulingRules.strategy, strategy as any)
+      ));
+    } else {
+      query = query.where(eq(schedulingRules.isActive, true));
+    }
+    
+    return await query.orderBy(desc(schedulingRules.createdAt));
   }
 }
 
