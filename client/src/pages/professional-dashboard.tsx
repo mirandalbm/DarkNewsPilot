@@ -237,16 +237,15 @@ export default function ProfessionalDashboard() {
       )}>
         <ProfessionalHeader />
         
-        {/* Three Column Layout */}
+        {/* Integrated Layout Container - NO OVERLAYS */}
         <div className={cn(
-          "flex h-[calc(100vh-64px)] transition-all duration-300",
-          sidebar.isMobile ? "flex-col" : "flex-row"
+          "h-[calc(100vh-64px)] transition-all duration-300",
+          sidebar.isMobile ? "flex flex-col" : "grid grid-cols-[1fr_auto]"
         )}>
-          {/* Main Content Area */}
+          {/* Main Content Area - Proper Grid Item */}
           <main className={cn(
-            "flex-1 overflow-y-auto space-y-4 sm:space-y-6 transition-all duration-300",
-            sidebar.isMobile ? "p-3" : sidebar.isTablet ? "p-4" : "p-6",
-            !sidebar.isMobile && "pr-0" // Remove right padding when Cline is visible
+            "overflow-y-auto space-y-4 sm:space-y-6 transition-all duration-300",
+            sidebar.isMobile ? "flex-1 p-3" : sidebar.isTablet ? "p-4" : "p-6"
           )}>
             {/* Welcome Section */}
             <div className={cn(
@@ -549,34 +548,32 @@ export default function ProfessionalDashboard() {
           </Card>
           </main>
 
-          {/* Cline AI Assistant Column - Responsive Right Panel */}
+          {/* AI Assistant Panel - Proper Grid Column */}
           {!sidebar.isMobile && (
-            <aside className={cn(
-              "border-l bg-background/50 transition-all duration-300 flex flex-col",
+            <div className={cn(
+              "border-l bg-background/50 overflow-hidden transition-all duration-300",
               sidebar.isTablet ? "w-64" : "w-80 xl:w-96"
             )}>
-              <div className="flex-1 overflow-hidden">
-                <div className="h-full p-3 md:p-4">
-                  <AdvancedChat compact={true} />
-                </div>
-              </div>
-            </aside>
-          )}
-
-          {/* Mobile & Tablet Integrated Chat */}
-          {sidebar.isMobile && (
-            <div className="border-t bg-background/50 transition-all duration-300">
-              <div className={cn(
-                "overflow-hidden transition-all duration-300",
-                "h-80 sm:h-96"
-              )}>
-                <div className="h-full p-3">
-                  <AdvancedChat compact={true} />
-                </div>
+              <div className="h-full p-3 md:p-4">
+                <AdvancedChat compact={true} />
               </div>
             </div>
           )}
         </div>
+
+        {/* Mobile Chat - Integrated Bottom Section */}
+        {sidebar.isMobile && (
+          <div className="border-t bg-background/50 transition-all duration-300">
+            <div className={cn(
+              "overflow-hidden transition-all duration-300",
+              "h-80 sm:h-96"
+            )}>
+              <div className="h-full p-3">
+                <AdvancedChat compact={true} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
