@@ -408,9 +408,9 @@ export function AdvancedChat({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
 
-        {/* Chat Area */}
+        {/* Chat Area - Increased padding for better text readability */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <ScrollArea ref={scrollRef} className="flex-1 p-3">
+          <ScrollArea ref={scrollRef} className="flex-1 p-4">
             <div className="space-y-4">
               {messages.length === 0 && (
                 <div className="text-center py-8">
