@@ -38,6 +38,7 @@ import Copyright from "@/pages/copyright";
 import Audit from "@/pages/audit";
 import BackupRecovery from "@/pages/backup";
 import EmotionAnimations from "@/pages/emotion-animations";
+import MediaLibrary from "@/pages/MediaLibrary";
 // Configurações
 import ConfiguracaoIndex from "@/pages/configuracoes";
 import Integracoes from "@/pages/configuracoes/integracoes";
@@ -113,6 +114,7 @@ function Router() {
           <Route path="/audit" component={Audit} />
           <Route path="/backup" component={BackupRecovery} />
           <Route path="/emotion-animations" component={EmotionAnimations} />
+          <Route path="/media-library" component={MediaLibrary} />
           {/* Configurações */}
           <Route path="/configuracoes" component={ConfiguracaoIndex} />
           <Route path="/configuracoes/integracoes" component={Integracoes} />
