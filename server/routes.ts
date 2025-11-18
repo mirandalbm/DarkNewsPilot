@@ -279,32 +279,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/youtube/channels', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      
-      // Return DarkNews channel mapping
-      const darkNewsChannels = [
-        { id: 'UC_DarkNews_EN', name: 'DarkNews English', language: 'en-US', subscribers: '125K' },
-        { id: 'UC_DarkNews_BR', name: 'DarkNews Brasil', language: 'pt-BR', subscribers: '89K' },
-        { id: 'UC_DarkNews_ES', name: 'DarkNews España', language: 'es-ES', subscribers: '67K' },
-        { id: 'UC_DarkNews_MX', name: 'DarkNews México', language: 'es-MX', subscribers: '54K' },
-        { id: 'UC_DarkNews_DE', name: 'DarkNews Deutsch', language: 'de-DE', subscribers: '43K' },
-        { id: 'UC_DarkNews_FR', name: 'DarkNews France', language: 'fr-FR', subscribers: '38K' },
-        { id: 'UC_DarkNews_IN', name: 'DarkNews India', language: 'hi-IN', subscribers: '92K' },
-        { id: 'UC_DarkNews_JP', name: 'DarkNews Japan', language: 'ja-JP', subscribers: '71K' }
-      ];
-      
-      res.json({ channels: darkNewsChannels });
-    } catch (error) {
-      console.error("Error fetching YouTube channels:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch channels",
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  });
-
   // News statistics endpoint
   app.get('/api/news/stats', isAuthenticated, async (req, res) => {
     try {
@@ -313,17 +287,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching news stats:", error);
       res.status(500).json({ message: "Failed to fetch news stats" });
-    }
-  });
-
-  // News sources endpoint
-  app.get('/api/news/sources', isAuthenticated, async (req, res) => {
-    try {
-      const sources = await storage.getNewsSources();
-      res.json(sources);
-    } catch (error) {
-      console.error("Error fetching news sources:", error);
-      res.status(500).json({ message: "Failed to fetch news sources" });
     }
   });
 
@@ -352,18 +315,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching video stats:", error);
       res.status(500).json({ message: "Failed to fetch video stats" });
-    }
-  });
-
-  // Generate single video
-  app.post('/api/videos/generate', isAuthenticated, async (req, res) => {
-    try {
-      const { newsId, language, avatar, customScript } = req.body;
-      const videoId = await videoService.generateVideo(newsId, language);
-      res.json({ message: "Video generation started", videoId });
-    } catch (error) {
-      console.error("Error generating video:", error);
-      res.status(500).json({ message: "Failed to start video generation" });
     }
   });
 
@@ -1396,58 +1347,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error searching news:", error);
       res.status(500).json({ message: "Failed to search news" });
-    }
-  });
-
-  app.get('/api/news/sources', isAuthenticated, async (req: any, res) => {
-    try {
-      // Mock news sources response
-      const sources = [
-        {
-          id: 'darknews-exclusive',
-          name: 'DarkNews Exclusive',
-          description: 'In-house investigative journalism and leaked documents',
-          url: 'https://darknews.com',
-          category: 'general',
-          language: 'en',
-          country: 'us'
-        },
-        {
-          id: 'reuters',
-          name: 'Reuters',
-          description: 'Breaking international news, politics, business, and more',
-          url: 'https://reuters.com',
-          category: 'general',
-          language: 'en',
-          country: 'us'
-        },
-        {
-          id: 'bbc-news',
-          name: 'BBC News',
-          description: 'Global news coverage and analysis',
-          url: 'https://bbc.com/news',
-          category: 'general',
-          language: 'en',
-          country: 'gb'
-        },
-        {
-          id: 'whistleblower-central',
-          name: 'Whistleblower Central',
-          description: 'Anonymous tips and classified leaks',
-          url: 'https://whistleblower-central.net',
-          category: 'general',
-          language: 'en',
-          country: 'us'
-        }
-      ];
-      
-      res.json({ 
-        status: 'ok',
-        sources 
-      });
-    } catch (error) {
-      console.error("Error getting news sources:", error);
-      res.status(500).json({ message: "Failed to get news sources" });
     }
   });
 
